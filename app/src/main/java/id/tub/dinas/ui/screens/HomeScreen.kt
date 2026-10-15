@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,6 +29,12 @@ fun HomeScreen(vm: MainViewModel) {
         Box(Modifier.weight(1f)) {
             if (list.isEmpty()) Empty("Belum ada dinas. Ketuk “+ Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan laporan.")
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                item {
+                    androidx.compose.foundation.Image(
+                        androidx.compose.ui.res.painterResource(id.tub.dinas.R.drawable.peta_indonesia), null,
+                        Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(20.dp)).border(1.dp, Color(0x886FD8FF), RoundedCornerShape(20.dp)),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop, alignment = androidx.compose.ui.Alignment.CenterEnd)
+                }
                 items(list, key = { it.id }) { d ->
                     val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)
                     Panel(onClick = { vm.tab = DetailTab.PETA; vm.push(Screen.Detail(d.id)) }) {

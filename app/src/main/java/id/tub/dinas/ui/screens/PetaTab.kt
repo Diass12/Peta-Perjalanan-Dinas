@@ -35,6 +35,7 @@ import id.tub.dinas.ui.theme.C
 fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
     val ctx = LocalContext.current
     var sat by remember { mutableStateOf(vm.settings.satellite) }
+    var illus by remember { mutableStateOf(false) }
     var delId by remember { mutableStateOf<String?>(null) }
     var toTemuan by remember { mutableStateOf<String?>(null) }
     val pins = s.titik.mapNotNull { t -> t.geo?.let { MapPin("t:${t.id}", it, t.title, PinKind.DOK) } } +
@@ -42,11 +43,14 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
 
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(230.dp).clip(RoundedCornerShape(20.dp))) {
-            OsmMap(pins, sat, Modifier.fillMaxSize(), onPinClick = { id ->
+            if (illus) androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(id.tub.dinas.R.drawable.peta_halmahera), null,
+                Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+            else OsmMap(pins, sat, Modifier.fillMaxSize(), onPinClick = { id ->
                 if (id.startsWith("t:")) vm.editor = Editor.Titik(id.removePrefix("t:")) else vm.editor = Editor.Temuan(id.removePrefix("m:"), false)
             })
-            Row(Modifier.align(Alignment.TopEnd).padding(8.dp)) {
-                Chip(if (sat) "Satelit" else "Peta", true, C.Ink) { sat = !sat; vm.settings.satellite = sat }
+            Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Chip("Ilustrasi", illus, C.Ink) { illus = !illus }
+                if (!illus) Chip(if (sat) "Satelit" else "Peta", true, C.Ink) { sat = !sat; vm.settings.satellite = sat }
             }
         }
         Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp).background(Color(0xCCFFFFFF), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
