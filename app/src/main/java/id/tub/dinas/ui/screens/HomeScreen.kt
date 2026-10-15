@@ -21,7 +21,7 @@ fun HomeScreen(vm: MainViewModel) {
     var creating by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().background(C.Bg)) {
-        Header("Dokumentasi Dinas", actions = { HeaderAction("Pengaturan") { vm.push(Screen.Settings) } })
+        Header("Dokumentasi Dinas", actions = { TextButton(onClick = { vm.push(Screen.Settings) }) { Pic(id.tub.dinas.R.drawable.ic_setting, 34.dp) } })
         Box(Modifier.weight(1f)) {
             if (list.isEmpty()) Empty("Belum ada dinas. Ketuk “+ Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan laporan.")
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {

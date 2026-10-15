@@ -59,7 +59,7 @@ fun GeoSection(vm: MainViewModel, geo: GeoPoint?, onGeo: (GeoPoint?) -> Unit, ex
             gps.message?.takeIf { it.startsWith("Izin") || it.contains("tidak") }?.let { Text(it, color = C.Danger) }
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                PrimaryButton("Ambil GPS") { if (vm.tracker.hasPermission()) vm.tracker.start() else perm.launch(Manifest.permission.ACCESS_FINE_LOCATION) }
+                IconTextButton(id.tub.dinas.R.drawable.ic_gps, "Ambil GPS") { if (vm.tracker.hasPermission()) vm.tracker.start() else perm.launch(Manifest.permission.ACCESS_FINE_LOCATION) }
                 SoftButton("Tempel") { pasteOpen = true }
                 SoftButton("Peta") { pickOpen = true }
             }

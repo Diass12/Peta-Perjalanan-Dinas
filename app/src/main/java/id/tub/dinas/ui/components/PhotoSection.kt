@@ -58,11 +58,11 @@ fun PhotoSection(
         Text("FOTO (${photos.size})", style = MaterialTheme.typography.labelSmall, color = C.Muted)
         Spacer(Modifier.height(6.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            PrimaryButton("📷 Kamera") {
+            IconTextButton(id.tub.dinas.R.drawable.ic_kamera, "Kamera") {
                 if (androidx.core.content.ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) launchCamera()
                 else camPerm.launch(Manifest.permission.CAMERA)
             }
-            SoftButton("🖼 Galeri") { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+            IconTextButton(id.tub.dinas.R.drawable.ic_galeri, "Galeri", primary = false) { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
         }
         photos.forEachIndexed { i, f ->
             Spacer(Modifier.height(10.dp))

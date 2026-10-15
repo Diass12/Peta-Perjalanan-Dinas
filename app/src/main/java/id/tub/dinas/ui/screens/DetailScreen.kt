@@ -59,7 +59,7 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
             }
         }
         BottomNav(
-            listOf("🗺" to "Peta", "📋" to "Temuan", "📊" to "Ringkasan", "✅" to "Tindak Lanjut"),
+            listOf(id.tub.dinas.R.drawable.ic_peta to "Peta", id.tub.dinas.R.drawable.ic_temuan to "Temuan", id.tub.dinas.R.drawable.ic_ringkasan to "Ringkasan", id.tub.dinas.R.drawable.ic_lencana to "Tindak Lanjut"),
             vm.tab.ordinal,
         ) { vm.tab = DetailTab.values()[it] }
     }

@@ -22,7 +22,11 @@ import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.util.GeoPoint as OsmPoint
 
-enum class PinKind(val argb: Int) { DOK(0xFFE9C23B.toInt()), LAP(0xFF14532D.toInt()), PICK(0xFFB3261E.toInt()) }
+enum class PinKind(val argb: Int, val res: Int) {
+    DOK(0xFFE9C23B.toInt(), id.tub.dinas.R.drawable.pin_dok),
+    LAP(0xFF14532D.toInt(), id.tub.dinas.R.drawable.pin_lap),
+    PICK(0xFFB3261E.toInt(), id.tub.dinas.R.drawable.pin_saya),
+}
 
 data class MapPin(val id: String, val geo: GeoPoint, val title: String, val kind: PinKind)
 
@@ -35,8 +39,10 @@ private val esri = object : OnlineTileSourceBase(
         baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex)
 }
 
-private fun dot(argb: Int, px: Int): GradientDrawable = GradientDrawable().apply {
-    shape = GradientDrawable.OVAL; setColor(argb); setStroke(4, AColor.WHITE); setSize(px, px)
+private fun pinIcon(m: MapView, res: Int, h: Int): android.graphics.drawable.Drawable {
+    val src = android.graphics.BitmapFactory.decodeResource(m.resources, res)
+    val w = (src.width * h.toFloat() / src.height).toInt()
+    return android.graphics.drawable.BitmapDrawable(m.resources, android.graphics.Bitmap.createScaledBitmap(src, w, h, true))
 }
 
 @Composable
@@ -75,13 +81,13 @@ fun OsmMap(
                 override fun longPressHelper(p: OsmPoint): Boolean = false
             }))
         }
-        val size = (m.resources.displayMetrics.density * 22).toInt()
+        val h = (m.resources.displayMetrics.density * 40).toInt()
         pins.forEach { pin ->
             val mk = Marker(m)
             mk.position = OsmPoint(pin.geo.lat, pin.geo.lng)
             mk.title = pin.title
-            mk.icon = dot(pin.kind.argb, size)
-            mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+            mk.icon = pinIcon(m, pin.kind.res, h)
+            mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             mk.setOnMarkerClickListener { marker, _ -> if (onPinClick != null) { onPinClick(pin.id); true } else { marker.showInfoWindow(); true } }
             m.overlays.add(mk)
         }

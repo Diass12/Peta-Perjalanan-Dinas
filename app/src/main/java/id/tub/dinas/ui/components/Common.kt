@@ -1,5 +1,11 @@
 package id.tub.dinas.ui.components
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
+import id.tub.dinas.R
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -94,16 +100,35 @@ fun Chip(text: String, selected: Boolean, color: Color = C.Ink, bg: Color = Colo
 }
 
 @Composable
-fun LensTag(l: Lens) = Text(l.label, color = C.lens(l), fontSize = 11.sp, fontWeight = FontWeight.Bold,
-    modifier = Modifier.background(C.lensBg(l), RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
+fun LensTag(l: Lens) = Row(Modifier.background(C.lensBg(l), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+    Pic(lensIcon(l), 16.dp); Spacer(Modifier.width(4.dp))
+    Text(l.label, color = C.lens(l), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+}
+
+/** Ikon bergambar. */
+@Composable
+fun Pic(@DrawableRes id: Int, size: Dp = 24.dp, modifier: Modifier = Modifier) = Image(painterResource(id), null, modifier.size(size))
+
+fun lensIcon(l: Lens): Int = when (l) { Lens.ASET -> R.drawable.ic_lensa_aset; Lens.OPS -> R.drawable.ic_lensa_ops; Lens.ADM -> R.drawable.ic_lensa_adm }
+fun statusIcon(s: Status): Int = when (s) { Status.SELESAI -> R.drawable.ic_selesai; Status.PROSES -> R.drawable.ic_proses; Status.BELUM -> R.drawable.ic_belum }
+
+/** Tombol dengan ikon bergambar di kiri teks. */
+@Composable
+fun IconTextButton(@DrawableRes icon: Int, text: String, primary: Boolean = true, onClick: () -> Unit) {
+    val content: @Composable RowScope.() -> Unit = { Pic(icon, 22.dp); Spacer(Modifier.width(6.dp)); Text(text) }
+    if (primary) Button(onClick, colors = ButtonDefaults.buttonColors(containerColor = C.Ink, contentColor = Color.White), shape = RoundedCornerShape(10.dp), content = content)
+    else OutlinedButton(onClick, shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, C.Line), colors = ButtonDefaults.outlinedButtonColors(contentColor = C.Ink), content = content)
+}
 
 @Composable
 fun StatusPill(s: Status) {
     if (ThemeState.sky) {
         val c = when (s) { Status.SELESAI -> Color(0xFF4ADE80); Status.PROSES -> Color(0xFFFBBF24); Status.BELUM -> Color(0xFFCBD5E1) }
         val shape = RoundedCornerShape(8.dp)
-        Text("[${s.label.uppercase()}]", color = c, fontSize = 11.sp, fontWeight = FontWeight.Bold,
-            modifier = Modifier.background(Color(0xCC0B2545), shape).border(1.dp, c.copy(alpha = 0.8f), shape).padding(horizontal = 8.dp, vertical = 3.dp))
+        Row(Modifier.background(Color(0xCC0B2545), shape).border(1.dp, c.copy(alpha = 0.8f), shape).padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+            Pic(statusIcon(s), 16.dp); Spacer(Modifier.width(4.dp))
+            Text("[${s.label.uppercase()}]", color = c, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        }
         return
     }
     val (fg, bg) = when (s) { Status.SELESAI -> Color(0xFF0F766E) to Color(0xFFD8F0EC); Status.PROSES -> Color(0xFFB45309) to Color(0xFFFBEBD9); Status.BELUM -> C.Muted to Color(0xFFECE9E0) }
@@ -123,7 +148,7 @@ fun SegBar(fraction: Float, color: Color, modifier: Modifier = Modifier, segment
 
 /** Navigasi bawah: ikon emoji + label, tab aktif menyala. */
 @Composable
-fun BottomNav(items: List<Pair<String, String>>, selected: Int, onSelect: (Int) -> Unit) {
+fun BottomNav(items: List<Pair<Int, String>>, selected: Int, onSelect: (Int) -> Unit) {
     val sky = ThemeState.sky
     val bar = if (sky) Modifier.background(Brush.verticalGradient(listOf(Color(0xF01B4F9C), Color(0xFF0B2545))))
         .border(1.dp, Color(0x886FD8FF), RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
@@ -132,8 +157,9 @@ fun BottomNav(items: List<Pair<String, String>>, selected: Int, onSelect: (Int) 
         items.forEachIndexed { i, (icon, label) ->
             val on = i == selected
             Column(Modifier.weight(1f).clickable { onSelect(i) }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(icon, fontSize = if (on) 26.sp else 22.sp,
-                    modifier = if (on && sky) Modifier.background(Brush.radialGradient(listOf(Color(0x8860D8FF), Color.Transparent)), RoundedCornerShape(50)).padding(horizontal = 14.dp, vertical = 2.dp) else Modifier.padding(horizontal = 14.dp, vertical = 2.dp))
+                Box(if (on && sky) Modifier.background(Brush.radialGradient(listOf(Color(0xAA60D8FF), Color.Transparent)), RoundedCornerShape(50)).padding(horizontal = 14.dp, vertical = 2.dp) else Modifier.padding(horizontal = 14.dp, vertical = 2.dp)) {
+                    Pic(icon, if (on) 38.dp else 30.dp, if (on) Modifier else Modifier.alpha(0.85f))
+                }
                 Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1,
                     color = if (sky) (if (on) Color(0xFFFFD166) else Color.White) else (if (on) C.Ink else C.Muted))
             }
