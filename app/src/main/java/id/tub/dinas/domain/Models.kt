@@ -86,6 +86,24 @@ data class DinasModel(
 )
 
 /** Semua isi satu dinas, dipakai oleh export dan backup (tanpa ketergantungan Android). */
+enum class MediaKind(val label: String) {
+    VIDEO("Video"), AUDIO("Rekaman suara");
+    companion object { fun from(s: String?) = values().firstOrNull { it.name == s } ?: AUDIO }
+}
+
+/** Video atau rekaman suara yang melekat pada titik/temuan (berkas terenkripsi). */
+data class MediaModel(
+    val id: String,
+    val ownerType: OwnerType,
+    val ownerId: String,
+    val kind: MediaKind,
+    val path: String,
+    val name: String,
+    val sizeBytes: Long,
+    val createdAt: Long,
+    val order: Int,
+)
+
 data class DinasSnapshot(
     val dinas: DinasModel,
     val titik: List<TitikModel>,
@@ -93,7 +111,11 @@ data class DinasSnapshot(
     val foto: List<FotoModel>,
     val lampiran: List<LampiranModel>,
     val poin: List<PoinModel>,
+    val media: List<MediaModel> = emptyList(),
 ) {
+    fun mediaOf(type: OwnerType, ownerId: String): List<MediaModel> =
+        media.filter { it.ownerType == type && it.ownerId == ownerId }.sortedBy { it.order }
+
     fun fotoOf(type: OwnerType, ownerId: String): List<FotoModel> =
         foto.filter { it.ownerType == type && it.ownerId == ownerId }.sortedBy { it.order }
 

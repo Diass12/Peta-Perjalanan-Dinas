@@ -71,6 +71,32 @@ class MediaVault(private val root: File, private val key: ByteArray) {
         return rel
     }
 
+    /** Mendekripsi langsung ke stream (untuk berkas besar, tanpa memuat semuanya ke memori). Stream tujuan tidak ditutup. */
+    fun readTo(rel: String, out: java.io.OutputStream) {
+        resolve(rel).inputStream().use { ChunkedCrypto.decrypt(key, it, out) }
+    }
+
+    /** Menyimpan dari stream ke path relatif tertentu (pemulihan cadangan berkas besar). Mengembalikan jumlah byte. */
+    fun saveStreamAt(input: java.io.InputStream, rel: String, maxBytes: Long): Long {
+        val target = resolve(rel)
+        target.parentFile?.mkdirs()
+        val tmp = File(target.parentFile, target.name + ".tmp")
+        var total = 0L
+        try {
+            val limited = object : java.io.InputStream() {
+                override fun read(): Int { val b = input.read(); if (b >= 0 && ++total > maxBytes) throw IOException("Entri terlalu besar"); return b }
+                override fun read(b: ByteArray, off: Int, len: Int): Int {
+                    val n = input.read(b, off, len)
+                    if (n > 0) { total += n; if (total > maxBytes) throw IOException("Entri terlalu besar") }
+                    return n
+                }
+            }
+            tmp.outputStream().use { ChunkedCrypto.encrypt(key, limited, it) }
+            if (!tmp.renameTo(target)) { target.delete(); if (!tmp.renameTo(target)) throw IOException("Gagal menyimpan berkas") }
+        } finally { if (tmp.exists()) tmp.delete() }
+        return total
+    }
+
     fun read(rel: String): ByteArray {
         val o = ByteArrayOutputStream()
         resolve(rel).inputStream().use { ChunkedCrypto.decrypt(key, it, o) }

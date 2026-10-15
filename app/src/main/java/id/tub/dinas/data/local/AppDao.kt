@@ -43,6 +43,19 @@ interface AppDao {
     @Upsert suspend fun upsertTemuanAll(e: List<TemuanEntity>)
     @Query("DELETE FROM temuan WHERE id = :id") suspend fun deleteTemuan(id: String)
 
+    // ---- media (video / rekaman suara)
+    @Query("SELECT * FROM media WHERE dinasId = :id ORDER BY urutan") fun observeMedia(id: String): Flow<List<MediaEntity>>
+    @Query("SELECT * FROM media WHERE dinasId = :id ORDER BY urutan") suspend fun mediaList(id: String): List<MediaEntity>
+    @Query("SELECT * FROM media WHERE ownerId = :ownerId") suspend fun mediaOfOwner(ownerId: String): List<MediaEntity>
+    @Query("SELECT * FROM media WHERE id = :id") suspend fun mediaById(id: String): MediaEntity?
+    @Upsert suspend fun upsertMedia(e: MediaEntity)
+    @Upsert suspend fun upsertMediaAll(e: List<MediaEntity>)
+    @Query("DELETE FROM media WHERE id = :id") suspend fun deleteMedia(id: String)
+    @Query("DELETE FROM media WHERE ownerId = :ownerId") suspend fun deleteMediaOfOwner(ownerId: String)
+    @Query("UPDATE media SET ownerType = :type, ownerId = :ownerId WHERE ownerId = :oldOwner")
+    suspend fun reassignMedia(oldOwner: String, ownerId: String, type: String)
+    @Query("SELECT path FROM media") suspend fun allMediaPaths(): List<String>
+
     // ---- foto
     @Query("SELECT * FROM foto WHERE dinasId = :id ORDER BY urutan")
     fun observeFoto(id: String): Flow<List<FotoEntity>>

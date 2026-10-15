@@ -29,6 +29,8 @@ class Repository(
     companion object {
         const val WARN_PDF = 12L * 1024 * 1024
         const val MAX_PDF = 50L * 1024 * 1024
+        const val MAX_VIDEO = 500L * 1024 * 1024
+        const val MAX_AUDIO = 100L * 1024 * 1024
     }
 
     // ---------- dinas ----------
@@ -49,28 +51,28 @@ class Repository(
     }
 
     suspend fun deleteDinas(id: String) = withContext(Dispatchers.IO) {
-        val paths = dao.fotoList(id).map { it.path } + dao.lampiranList(id).map { it.path }
+        val paths = dao.fotoList(id).map { it.path } + dao.lampiranList(id).map { it.path } + dao.mediaList(id).map { it.path }
         dao.deleteDinas(id)
         paths.forEach { vault.delete(it) }
     }
 
     fun observeSnapshot(id: String): Flow<DinasSnapshot?> {
         val a = combine(dao.observeTitik(id), dao.observeTemuan(id), dao.observeFoto(id)) { t, m, f -> Triple(t, m, f) }
-        val b = combine(dao.observeLampiran(id), dao.observePoin(id)) { l, p -> l to p }
-        return combine(a, b) { (t, m, f), (l, p) ->
-            DinasSnapshotParts(t, m, f, l, p)
+        val b = combine(dao.observeLampiran(id), dao.observePoin(id), dao.observeMedia(id)) { l, p, md -> Triple(l, p, md) }
+        return combine(a, b) { (t, m, f), (l, p, md) ->
+            DinasSnapshotParts(t, m, f, l, p, md)
         }.map { parts ->
             val d = dao.dinasById(id) ?: return@map null
-            DinasSnapshot(d.toModel(), parts.t.map { it.toModel() }, parts.m.map { it.toModel() }, parts.f.map { it.toModel() }, parts.l.map { it.toModel() }, parts.p.map { it.toModel() })
+            DinasSnapshot(d.toModel(), parts.t.map { it.toModel() }, parts.m.map { it.toModel() }, parts.f.map { it.toModel() }, parts.l.map { it.toModel() }, parts.p.map { it.toModel() }, parts.md.map { it.toModel() })
         }
     }
 
-    private class DinasSnapshotParts(val t: List<TitikEntity>, val m: List<TemuanEntity>, val f: List<FotoEntity>, val l: List<LampiranEntity>, val p: List<PoinEntity>)
+    private class DinasSnapshotParts(val t: List<TitikEntity>, val m: List<TemuanEntity>, val f: List<FotoEntity>, val l: List<LampiranEntity>, val p: List<PoinEntity>, val md: List<MediaEntity>)
 
     suspend fun snapshot(id: String): DinasSnapshot? = withContext(Dispatchers.IO) {
         val d = dao.dinasById(id) ?: return@withContext null
         DinasSnapshot(d.toModel(), dao.titikList(id).map { it.toModel() }, dao.temuanList(id).map { it.toModel() },
-            dao.fotoList(id).map { it.toModel() }, dao.lampiranList(id).map { it.toModel() }, dao.poinList(id).map { it.toModel() })
+            dao.fotoList(id).map { it.toModel() }, dao.lampiranList(id).map { it.toModel() }, dao.poinList(id).map { it.toModel() }, dao.mediaList(id).map { it.toModel() })
     }
 
     // ---------- titik ----------
@@ -83,8 +85,8 @@ class Repository(
     }
 
     suspend fun deleteTitik(id: String) = withContext(Dispatchers.IO) {
-        val paths = dao.fotoOfOwner(id).map { it.path }
-        db.withTransaction { dao.deleteFotoOfOwner(id); dao.deleteTitik(id) }
+        val paths = dao.fotoOfOwner(id).map { it.path } + dao.mediaOfOwner(id).map { it.path }
+        db.withTransaction { dao.deleteFotoOfOwner(id); dao.deleteMediaOfOwner(id); dao.deleteTitik(id) }
         paths.forEach { vault.delete(it) }
     }
 
@@ -96,6 +98,7 @@ class Repository(
             val order = (dao.temuanList(t.dinasId).maxOfOrNull { it.urutan } ?: -1) + 1
             dao.upsertTemuan(TemuanEntity(newId, t.dinasId, t.title, "", t.note, null, null, null, "", "", "", Status.BELUM.name, t.lat, t.lng, t.acc, t.src, order))
             dao.reassignFoto(titikId, newId, OwnerType.TEMUAN.name)
+            dao.reassignMedia(titikId, newId, OwnerType.TEMUAN.name)
             dao.deleteTitik(titikId)
         }
         newId
@@ -122,9 +125,10 @@ class Repository(
     }
 
     suspend fun deleteTemuan(id: String) = withContext(Dispatchers.IO) {
-        val paths = dao.fotoOfOwner(id).map { it.path } + dao.lampiranOfTemuan(id).map { it.path }
+        val paths = dao.fotoOfOwner(id).map { it.path } + dao.lampiranOfTemuan(id).map { it.path } + dao.mediaOfOwner(id).map { it.path }
         db.withTransaction {
             dao.deleteFotoOfOwner(id)
+            dao.deleteMediaOfOwner(id)
             dao.lampiranOfTemuan(id).forEach { dao.deleteLampiran(it.id) }
             dao.deleteTemuan(id)
         }
@@ -160,6 +164,27 @@ class Repository(
         val map = dao.fotoOfOwner(ownerId).associateBy { it.id }
         dao.upsertFotoAll(ids.mapIndexedNotNull { i, id -> map[id]?.copy(urutan = i) })
     }
+
+    // ---------- video & rekaman suara ----------
+    suspend fun addMedia(dinasId: String, type: OwnerType, ownerId: String, kind: MediaKind, name: String, ext: String, input: InputStream): String = withContext(Dispatchers.IO) {
+        val max = if (kind == MediaKind.VIDEO) MAX_VIDEO else MAX_AUDIO
+        val (path, size) = try { vault.saveStream(input, "media", ext, max) } catch (e: java.io.IOException) {
+            throw IllegalArgumentException("${kind.label} lebih dari ${max / 1024 / 1024} MB tidak diterima")
+        }
+        try {
+            val id = uid()
+            val order = (dao.mediaOfOwner(ownerId).maxOfOrNull { it.urutan } ?: -1) + 1
+            dao.upsertMedia(MediaEntity(id, dinasId, type.name, ownerId, kind.name, path, sanitizeName(name), size, System.currentTimeMillis(), order))
+            id
+        } catch (e: Exception) { vault.delete(path); throw e }
+    }
+
+    suspend fun deleteMedia(id: String) = withContext(Dispatchers.IO) {
+        val m = dao.mediaById(id) ?: return@withContext
+        dao.deleteMedia(id); vault.delete(m.path)
+    }
+
+    fun mediaTempFile(path: String, suffix: String): File = vault.decryptToTemp(path, File(ctx.cacheDir, "media"), suffix)
 
     // ---------- lampiran PDF ----------
     /** Melempar IllegalArgumentException bila bukan PDF / terlalu besar. */
@@ -218,6 +243,7 @@ class Repository(
                 dao.upsertFotoAll(s.foto.map { it.toEntity(id) })
                 dao.upsertLampiranAll(s.lampiran.map { it.toEntity(id) })
                 dao.upsertPoinAll(s.poin.map { it.toEntity(id) })
+                dao.upsertMediaAll(s.media.map { it.toEntity(id) })
             }
         }
         r.snapshots.size
@@ -225,7 +251,7 @@ class Repository(
 
     /** Menghapus berkas terenkripsi yang tidak dirujuk database (sisa proses yang terhenti). */
     suspend fun cleanOrphans(): Int = withContext(Dispatchers.IO) {
-        val used = (dao.allFotoPaths() + dao.allLampiranPaths()).toSet()
+        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths()).toSet()
         vault.deleteOrphans(used)
     }
 }

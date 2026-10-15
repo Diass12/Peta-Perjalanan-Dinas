@@ -90,6 +90,24 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         } finally { file.delete() }
     }
 
+    fun addMediaUri(dinasId: String, type: OwnerType, ownerId: String, kind: id.tub.dinas.domain.MediaKind, uri: Uri) = work {
+        val cr = getApplication<Application>().contentResolver
+        val name = cr.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
+            ?: if (kind == id.tub.dinas.domain.MediaKind.VIDEO) "video.mp4" else "rekaman.m4a"
+        val ext = name.substringAfterLast('.', "").lowercase().filter { it.isLetterOrDigit() }.take(5)
+            .ifEmpty { if (kind == id.tub.dinas.domain.MediaKind.VIDEO) "mp4" else "m4a" }
+        val ins = cr.openInputStream(uri) ?: throw IllegalArgumentException("Berkas tidak dapat dibuka")
+        ins.use { repo.addMedia(dinasId, type, ownerId, kind, name, ext, it) }
+        toast("${kind.label} disimpan terenkripsi")
+    }
+
+    fun addMediaFile(dinasId: String, type: OwnerType, ownerId: String, kind: id.tub.dinas.domain.MediaKind, file: File, name: String, ext: String) = work {
+        try {
+            file.inputStream().use { repo.addMedia(dinasId, type, ownerId, kind, name, ext, it) }
+            toast("${kind.label} disimpan terenkripsi")
+        } finally { file.delete() }
+    }
+
     fun addPdf(dinasId: String, temuanId: String, uri: Uri) = work {
         val cr = getApplication<Application>().contentResolver
         val name = cr.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null } ?: "lampiran.pdf"

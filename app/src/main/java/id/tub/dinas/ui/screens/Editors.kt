@@ -43,6 +43,7 @@ fun TitikEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () -> 
             GeoSection(vm, geo, { geo = it }, exif, pinsExcept(s, id))
             PhotoSection(vm, s.dinas.id, OwnerType.TITIK, id, fotos, onOpen = { i -> persist { vm.push(Screen.Photo(s.dinas.id, id, i)) } }, onExif = { if (exif == null) exif = it },
                 stampOf = { StampSource(title, note, geo, null) })
+            MediaSection(vm, s.dinas.id, OwnerType.TITIK, id, s.mediaOf(OwnerType.TITIK, id))
             Field(note, { note = it }, "Catatan", minLines = 3)
             AmberButton("Simpan titik", Modifier.fillMaxWidth()) { persist(onSaved) }
             Spacer(Modifier.height(24.dp))
@@ -76,6 +77,7 @@ fun TemuanEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () ->
             Field(code, { code = it }, "Kode aset / lokasi (opsional)", singleLine = true)
             PhotoSection(vm, s.dinas.id, OwnerType.TEMUAN, id, fotos, onOpen = { i -> persist { vm.push(Screen.Photo(s.dinas.id, id, i)) } }, onExif = { if (exif == null) exif = it },
                 stampOf = { StampSource(title, desc.take(100), geo, null) })
+            MediaSection(vm, s.dinas.id, OwnerType.TEMUAN, id, s.mediaOf(OwnerType.TEMUAN, id))
             Field(desc, { desc = it }, "Penjelasan", minLines = 4)
 
             Panel {

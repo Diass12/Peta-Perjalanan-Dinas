@@ -102,3 +102,21 @@ data class PoinEntity(
     val text: String,
     val urutan: Int,
 )
+
+@Entity(
+    tableName = "media",
+    foreignKeys = [ForeignKey(DinasEntity::class, ["id"], ["dinasId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("dinasId"), Index("ownerId")],
+)
+data class MediaEntity(
+    @PrimaryKey val id: String,
+    val dinasId: String,
+    val ownerType: String,
+    val ownerId: String,
+    val kind: String,
+    val path: String,
+    val name: String,
+    val sizeBytes: Long,
+    val createdAt: Long,
+    val urutan: Int,
+)

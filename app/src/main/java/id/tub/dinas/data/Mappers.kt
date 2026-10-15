@@ -24,3 +24,6 @@ fun FotoModel.toEntity(dinasId: String) = FotoEntity(id, dinasId, ownerType.name
 fun LampiranModel.toEntity(dinasId: String) = LampiranEntity(id, dinasId, temuanId, name, path, sizeBytes, order)
 fun PoinModel.toEntity(dinasId: String) = PoinEntity(id, dinasId, text, order)
 fun DinasModel.toEntity(createdAt: Long) = DinasEntity(id, name, startMs, endMs, note, createdAt)
+
+fun MediaEntity.toModel() = MediaModel(id, if (ownerType == "TEMUAN") OwnerType.TEMUAN else OwnerType.TITIK, ownerId, MediaKind.from(kind), path, name, sizeBytes, createdAt, urutan)
+fun MediaModel.toEntity(dinasId: String) = MediaEntity(id, dinasId, ownerType.name, ownerId, kind.name, path, name, sizeBytes, createdAt, order)

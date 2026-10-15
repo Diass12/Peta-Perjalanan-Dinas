@@ -19,7 +19,8 @@ import java.util.zip.ZipOutputStream
 object BackupCodec {
     private val MAGIC = "DNSBAK01".toByteArray(Charsets.US_ASCII)
     private const val MAX_ENTRY = 120L * 1024 * 1024
-    private const val MAX_TOTAL = 1500L * 1024 * 1024
+    private const val MAX_TOTAL = 4000L * 1024 * 1024
+    private const val MAX_MEDIA_ENTRY = 600L * 1024 * 1024
     private const val MAX_ENTRIES = 20000
     private val rnd = SecureRandom()
 
@@ -49,6 +50,7 @@ object BackupCodec {
         zos.putNextEntry(ZipEntry("data.json"))
         zos.write(MiniJson.write(toJson(snaps)).toByteArray(Charsets.UTF_8))
         zos.closeEntry()
+        zos.setLevel(java.util.zip.Deflater.BEST_SPEED)
         val seen = HashSet<String>()
         for (s in snaps) {
             val paths = s.foto.map { it.path } + s.lampiran.map { it.path }
@@ -56,6 +58,12 @@ object BackupCodec {
                 if (!seen.add(p) || !vault.exists(p)) continue
                 zos.putNextEntry(ZipEntry("media/$p"))
                 zos.write(vault.read(p))
+                zos.closeEntry()
+            }
+            for (mm in s.media) {
+                if (!seen.add(mm.path) || !vault.exists(mm.path)) continue
+                zos.putNextEntry(ZipEntry("media/${mm.path}"))
+                vault.readTo(mm.path, zos)
                 zos.closeEntry()
             }
         }
@@ -97,6 +105,14 @@ object BackupCodec {
                 val name = e.name
                 if (name.contains("..") || name.startsWith("/") || name.contains("\\")) throw IOException("Nama entri tidak aman")
                 if (e.isDirectory) continue
+                if (name.startsWith("media/media/")) {
+                    val rel = name.removePrefix("media/")
+                    val noClose = object : java.io.FilterInputStream(zin) { override fun close() {} }
+                    val sz = vault.saveStreamAt(noClose, rel, MAX_MEDIA_ENTRY)
+                    written.add(rel); media++; total += sz
+                    if (total > MAX_TOTAL) throw IOException("Cadangan terlalu besar")
+                    continue
+                }
                 val data = readLimited(zin)
                 total += data.size
                 if (total > MAX_TOTAL) throw IOException("Cadangan terlalu besar")
@@ -141,6 +157,7 @@ object BackupCodec {
                 "foto" to s.foto.map { mapOf("id" to it.id, "type" to it.ownerType.name, "owner" to it.ownerId, "path" to it.path, "caption" to it.caption, "order" to it.order, "w" to it.width, "h" to it.height, "taken" to it.takenAt) },
                 "lampiran" to s.lampiran.map { mapOf("id" to it.id, "temuan" to it.temuanId, "name" to it.name, "path" to it.path, "size" to it.sizeBytes, "order" to it.order) },
                 "poin" to s.poin.map { mapOf("id" to it.id, "text" to it.text, "order" to it.order) },
+                "media" to s.media.map { mapOf("id" to it.id, "type" to it.ownerType.name, "owner" to it.ownerId, "kind" to it.kind.name, "path" to it.path, "name" to it.name, "size" to it.sizeBytes, "at" to it.createdAt, "order" to it.order) },
             )
         },
     )
@@ -183,6 +200,8 @@ object BackupCodec {
                     FotoModel(s(o["id"]), if (o["type"] == "TEMUAN") OwnerType.TEMUAN else OwnerType.TITIK, s(o["owner"]), safePath(s(o["path"])), s(o["caption"]), i(o["order"]), i(o["w"]), i(o["h"]), n(o["taken"])) },
                 l(d["lampiran"]).map { val o = m(it); LampiranModel(s(o["id"]), s(o["temuan"]), s(o["name"]), safePath(s(o["path"])), n(o["size"]) ?: 0L, i(o["order"])) },
                 l(d["poin"]).map { val o = m(it); PoinModel(s(o["id"]), s(o["text"]), i(o["order"])) },
+                l(d["media"]).map { val o = m(it)
+                    MediaModel(s(o["id"]), if (o["type"] == "TEMUAN") OwnerType.TEMUAN else OwnerType.TITIK, s(o["owner"]), MediaKind.from(sn(o["kind"])), safePath(s(o["path"])), s(o["name"]), n(o["size"]) ?: 0L, n(o["at"]) ?: 0L, i(o["order"])) },
             )
         }
     }
