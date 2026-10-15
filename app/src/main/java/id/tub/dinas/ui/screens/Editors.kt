@@ -40,7 +40,8 @@ fun TitikEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () -> 
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Field(title, { title = it }, "Judul titik (mis. Gerbang utama)", singleLine = true)
             GeoSection(vm, geo, { geo = it }, exif, pinsExcept(s, id))
-            PhotoSection(vm, s.dinas.id, OwnerType.TITIK, id, fotos, onOpen = { i -> persist { vm.push(Screen.Photo(s.dinas.id, id, i)) } }, onExif = { if (exif == null) exif = it })
+            PhotoSection(vm, s.dinas.id, OwnerType.TITIK, id, fotos, onOpen = { i -> persist { vm.push(Screen.Photo(s.dinas.id, id, i)) } }, onExif = { if (exif == null) exif = it },
+                stampOf = { id.tub.dinas.media.StampSource(title, note, geo, null) })
             Field(note, { note = it }, "Catatan", minLines = 3)
             AmberButton("Simpan titik", Modifier.fillMaxWidth()) { persist(onSaved) }
             Spacer(Modifier.height(24.dp))
@@ -72,7 +73,8 @@ fun TemuanEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () ->
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Field(title, { title = it }, "Judul temuan", singleLine = true)
             Field(code, { code = it }, "Kode aset / lokasi (opsional)", singleLine = true)
-            PhotoSection(vm, s.dinas.id, OwnerType.TEMUAN, id, fotos, onOpen = { i -> persist { vm.push(Screen.Photo(s.dinas.id, id, i)) } }, onExif = { if (exif == null) exif = it })
+            PhotoSection(vm, s.dinas.id, OwnerType.TEMUAN, id, fotos, onOpen = { i -> persist { vm.push(Screen.Photo(s.dinas.id, id, i)) } }, onExif = { if (exif == null) exif = it },
+                stampOf = { id.tub.dinas.media.StampSource(title, desc.take(100), geo, null) })
             Field(desc, { desc = it }, "Penjelasan", minLines = 4)
 
             Panel {

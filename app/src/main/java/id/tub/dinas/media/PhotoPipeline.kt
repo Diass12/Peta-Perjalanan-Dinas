@@ -19,7 +19,7 @@ object PhotoPipeline {
     private const val MAX_INPUT_BYTES = 80L * 1024 * 1024
 
     /** Membaca foto dari Uri, memutar sesuai EXIF, mengecilkan, dan mengompres. EXIF asli TIDAK ikut tersimpan. */
-    fun process(ctx: Context, uri: Uri, preset: PhotoPreset): ProcessedPhoto {
+    fun process(ctx: Context, uri: Uri, preset: PhotoPreset, stamp: StampSource? = null): ProcessedPhoto {
         val cr = ctx.contentResolver
         var geo: GeoPoint? = null
         var takenAt: Long? = null
@@ -61,6 +61,7 @@ object PhotoPipeline {
             if (t !== bmp) bmp.recycle()
             bmp = t
         }
+        if (stamp != null) bmp = Stamp.draw(bmp, stamp, stamp.geo ?: geo, takenAt ?: System.currentTimeMillis(), Stamp.newCode())
         val out = ByteArrayOutputStream(512 * 1024)
         bmp.compress(Bitmap.CompressFormat.JPEG, preset.quality, out)
         val w = bmp.width; val h = bmp.height

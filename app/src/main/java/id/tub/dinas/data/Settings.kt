@@ -28,6 +28,12 @@ class Settings(ctx: Context) {
     var vehicle: String
         get() = p.getString("vehicle", "mobil") ?: "mobil"
         set(v) { p.edit().putString("vehicle", v).apply() }
+    var stamp: Boolean
+        get() = p.getBoolean("stamp", true)
+        set(v) { p.edit().putBoolean("stamp", v).apply() }
+    var mapStyle: String
+        get() = p.getString("mapStyle", "JALAN") ?: "JALAN"
+        set(v) { p.edit().putString("mapStyle", v).apply() }
     var fx: Boolean
         get() = p.getBoolean("fx", true)
         set(v) { p.edit().putBoolean("fx", v).apply() }

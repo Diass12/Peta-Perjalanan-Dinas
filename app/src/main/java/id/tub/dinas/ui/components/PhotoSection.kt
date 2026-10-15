@@ -32,17 +32,19 @@ import java.util.UUID
 fun PhotoSection(
     vm: MainViewModel, dinasId: String, type: OwnerType, ownerId: String, photos: List<FotoModel>,
     onOpen: (Int) -> Unit, onExif: (GeoPoint) -> Unit,
+    stampOf: () -> id.tub.dinas.media.StampSource? = { null },
 ) {
+    var stampOn by remember { mutableStateOf(vm.settings.stamp) }
     val ctx = LocalContext.current
     var camPath by rememberSaveable { mutableStateOf<String?>(null) }
     var deleteId by remember { mutableStateOf<String?>(null) }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(20)) { uris ->
-        if (uris.isNotEmpty()) vm.addPhotos(dinasId, type, ownerId, uris, onExif)
+        if (uris.isNotEmpty()) vm.addPhotos(dinasId, type, ownerId, uris, onExif, stampOf())
     }
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
         val p = camPath; camPath = null
-        if (p != null) { val f = File(p); if (ok) vm.addCameraPhoto(dinasId, type, ownerId, f, onExif) else f.delete() }
+        if (p != null) { val f = File(p); if (ok) vm.addCameraPhoto(dinasId, type, ownerId, f, onExif, stampOf()) else f.delete() }
     }
     fun launchCamera() {
         val dir = File(ctx.cacheDir, "kamera").apply { mkdirs() }
@@ -57,6 +59,10 @@ fun PhotoSection(
     Panel {
         Text("FOTO (${photos.size})", style = MaterialTheme.typography.labelSmall, color = C.Muted)
         Spacer(Modifier.height(6.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Cap waktu & lokasi di foto", Modifier.weight(1f), color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+            Switch(stampOn, { stampOn = it; vm.settings.stamp = it })
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             IconTextButton(id.tub.dinas.R.drawable.ic_kamera, "Kamera") {
                 if (androidx.core.content.ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) launchCamera()

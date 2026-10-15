@@ -43,14 +43,21 @@ val VEHICLES = listOf(
 
 data class MapPin(val id: String, val geo: GeoPoint, val title: String, val kind: PinKind)
 
-private val esri = object : OnlineTileSourceBase(
-    "EsriWorldImagery", 0, 19, 256, ".jpg",
-    arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/"),
-    "Tiles © Esri",
+enum class MapStyle(val label: String) {
+    JALAN("Jalan"), OSM("OSM"), SATELIT("Satelit"), HIBRIDA("Satelit+Label"), TOPO("Topo");
+    companion object { fun from(s: String?) = values().firstOrNull { it.name == s } ?: JALAN }
+}
+
+private fun esriSource(name: String, service: String, ext: String, maxZoom: Int) = object : OnlineTileSourceBase(
+    name, 0, maxZoom, 256, ext, arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/$service/MapServer/tile/"), "Tiles © Esri",
 ) {
     override fun getTileURLString(pMapTileIndex: Long): String =
         baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex)
 }
+private val esri = esriSource("EsriWorldImagery", "World_Imagery", ".jpg", 19)
+private val esriStreet = esriSource("EsriWorldStreet", "World_Street_Map", ".jpg", 19)
+private val esriTopo = esriSource("EsriWorldTopo", "World_Topo_Map", ".jpg", 19)
+private val esriLabels = esriSource("EsriLabels", "Reference/World_Boundaries_and_Places", ".png", 19)
 
 private fun pinIcon(m: MapView, res: Int, h: Int, glow: Int?): android.graphics.drawable.Drawable {
     val src = android.graphics.BitmapFactory.decodeResource(m.resources, res)
@@ -74,6 +81,7 @@ fun OsmMap(
     pins: List<MapPin>,
     satellite: Boolean,
     modifier: Modifier = Modifier,
+    style: MapStyle? = null,
     onTap: ((GeoPoint) -> Unit)? = null,
     onPinClick: ((String) -> Unit)? = null,
     fitKey: Any = pins.size,
@@ -88,6 +96,11 @@ fun OsmMap(
             minZoomLevel = 3.0
             controller.setZoom(5.0)
             controller.setCenter(OsmPoint(1.5, 127.8)) // Maluku Utara sebagai titik awal
+        }
+    }
+    val labelOverlay = remember {
+        org.osmdroid.views.overlay.TilesOverlay(org.osmdroid.tileprovider.MapTileProviderBasic(ctx, esriLabels), ctx).apply {
+            loadingBackgroundColor = android.graphics.Color.TRANSPARENT; loadingLineColor = android.graphics.Color.TRANSPARENT
         }
     }
     val vMarker = remember { Marker(map).apply { setInfoWindow(null); setOnMarkerClickListener { _, _ -> true }; setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER) } }
@@ -130,8 +143,10 @@ fun OsmMap(
         onDispose { owner.lifecycle.removeObserver(obs); map.onPause(); map.onDetach() }
     }
     AndroidView(modifier = modifier, factory = { map }, update = { m ->
-        m.setTileSource(if (satellite) esri else TileSourceFactory.MAPNIK)
+        val st = style ?: if (satellite) MapStyle.SATELIT else MapStyle.OSM
+        m.setTileSource(when (st) { MapStyle.JALAN -> esriStreet; MapStyle.OSM -> TileSourceFactory.MAPNIK; MapStyle.TOPO -> esriTopo; else -> esri })
         m.overlays.clear()
+        if (st == MapStyle.HIBRIDA) m.overlays.add(labelOverlay)
         if (onTap != null) {
             m.overlays.add(MapEventsOverlay(object : MapEventsReceiver {
                 override fun singleTapConfirmedHelper(p: OsmPoint): Boolean { onTap(GeoPoint(p.latitude, p.longitude, null, "peta")); return true }

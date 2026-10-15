@@ -56,11 +56,24 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     // ---------- foto ----------
-    fun addPhotos(dinasId: String, type: OwnerType, ownerId: String, uris: List<Uri>, onExif: (GeoPoint) -> Unit = {}) = work {
+    private suspend fun stampFor(src: id.tub.dinas.media.StampSource?): id.tub.dinas.media.StampSource? {
+        if (src == null || !settings.stamp) return null
+        val g = src.geo ?: return src
+        val addr = withContext(Dispatchers.IO) {
+            try {
+                if (!android.location.Geocoder.isPresent()) null
+                else @Suppress("DEPRECATION") android.location.Geocoder(getApplication(), java.util.Locale("id", "ID")).getFromLocation(g.lat, g.lng, 1)?.firstOrNull()?.getAddressLine(0)
+            } catch (_: Exception) { null }
+        }
+        return id.tub.dinas.media.StampSource(src.title, src.note, g, addr)
+    }
+
+    fun addPhotos(dinasId: String, type: OwnerType, ownerId: String, uris: List<Uri>, onExif: (GeoPoint) -> Unit = {}, stamp: id.tub.dinas.media.StampSource? = null) = work {
+        val st = stampFor(stamp)
         var ok = 0
         for (u in uris) {
             try {
-                val p = withContext(Dispatchers.IO) { PhotoPipeline.process(getApplication(), u, settings.photoPreset) }
+                val p = withContext(Dispatchers.IO) { PhotoPipeline.process(getApplication(), u, settings.photoPreset, st) }
                 repo.addFoto(dinasId, type, ownerId, p.jpeg, p.width, p.height, p.takenAt)
                 p.geo?.let(onExif)
                 ok++
@@ -69,9 +82,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         if (ok > 0) toast("$ok foto disimpan terenkripsi")
     }
 
-    fun addCameraPhoto(dinasId: String, type: OwnerType, ownerId: String, file: File, onExif: (GeoPoint) -> Unit = {}) = work {
+    fun addCameraPhoto(dinasId: String, type: OwnerType, ownerId: String, file: File, onExif: (GeoPoint) -> Unit = {}, stamp: id.tub.dinas.media.StampSource? = null) = work {
         try {
-            val p = withContext(Dispatchers.IO) { PhotoPipeline.process(getApplication(), Uri.fromFile(file), settings.photoPreset) }
+            val st = stampFor(stamp)
+            val p = withContext(Dispatchers.IO) { PhotoPipeline.process(getApplication(), Uri.fromFile(file), settings.photoPreset, st) }
             repo.addFoto(dinasId, type, ownerId, p.jpeg, p.width, p.height, p.takenAt ?: System.currentTimeMillis())
         } finally { file.delete() }
     }

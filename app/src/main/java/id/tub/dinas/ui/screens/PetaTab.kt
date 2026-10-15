@@ -38,7 +38,7 @@ import id.tub.dinas.ui.theme.C
 @Composable
 fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
     val ctx = LocalContext.current
-    var sat by remember { mutableStateOf(vm.settings.satellite) }
+    var mapStyle by remember { mutableStateOf(id.tub.dinas.ui.map.MapStyle.from(vm.settings.mapStyle)) }
     var illus by remember { mutableStateOf(false) }
     var vehicleKey by remember { mutableStateOf(vm.settings.vehicle) }
     val skin = VEHICLES.firstOrNull { it.key == vehicleKey } ?: VEHICLES[0]
@@ -63,7 +63,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
         Box(Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(230.dp).clip(RoundedCornerShape(20.dp))) {
             if (illus) androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(id.tub.dinas.R.drawable.peta_halmahera), null,
                 Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
-            else OsmMap(pins, sat, Modifier.fillMaxSize(), onPinClick = { id ->
+            else OsmMap(pins, false, Modifier.fillMaxSize(), style = mapStyle, onPinClick = { id ->
                 if (id.startsWith("t:")) vm.editor = Editor.Titik(id.removePrefix("t:")) else vm.editor = Editor.Temuan(id.removePrefix("m:"), false)
             }, route = route, vehicle = if (ThemeState.fx) skin else null)
             if (!illus) Column(Modifier.align(Alignment.BottomStart).padding(8.dp)) {
@@ -82,7 +82,10 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
             }
             Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Chip("Ilustrasi", illus, C.Ink) { illus = !illus }
-                if (!illus) Chip(if (sat) "Satelit" else "Peta", true, C.Ink) { sat = !sat; vm.settings.satellite = sat }
+                if (!illus) Chip(mapStyle.label, true, C.Ink) {
+                    val all = id.tub.dinas.ui.map.MapStyle.values()
+                    mapStyle = all[(mapStyle.ordinal + 1) % all.size]; vm.settings.mapStyle = mapStyle.name
+                }
             }
         }
         Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp).background(Color(0xCCFFFFFF), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
