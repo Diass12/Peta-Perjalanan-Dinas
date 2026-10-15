@@ -30,6 +30,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val stack = mutableStateListOf<Screen>(Screen.Home)
     var tab by mutableStateOf(DetailTab.PETA)
     var editor by mutableStateOf<Editor?>(null)
+    /** Teks yang dibagikan dari aplikasi lain (mis. tautan Google Maps). */
+    var sharedText by mutableStateOf<String?>(null)
     var locked by mutableStateOf(settings.lockEnabled)
     var busy by mutableStateOf(false)
     var lockTimeoutSec by mutableStateOf(settings.lockTimeoutSec)

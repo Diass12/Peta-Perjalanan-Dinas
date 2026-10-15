@@ -32,6 +32,13 @@ fun GeoSection(vm: MainViewModel, geo: GeoPoint?, onGeo: (GeoPoint?) -> Unit, ex
     val gps by vm.tracker.state.collectAsState()
     var pasteOpen by remember { mutableStateOf(false) }
     var pickOpen by remember { mutableStateOf(false) }
+    var waitingMaps by remember { mutableStateOf(false) }
+    val owner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(owner) {
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e -> if (e == androidx.lifecycle.Lifecycle.Event.ON_RESUME && waitingMaps) { waitingMaps = false; pasteOpen = true } }
+        owner.lifecycle.addObserver(obs)
+        onDispose { owner.lifecycle.removeObserver(obs) }
+    }
 
     val perm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
         if (ok) vm.tracker.start() else vm.toast("Izin lokasi ditolak. Anda masih bisa menempel koordinat atau memilih di peta.")
@@ -63,6 +70,10 @@ fun GeoSection(vm: MainViewModel, geo: GeoPoint?, onGeo: (GeoPoint?) -> Unit, ex
                 SoftButton("Tempel") { pasteOpen = true }
                 SoftButton("Peta") { pickOpen = true }
             }
+            Spacer(Modifier.height(6.dp))
+            SoftButton("Pilih di Google Maps") {
+                if (openGoogleMaps(ctx, geo)) { waitingMaps = true; vm.toast("Tekan lama di peta untuk menjatuhkan pin, salin koordinat (atau Bagikan), lalu kembali ke sini.") }
+            }
         }
         if (exifGeo != null && geo == null) {
             Spacer(Modifier.height(6.dp))
@@ -71,7 +82,7 @@ fun GeoSection(vm: MainViewModel, geo: GeoPoint?, onGeo: (GeoPoint?) -> Unit, ex
         if (geo != null && !gps.running) {
             Spacer(Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                SoftButton("Buka di Maps") { runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(CoordParser.mapsUrl(geo)))) } }
+                SoftButton("Buka di Maps") { openGoogleMaps(ctx, geo) }
                 SoftButton("Hapus lokasi", danger = true) { onGeo(null) }
             }
         }
@@ -84,8 +95,18 @@ fun GeoSection(vm: MainViewModel, geo: GeoPoint?, onGeo: (GeoPoint?) -> Unit, ex
 @Composable
 private fun PasteDialog(onDismiss: () -> Unit, onOk: (GeoPoint) -> Unit) {
     val clip = LocalClipboardManager.current
-    var text by remember { mutableStateOf(clip.getText()?.text?.takeIf { CoordParser.parse(it) != null } ?: "") }
-    val parsed = CoordParser.parse(text)
+    var text by remember { mutableStateOf(clip.getText()?.text?.takeIf { CoordParser.parse(it) != null || id.tub.dinas.data.MapsLink.isMapsLink(it) } ?: "") }
+    var resolved by remember { mutableStateOf<GeoPoint?>(null) }
+    var resolving by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { if (text.isBlank()) { kotlinx.coroutines.delay(350); clip.getText()?.text?.takeIf { it.isNotBlank() && (CoordParser.parse(it) != null || id.tub.dinas.data.MapsLink.isMapsLink(it)) }?.let { text = it } } }
+    LaunchedEffect(text) {
+        resolved = null
+        if (CoordParser.parse(text) == null && id.tub.dinas.data.MapsLink.isMapsLink(text)) {
+            resolving = true; kotlinx.coroutines.delay(300)
+            resolved = id.tub.dinas.data.MapsLink.resolve(text); resolving = false
+        } else resolving = false
+    }
+    val parsed = CoordParser.parse(text) ?: resolved
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Tempel koordinat") },
@@ -93,7 +114,8 @@ private fun PasteDialog(onDismiss: () -> Unit, onOk: (GeoPoint) -> Unit) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Salin dari Google Maps (tahan titik → salin koordinat) atau tempel tautan Maps.", color = C.Muted)
                 Field(text, { text = it }, "Koordinat atau tautan", minLines = 2)
-                if (text.isNotBlank()) Text(if (parsed != null) "Terbaca: ${CoordParser.format(parsed)}" else "Belum terbaca. Contoh: 1.234567, 127.800000", color = if (parsed != null) C.PinLap else C.Danger)
+                if (resolving) Text("Membaca tautan Google Maps…", color = C.Muted)
+                else if (text.isNotBlank()) Text(if (parsed != null) "Terbaca: ${CoordParser.format(parsed)}" else "Belum terbaca. Contoh: 1.234567, 127.800000", color = if (parsed != null) C.PinLap else C.Danger)
             }
         },
         confirmButton = { TextButton(enabled = parsed != null, onClick = { onOk(parsed!!); onDismiss() }) { Text("Pakai") } },
@@ -115,5 +137,16 @@ private fun PickerDialog(vm: MainViewModel, current: GeoPoint?, others: List<Map
                 AmberButton("Pakai", enabled = sel != null) { onOk(sel!!); onDismiss() }
             }
         }
+    }
+}
+
+/** Membuka aplikasi Google Maps (bila terpasang) pada lokasi tertentu; kalau tidak, lewat peramban. */
+private fun openGoogleMaps(ctx: android.content.Context, g: GeoPoint?): Boolean {
+    val uri = if (g != null) Uri.parse("geo:${g.lat},${g.lng}?q=${g.lat},${g.lng}") else Uri.parse("https://www.google.com/maps")
+    return try {
+        ctx.startActivity(Intent(Intent.ACTION_VIEW, uri).setPackage("com.google.android.apps.maps").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        true
+    } catch (_: Exception) {
+        try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(if (g != null) CoordParser.mapsUrl(g) else "https://www.google.com/maps")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); true } catch (_: Exception) { false }
     }
 }

@@ -17,6 +17,15 @@ import java.io.IOException
 class LogicTest {
     @get:Rule val tmp = TemporaryFolder()
 
+    @Test fun coordMapsVariants() {
+        val bang = CoordParser.parse("https://www.google.com/maps/place/X/@-6.2,106.8,17z/data=!3m1!4b1!4m6!3m5!1s0x0:0x0!8m2!3d-6.210010!4d106.735879")!!
+        assertEquals(-6.21001, bang.lat, 1e-9); assertEquals(106.735879, bang.lng, 1e-9)
+        assertEquals(1.25, CoordParser.parse("geo:1.25,127.5?q=1.25,127.5")!!.lat, 1e-9)
+        val dms = CoordParser.parse("6°12'36.0\"S 106°44'09.1\"E")!!
+        assertEquals(-6.21, dms.lat, 1e-4); assertEquals(106.7359, dms.lng, 1e-3)
+        assertEquals(2.0, CoordParser.parse("https://www.google.com/maps?center=2.0,128.0&zoom=10")!!.lat, 1e-9)
+    }
+
     @Test fun coordFormats() {
         assertEquals(1.5, CoordParser.parse("https://www.google.com/maps/@1.5,127.8,15z")!!.lat, 1e-9)
         assertEquals(127.8, CoordParser.parse("1.5, 127.8")!!.lng, 1e-9)

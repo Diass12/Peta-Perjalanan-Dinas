@@ -40,10 +40,24 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         applySecureFlag()
+        handleShare(intent)
         setContent {
             DinasTheme {
                 Root(vm, onUnlock = { requestUnlock() })
             }
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleShare(intent)
+    }
+
+    private fun handleShare(i: android.content.Intent?) {
+        if (i?.action == android.content.Intent.ACTION_SEND && i.type?.startsWith("text/") == true) {
+            i.getStringExtra(android.content.Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() }?.let { vm.sharedText = it.take(2000) }
+            i.action = null
         }
     }
 
@@ -110,6 +124,7 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
         Screen.Settings -> SettingsScreen(vm)
         is Screen.Present -> PresentationScreen(vm, s.dinasId)
     }
+    vm.sharedText?.let { id.tub.dinas.ui.components.SharedLocationDialog(vm, it) }
     }
 }
 
