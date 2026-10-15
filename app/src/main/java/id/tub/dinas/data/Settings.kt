@@ -25,6 +25,9 @@ class Settings(ctx: Context) {
     var satellite: Boolean
         get() = p.getBoolean("satellite", false)
         set(v) { p.edit().putBoolean("satellite", v).apply() }
+    var vehicle: String
+        get() = p.getString("vehicle", "mobil") ?: "mobil"
+        set(v) { p.edit().putString("vehicle", v).apply() }
     var fx: Boolean
         get() = p.getBoolean("fx", true)
         set(v) { p.edit().putBoolean("fx", v).apply() }

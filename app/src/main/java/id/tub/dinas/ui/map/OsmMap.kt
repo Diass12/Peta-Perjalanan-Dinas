@@ -5,6 +5,7 @@ import id.tub.dinas.ui.theme.ThemeState
 import android.graphics.drawable.GradientDrawable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -28,6 +29,16 @@ enum class PinKind(val argb: Int, val res: Int, val glow: Int) {
     LAP(0xFF14532D.toInt(), id.tub.dinas.R.drawable.pin_lap, 0xFF39FF88.toInt()),
     PICK(0xFFB3261E.toInt(), id.tub.dinas.R.drawable.pin_saya, 0xFFFF5A4A.toInt()),
 }
+
+/** Kendaraan yang berjalan di garis rute. facesRight = gambar aslinya menghadap ke kanan. */
+class VehicleSkin(val key: String, val res: Int, val facesRight: Boolean, val onRoad: Boolean)
+val VEHICLES = listOf(
+    VehicleSkin("mobil", id.tub.dinas.R.drawable.kend_mobil, true, true),
+    VehicleSkin("motor", id.tub.dinas.R.drawable.kend_motor, true, true),
+    VehicleSkin("pesawat", id.tub.dinas.R.drawable.kend_pesawat, false, false),
+    VehicleSkin("boat", id.tub.dinas.R.drawable.kend_boat, true, false),
+    VehicleSkin("kapal", id.tub.dinas.R.drawable.kend_kapal, true, false),
+)
 
 data class MapPin(val id: String, val geo: GeoPoint, val title: String, val kind: PinKind)
 
@@ -65,6 +76,8 @@ fun OsmMap(
     onTap: ((GeoPoint) -> Unit)? = null,
     onPinClick: ((String) -> Unit)? = null,
     fitKey: Any = pins.size,
+    route: List<OsmPoint> = emptyList(),
+    vehicle: VehicleSkin? = null,
 ) {
     val ctx = LocalContext.current
     val map = remember {
@@ -74,6 +87,37 @@ fun OsmMap(
             minZoomLevel = 3.0
             controller.setZoom(5.0)
             controller.setCenter(OsmPoint(1.5, 127.8)) // Maluku Utara sebagai titik awal
+        }
+    }
+    val vMarker = remember { Marker(map).apply { setInfoWindow(null); setOnMarkerClickListener { _, _ -> true }; setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER) } }
+    LaunchedEffect(route, vehicle) {
+        val skin = vehicle
+        if (skin == null || route.size < 2) return@LaunchedEffect
+        val hpx = (map.resources.displayMetrics.density * 34).toInt()
+        val src = android.graphics.BitmapFactory.decodeResource(map.resources, skin.res)
+        val w = (src.width * hpx.toFloat() / src.height).toInt()
+        val normal = android.graphics.Bitmap.createScaledBitmap(src, w, hpx, true)
+        val mir = android.graphics.Bitmap.createBitmap(normal, 0, 0, w, hpx, android.graphics.Matrix().apply { preScale(-1f, 1f) }, true)
+        val dN = android.graphics.drawable.BitmapDrawable(map.resources, normal); val dM = android.graphics.drawable.BitmapDrawable(map.resources, mir)
+        val cum = DoubleArray(route.size)
+        for (i in 1 until route.size) cum[i] = cum[i - 1] + route[i - 1].distanceToAsDouble(route[i])
+        val total = cum.last(); if (total <= 0.0) return@LaunchedEffect
+        val dur = 18_000L
+        var east = true; vMarker.icon = if (skin.facesRight) dN else dM
+        val start = withFrameNanos { it }; var last = 0L
+        while (true) {
+            val now = withFrameNanos { it }
+            if (now - last < 45_000_000L) continue
+            last = now
+            val d = (((now - start) / 1_000_000L) % dur).toDouble() / dur * total
+            var i = java.util.Arrays.binarySearch(cum, d); if (i < 0) i = -i - 2
+            i = i.coerceIn(0, route.size - 2)
+            val seg = cum[i + 1] - cum[i]; val f = if (seg > 0) (d - cum[i]) / seg else 0.0
+            val a = route[i]; val b = route[i + 1]
+            vMarker.position = OsmPoint(a.latitude + (b.latitude - a.latitude) * f, a.longitude + (b.longitude - a.longitude) * f)
+            val goingEast = b.longitude >= a.longitude
+            if (goingEast != east) { east = goingEast; vMarker.icon = if (goingEast == skin.facesRight) dN else dM }
+            map.invalidate()
         }
     }
     val owner = LocalLifecycleOwner.current
@@ -93,6 +137,15 @@ fun OsmMap(
                 override fun longPressHelper(p: OsmPoint): Boolean = false
             }))
         }
+        if (route.size >= 2) {
+            val pl = org.osmdroid.views.overlay.Polyline(m)
+            pl.setPoints(route)
+            pl.outlinePaint.apply {
+                color = 0xFF5CD6FF.toInt(); strokeWidth = m.resources.displayMetrics.density * 4f
+                pathEffect = android.graphics.DashPathEffect(floatArrayOf(28f, 18f), 0f); strokeCap = android.graphics.Paint.Cap.ROUND
+            }
+            m.overlays.add(pl)
+        }
         val h = (m.resources.displayMetrics.density * 40).toInt()
         pins.forEach { pin ->
             val mk = Marker(m)
@@ -103,6 +156,7 @@ fun OsmMap(
             mk.setOnMarkerClickListener { marker, _ -> if (onPinClick != null) { onPinClick(pin.id); true } else { marker.showInfoWindow(); true } }
             m.overlays.add(mk)
         }
+        if (vehicle != null && route.size >= 2) m.overlays.add(vMarker)
         if (m.tag != fitKey) {
             m.tag = fitKey
             val pts = pins.map { OsmPoint(it.geo.lat, it.geo.lng) }
