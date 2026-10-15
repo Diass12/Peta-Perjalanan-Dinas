@@ -92,7 +92,7 @@ class MainActivity : FragmentActivity() {
 @Composable
 private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
     if (vm.locked) { LockScreen(onUnlock); return }
-    LaunchedEffect(Unit) { ThemeState.sky = vm.settings.skyTheme }
+    LaunchedEffect(Unit) { ThemeState.sky = vm.settings.skyTheme; ThemeState.avatar = vm.settings.avatar }
     SkyBackground {
     BackHandler(enabled = vm.stack.size > 1 || vm.editor != null) {
         if (vm.editor != null) vm.editor = null else vm.pop()

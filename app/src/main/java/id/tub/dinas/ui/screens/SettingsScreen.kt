@@ -43,6 +43,11 @@ fun SettingsScreen(vm: MainViewModel) {
         Header("Pengaturan", onBack = { vm.pop() })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel {
+                Text("Karakter", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                AvatarPicker(ThemeState.avatar) { ThemeState.avatar = it; s.avatar = it }
+            }
+            Panel {
                 Text("Keamanan", style = MaterialTheme.typography.titleMedium)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Kunci aplikasi (sidik jari / PIN)", Modifier.weight(1f))

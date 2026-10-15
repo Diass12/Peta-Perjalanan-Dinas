@@ -30,10 +30,13 @@ fun HomeScreen(vm: MainViewModel) {
             if (list.isEmpty()) Empty("Belum ada dinas. Ketuk “+ Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan laporan.")
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 item {
+                  Box {
                     androidx.compose.foundation.Image(
                         androidx.compose.ui.res.painterResource(id.tub.dinas.R.drawable.peta_indonesia), null,
                         Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(20.dp)).border(1.dp, Color(0x886FD8FF), RoundedCornerShape(20.dp)),
                         contentScale = androidx.compose.ui.layout.ContentScale.Crop, alignment = androidx.compose.ui.Alignment.CenterEnd)
+                    Avatar(id.tub.dinas.ui.theme.ThemeState.avatar, 64.dp, Modifier.align(androidx.compose.ui.Alignment.BottomStart).padding(10.dp))
+                  }
                 }
                 items(list, key = { it.id }) { d ->
                     val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)

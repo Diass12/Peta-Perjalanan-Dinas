@@ -24,6 +24,7 @@ import id.tub.dinas.domain.Lens
 /** Tema tampilan: Klasik (krem/gelap, paling terbaca di bawah matahari) atau Langit (kaca di atas langit biru). */
 object ThemeState {
     var sky by mutableStateOf(true)
+    var avatar by mutableStateOf(0)
 }
 
 object C {

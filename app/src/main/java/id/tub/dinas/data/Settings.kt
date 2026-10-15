@@ -25,6 +25,9 @@ class Settings(ctx: Context) {
     var satellite: Boolean
         get() = p.getBoolean("satellite", false)
         set(v) { p.edit().putBoolean("satellite", v).apply() }
+    var avatar: Int
+        get() = p.getInt("avatar", 0)
+        set(v) { p.edit().putInt("avatar", v).apply() }
     var skyTheme: Boolean
         get() = p.getBoolean("sky", true)
         set(v) { p.edit().putBoolean("sky", v).apply() }
