@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.Dinas" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#F6F4EE</item>
+        <item name="android:statusBarColor">#12202B</item>
+        <item name="android:navigationBarColor">#F6F4EE</item>
+    </style>
+</resources>
