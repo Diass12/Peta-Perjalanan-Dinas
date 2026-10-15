@@ -15,6 +15,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import id.tub.dinas.MainViewModel
 import id.tub.dinas.domain.DinasSnapshot
+import id.tub.dinas.domain.OwnerType
 import id.tub.dinas.ui.DetailTab
 import id.tub.dinas.ui.Editor
 import id.tub.dinas.ui.Screen
@@ -83,12 +84,12 @@ fun closeEditor(vm: MainViewModel, s: DinasSnapshot) {
     when (ed) {
         is Editor.Titik -> {
             val t = s.titik.firstOrNull { it.id == ed.id }
-            if (t != null && t.geo == null && t.note.isBlank() && s.fotoOf(id.tub.dinas.domain.OwnerType.TITIK, t.id).isEmpty() && t.title.startsWith("Titik ")) vm.work { vm.repo.deleteTitik(t.id) }
+            if (t != null && t.geo == null && t.note.isBlank() && s.fotoOf(OwnerType.TITIK, t.id).isEmpty() && t.title.startsWith("Titik ")) vm.work { vm.repo.deleteTitik(t.id) }
         }
         is Editor.Temuan -> {
             val t = s.temuan.firstOrNull { it.id == ed.id }
             if (ed.isNew && t != null && t.description.isBlank() && t.activeLenses.isEmpty() && t.geo == null &&
-                s.fotoOf(id.tub.dinas.domain.OwnerType.TEMUAN, t.id).isEmpty() && t.title.startsWith("Temuan ")) vm.work { vm.repo.deleteTemuan(t.id) }
+                s.fotoOf(OwnerType.TEMUAN, t.id).isEmpty() && t.title.startsWith("Temuan ")) vm.work { vm.repo.deleteTemuan(t.id) }
         }
         null -> {}
     }

@@ -19,6 +19,7 @@ import id.tub.dinas.domain.CoordParser
 import id.tub.dinas.domain.DinasSnapshot
 import id.tub.dinas.domain.OwnerType
 import id.tub.dinas.media.EncryptedImage
+import id.tub.dinas.ui.DetailTab
 import id.tub.dinas.ui.Editor
 import id.tub.dinas.ui.Screen
 import id.tub.dinas.ui.components.*
@@ -84,5 +85,5 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
     }
     delId?.let { id -> Confirm("Hapus titik?", "Titik beserta fotonya dihapus permanen.", onConfirm = { vm.work { vm.repo.deleteTitik(id) } }, onDismiss = { delId = null }) }
     toTemuan?.let { id -> Confirm("Jadikan temuan laporan?", "Titik ini dipindah ke tab Temuan beserta foto dan lokasinya, lalu dihapus dari daftar dokumentasi.", "Pindahkan",
-        onConfirm = { vm.work { vm.repo.titikToTemuan(id)?.let { n -> vm.tab = id.tub.dinas.ui.DetailTab.TEMUAN; vm.editor = Editor.Temuan(n, false) } } }, onDismiss = { toTemuan = null }) }
+        onConfirm = { vm.work { vm.repo.titikToTemuan(id)?.let { n -> vm.tab = DetailTab.TEMUAN; vm.editor = Editor.Temuan(n, false) } } }, onDismiss = { toTemuan = null }) }
 }
