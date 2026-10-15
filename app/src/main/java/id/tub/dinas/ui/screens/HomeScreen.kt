@@ -37,7 +37,7 @@ fun HomeScreen(vm: MainViewModel) {
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().padding(16.dp)) {
+        Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) {
             AmberButton("+ Dinas baru", Modifier.fillMaxWidth()) { creating = true }
         }
     }

@@ -38,6 +38,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         applySecureFlag()
         setContent {
             DinasTheme {
@@ -110,4 +111,17 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
 @Composable
 private fun SkyBackground(content: @Composable () -> Unit) {
     Box(Modifier.fillMaxSize().screenBackground()) { content() }
+}
+
+@Composable
+fun LockScreen(onUnlock: () -> Unit) {
+    LaunchedEffect(Unit) { onUnlock() }
+    Column(Modifier.fillMaxSize().background(C.Ink).padding(32.dp), Arrangement.Center, Alignment.CenterHorizontally) {
+        Text("📍", fontSize = 48.sp)
+        Spacer(Modifier.height(12.dp))
+        Text("Dokumentasi Dinas", color = Color.White, fontSize = 22.sp)
+        Text("Aplikasi terkunci", color = Color(0xFFB8C2CB), fontSize = 14.sp)
+        Spacer(Modifier.height(24.dp))
+        AmberButton("Buka kunci", onClick = onUnlock)
+    }
 }

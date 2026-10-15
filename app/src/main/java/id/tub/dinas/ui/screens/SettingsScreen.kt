@@ -41,7 +41,7 @@ fun SettingsScreen(vm: MainViewModel) {
 
     Column(Modifier.fillMaxSize().background(C.Bg)) {
         Header("Pengaturan", onBack = { vm.pop() })
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel {
                 Text("Keamanan", style = MaterialTheme.typography.titleMedium)
                 Row(verticalAlignment = Alignment.CenterVertically) {

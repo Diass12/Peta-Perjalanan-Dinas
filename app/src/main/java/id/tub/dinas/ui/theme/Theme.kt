@@ -6,11 +6,11 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import id.tub.dinas.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,11 +32,11 @@ object C {
     /** Latar padat untuk dialog layar penuh (tidak boleh transparan). */
     val Solid: Color get() = if (ThemeState.sky) Color(0xFFD9EAFB) else Color(0xFFF6F4EE)
     val Card: Color get() = if (ThemeState.sky) Color(0xCCFFFFFF) else Color(0xFFFFFFFF)
-    val HeaderBg: Color get() = if (ThemeState.sky) Color(0xE60B2545) else Color(0xFF12202B)
+    val HeaderBg: Color get() = if (ThemeState.sky) Color.Transparent else Color(0xFF12202B)
     val Ink = Color(0xFF12202B)
     val Amber = Color(0xFFE9A23B)
     val Line = Color(0xFFDDD8CC)
-    val Muted: Color get() = if (ThemeState.sky) Color(0xFF2C4257) else Color(0xFF5B6B78)
+    val Muted: Color get() = if (ThemeState.sky) Color(0xFF28425E) else Color(0xFF5B6B78)
     val Danger = Color(0xFFB3261E)
     val PinDok = Color(0xFFE9C23B)
     val PinLap = Color(0xFF14532D)
@@ -66,54 +66,19 @@ private val type = Typography(
 fun DinasTheme(content: @Composable () -> Unit) = MaterialTheme(colorScheme = scheme, typography = type, content = content)
 
 
-private fun DrawScope.blob(cx: Float, cy: Float, r: Float, a: Float) {
-    drawCircle(
-        brush = Brush.radialGradient(listOf(Color.White.copy(alpha = a), Color.Transparent), center = Offset(cx, cy), radius = r),
-        radius = r, center = Offset(cx, cy),
-    )
-}
-
-private fun DrawScope.sparkle(cx: Float, cy: Float, r: Float) {
-    val p = Path().apply {
-        moveTo(cx, cy - r); quadraticTo(cx, cy, cx + r, cy); quadraticTo(cx, cy, cx, cy + r)
-        quadraticTo(cx, cy, cx - r, cy); quadraticTo(cx, cy, cx, cy - r); close()
-    }
-    drawPath(p, Color.White.copy(alpha = 0.85f))
-}
-
-/** Langit bergaya game: gradasi, awan lembut, pulau melayang, kilau. Semua digambar dengan kode. */
-fun DrawScope.drawSky() {
-    val w = size.width; val h = size.height
-    // awan lembut
-    blob(w * 0.15f, h * 0.12f, w * 0.40f, 0.55f); blob(w * 0.35f, h * 0.10f, w * 0.30f, 0.45f)
-    blob(w * 0.85f, h * 0.33f, w * 0.45f, 0.50f); blob(w * 0.10f, h * 0.52f, w * 0.40f, 0.45f)
-    blob(w * 0.70f, h * 0.72f, w * 0.50f, 0.50f); blob(w * 0.20f, h * 0.90f, w * 0.45f, 0.55f)
-    // pulau melayang (kanan atas)
-    val ix = w * 0.80f; val iy = h * 0.075f
-    val rock = Path().apply {
-        moveTo(ix - w * 0.17f, iy); lineTo(ix + w * 0.17f, iy)
-        quadraticTo(ix + w * 0.10f, iy + h * 0.035f, ix + w * 0.02f, iy + h * 0.065f)
-        quadraticTo(ix, iy + h * 0.07f, ix - w * 0.03f, iy + h * 0.06f)
-        quadraticTo(ix - w * 0.12f, iy + h * 0.03f, ix - w * 0.17f, iy); close()
-    }
-    drawPath(rock, Color(0xFF5E7FA8).copy(alpha = 0.45f))
-    drawOval(Color(0xFF8FD1A8).copy(alpha = 0.65f), Offset(ix - w * 0.17f, iy - h * 0.008f), Size(w * 0.34f, h * 0.016f))
-    // menara kecil
-    listOf(-0.05f to 0.05f, -0.015f to 0.075f, 0.03f to 0.045f).forEach { (dx, hh) ->
-        val x = ix + w * dx
-        drawRect(Color.White.copy(alpha = 0.75f), Offset(x, iy - h * hh), Size(w * 0.012f, h * hh))
-        val roof = Path().apply { moveTo(x - w * 0.004f, iy - h * hh); lineTo(x + w * 0.006f, iy - h * hh - h * 0.012f); lineTo(x + w * 0.016f, iy - h * hh); close() }
-        drawPath(roof, Color(0xFFBFD9FF).copy(alpha = 0.9f))
-    }
-    // kilau
-    listOf(0.08f to 0.06f, 0.62f to 0.04f, 0.92f to 0.24f, 0.05f to 0.40f, 0.55f to 0.58f, 0.90f to 0.66f, 0.30f to 0.80f)
-        .forEach { (fx, fy) -> sparkle(w * fx, h * fy, w * 0.014f) }
-}
-
-/** Latar layar: langit pada tema Langit, krem pada tema Klasik. */
+/** Latar layar: gambar langit pada tema Langit (dipotong memenuhi layar), krem pada tema Klasik. */
 @Composable
-fun Modifier.screenBackground(): Modifier =
-    if (ThemeState.sky) this
-        .background(Brush.verticalGradient(listOf(Color(0xFF1E6FD9), Color(0xFF5FA8EE), Color(0xFFAED6F7), Color(0xFFD9EDFB))))
-        .drawBehind { drawSky() }
-    else this.background(Color(0xFFF6F4EE))
+fun Modifier.screenBackground(): Modifier {
+    if (!ThemeState.sky) return this.background(Color(0xFFF6F4EE))
+    val img = ImageBitmap.imageResource(R.drawable.bg_langit)
+    return this.background(Color(0xFF7DC4F0)).drawBehind {
+        val s = maxOf(size.width / img.width, size.height / img.height)
+        val sw = minOf(img.width, (size.width / s).toInt()); val sh = minOf(img.height, (size.height / s).toInt())
+        drawImage(
+            img,
+            srcOffset = IntOffset((img.width - sw) / 2, 0),
+            srcSize = IntSize(sw, sh),
+            dstSize = IntSize(size.width.toInt(), size.height.toInt()),
+        )
+    }
+}

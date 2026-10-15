@@ -35,7 +35,7 @@ fun TitikEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () -> 
     val fotos = s.fotoOf(OwnerType.TITIK, id)
     fun persist(after: (() -> Unit)? = null) = vm.work(onDone = after) { vm.repo.saveTitik(s.dinas.id, id, title, note, geo) }
 
-    Column(Modifier.fillMaxSize().screenBackground()) {
+    Column(Modifier.fillMaxSize().screenBackground().imePadding()) {
         Header("Titik dokumentasi", onBack = onClose, actions = { HeaderAction("Simpan") { persist(onSaved) } })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Field(title, { title = it }, "Judul titik (mis. Gerbang utama)", singleLine = true)
@@ -67,7 +67,7 @@ fun TemuanEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () ->
 
     val pdfPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.addPdf(s.dinas.id, id, uri) }
 
-    Column(Modifier.fillMaxSize().screenBackground()) {
+    Column(Modifier.fillMaxSize().screenBackground().imePadding()) {
         Header("Temuan laporan", onBack = onClose, actions = { HeaderAction("Simpan") { persist(onSaved) } })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Field(title, { title = it }, "Judul temuan", singleLine = true)

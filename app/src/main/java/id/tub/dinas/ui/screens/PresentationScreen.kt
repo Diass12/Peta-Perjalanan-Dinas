@@ -55,7 +55,7 @@ fun PresentationScreen(vm: MainViewModel, dinasId: String) {
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SoftButton("‹ Sebelumnya", Modifier.weight(1f), enabled = i > 0) { idx = i - 1 }
             PrimaryButton("Berikutnya ›", Modifier.weight(1f), enabled = i < list.lastIndex) { idx = i + 1 }
         }
