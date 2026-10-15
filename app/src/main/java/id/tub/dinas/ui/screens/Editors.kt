@@ -18,6 +18,7 @@ import id.tub.dinas.ui.components.*
 import id.tub.dinas.ui.map.MapPin
 import id.tub.dinas.ui.map.PinKind
 import id.tub.dinas.ui.theme.C
+import id.tub.dinas.ui.theme.screenBackground
 
 private fun pinsExcept(s: DinasSnapshot, exceptId: String): List<MapPin> =
     s.titik.filter { it.id != exceptId }.mapNotNull { t -> t.geo?.let { MapPin("t:${t.id}", it, t.title, PinKind.DOK) } } +
@@ -34,7 +35,7 @@ fun TitikEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () -> 
     val fotos = s.fotoOf(OwnerType.TITIK, id)
     fun persist(after: (() -> Unit)? = null) = vm.work(onDone = after) { vm.repo.saveTitik(s.dinas.id, id, title, note, geo) }
 
-    Column(Modifier.fillMaxSize().background(C.Solid)) {
+    Column(Modifier.fillMaxSize().screenBackground()) {
         Header("Titik dokumentasi", onBack = onClose, actions = { HeaderAction("Simpan") { persist(onSaved) } })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Field(title, { title = it }, "Judul titik (mis. Gerbang utama)", singleLine = true)
@@ -66,7 +67,7 @@ fun TemuanEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () ->
 
     val pdfPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.addPdf(s.dinas.id, id, uri) }
 
-    Column(Modifier.fillMaxSize().background(C.Solid)) {
+    Column(Modifier.fillMaxSize().screenBackground()) {
         Header("Temuan laporan", onBack = onClose, actions = { HeaderAction("Simpan") { persist(onSaved) } })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Field(title, { title = it }, "Judul temuan", singleLine = true)

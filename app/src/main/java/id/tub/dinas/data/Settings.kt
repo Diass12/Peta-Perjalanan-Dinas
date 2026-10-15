@@ -26,7 +26,7 @@ class Settings(ctx: Context) {
         get() = p.getBoolean("satellite", false)
         set(v) { p.edit().putBoolean("satellite", v).apply() }
     var skyTheme: Boolean
-        get() = p.getBoolean("sky", false)
+        get() = p.getBoolean("sky", true)
         set(v) { p.edit().putBoolean("sky", v).apply() }
     var lastDinasId: String?
         get() = p.getString("lastDinas", null)

@@ -18,23 +18,32 @@ import id.tub.dinas.domain.Status
 import id.tub.dinas.ui.theme.C
 import id.tub.dinas.ui.theme.ThemeState
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shadow
 
 @Composable
 fun Header(title: String, onBack: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
+    val sky = ThemeState.sky
     Row(
-        Modifier.fillMaxWidth().background(C.HeaderBg).statusBarsPadding().padding(horizontal = 8.dp, vertical = 6.dp),
+        Modifier.fillMaxWidth().background(C.HeaderBg).statusBarsPadding().padding(horizontal = 8.dp, vertical = if (sky) 10.dp else 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (onBack != null) TextButton(onClick = onBack) { Text("←", color = Color.White, fontSize = 22.sp) }
-        else Spacer(Modifier.width(8.dp))
-        Text(title, color = Color.White, style = MaterialTheme.typography.titleMedium, maxLines = 1, modifier = Modifier.weight(1f))
+        if (onBack != null) TextButton(onClick = onBack) { Text("←", color = Color.White, fontSize = 24.sp) }
+        else Spacer(Modifier.width(10.dp))
+        Text(
+            title, color = Color.White, maxLines = 1, modifier = Modifier.weight(1f),
+            style = if (sky) MaterialTheme.typography.titleLarge.copy(shadow = Shadow(Color(0x99000F30), Offset(0f, 3f), 8f)) else MaterialTheme.typography.titleMedium,
+        )
         actions()
     }
 }
 
 @Composable
 fun HeaderAction(label: String, onClick: () -> Unit) =
-    TextButton(onClick = onClick) { Text(label, color = C.Amber, fontWeight = FontWeight.Bold) }
+    TextButton(onClick = onClick) { Text(label, color = if (ThemeState.sky) Color.White else C.Amber, fontWeight = FontWeight.Bold) }
 
 @Composable
 fun PrimaryButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) =
@@ -51,7 +60,12 @@ fun SoftButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = t
 
 @Composable
 fun Panel(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
-    val m = modifier.fillMaxWidth().background(C.Card, RoundedCornerShape(14.dp)).then(if (ThemeState.sky) Modifier.border(1.dp, Color(0x99FFFFFF), RoundedCornerShape(14.dp)) else Modifier)
+    val shape = RoundedCornerShape(if (ThemeState.sky) 20.dp else 14.dp)
+    var m = modifier.fillMaxWidth()
+    m = if (ThemeState.sky) m
+        .background(Brush.verticalGradient(listOf(Color(0xCCFFFFFF), Color(0x99E6F2FF))), shape)
+        .border(1.5.dp, Brush.linearGradient(listOf(Color.White, Color(0xAA7FE3FF), Color.White)), shape)
+    else m.background(C.Card, shape)
     Column((if (onClick != null) m.clickable(onClick = onClick) else m).padding(14.dp), content = content)
 }
 
@@ -66,8 +80,16 @@ fun Field(value: String, onChange: (String) -> Unit, label: String, modifier: Mo
 
 @Composable
 fun Chip(text: String, selected: Boolean, color: Color = C.Ink, bg: Color = Color.White, onClick: (() -> Unit)? = null) {
-    val m = Modifier.background(if (selected) color else bg, RoundedCornerShape(20.dp))
-    Text(text, color = if (selected) Color.White else color, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+    val shape = RoundedCornerShape(20.dp)
+    val sky = ThemeState.sky
+    var m = Modifier.clip(shape)
+    m = when {
+        selected && sky -> m.background(Brush.verticalGradient(listOf(Color(0xFF4FB4FF), Color(0xFF1F6FE0))), shape).border(1.5.dp, Color(0xFFBFF0FF), shape)
+        selected -> m.background(color, shape)
+        sky -> m.background(Color(0xB3FFFFFF), shape).border(1.dp, Color(0xCCFFFFFF), shape)
+        else -> m.background(bg, shape).border(1.dp, C.Line, shape)
+    }
+    Text(text, color = if (selected) Color.White else if (sky) C.Ink else color, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
         modifier = (if (onClick != null) m.clickable(onClick = onClick) else m).padding(horizontal = 12.dp, vertical = 6.dp))
 }
 
@@ -77,8 +99,46 @@ fun LensTag(l: Lens) = Text(l.label, color = C.lens(l), fontSize = 11.sp, fontWe
 
 @Composable
 fun StatusPill(s: Status) {
+    if (ThemeState.sky) {
+        val c = when (s) { Status.SELESAI -> Color(0xFF4ADE80); Status.PROSES -> Color(0xFFFBBF24); Status.BELUM -> Color(0xFFCBD5E1) }
+        val shape = RoundedCornerShape(8.dp)
+        Text("[${s.label.uppercase()}]", color = c, fontSize = 11.sp, fontWeight = FontWeight.Bold,
+            modifier = Modifier.background(Color(0xCC0B2545), shape).border(1.dp, c.copy(alpha = 0.8f), shape).padding(horizontal = 8.dp, vertical = 3.dp))
+        return
+    }
     val (fg, bg) = when (s) { Status.SELESAI -> Color(0xFF0F766E) to Color(0xFFD8F0EC); Status.PROSES -> Color(0xFFB45309) to Color(0xFFFBEBD9); Status.BELUM -> C.Muted to Color(0xFFECE9E0) }
     Text(s.label, color = fg, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.background(bg, RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
+}
+
+/** Bar progres bersegmen ala game. */
+@Composable
+fun SegBar(fraction: Float, color: Color, modifier: Modifier = Modifier, segments: Int = 20) {
+    val filled = Math.round(fraction.coerceIn(0f, 1f) * segments)
+    Row(modifier.fillMaxWidth().background(Color(0xCC0B2545), RoundedCornerShape(8.dp)).padding(3.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        for (i in 0 until segments) {
+            Box(Modifier.weight(1f).height(12.dp).background(if (i < filled) color else Color(0x33FFFFFF), RoundedCornerShape(3.dp)))
+        }
+    }
+}
+
+/** Navigasi bawah: ikon emoji + label, tab aktif menyala. */
+@Composable
+fun BottomNav(items: List<Pair<String, String>>, selected: Int, onSelect: (Int) -> Unit) {
+    val sky = ThemeState.sky
+    val bar = if (sky) Modifier.background(Brush.verticalGradient(listOf(Color(0xF01B4F9C), Color(0xFF0B2545))))
+        .border(1.dp, Color(0x886FD8FF), RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+    else Modifier.background(Color.White)
+    Row(Modifier.fillMaxWidth().then(bar).navigationBarsPadding().padding(vertical = 6.dp)) {
+        items.forEachIndexed { i, (icon, label) ->
+            val on = i == selected
+            Column(Modifier.weight(1f).clickable { onSelect(i) }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(icon, fontSize = if (on) 26.sp else 22.sp,
+                    modifier = if (on && sky) Modifier.background(Brush.radialGradient(listOf(Color(0x8860D8FF), Color.Transparent)), RoundedCornerShape(50)).padding(horizontal = 14.dp, vertical = 2.dp) else Modifier.padding(horizontal = 14.dp, vertical = 2.dp))
+                Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1,
+                    color = if (sky) (if (on) Color(0xFFFFD166) else Color.White) else (if (on) C.Ink else C.Muted))
+            }
+        }
+    }
 }
 
 @Composable
@@ -88,4 +148,4 @@ fun Confirm(title: String, text: String, confirmLabel: String = "Hapus", onConfi
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } })
 
 @Composable
-fun Empty(text: String) = Text(text, color = C.Muted, modifier = Modifier.fillMaxWidth().padding(28.dp), fontSize = 14.sp)
+fun Empty(text: String) = Text(text, color = if (ThemeState.sky) Color.White else C.Muted, modifier = Modifier.fillMaxWidth().padding(28.dp), fontSize = 14.sp)

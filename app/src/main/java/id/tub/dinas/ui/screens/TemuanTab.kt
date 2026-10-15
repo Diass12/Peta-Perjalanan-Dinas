@@ -8,6 +8,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -36,14 +39,21 @@ fun TemuanTab(vm: MainViewModel, s: DinasSnapshot) {
                         StatusPill(t.status)
                     }
                     if (t.code.isNotBlank()) Text(t.code, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    if (fotos.isNotEmpty()) {
+                        Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(150.dp).clip(RoundedCornerShape(14.dp)).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, 0)) }) {
+                            EncryptedImage(vm.repo.vault, fotos[0].path, Modifier.matchParentSize(), maxSide = 900)
+                            Text("📷 ${fotos.size}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).background(Color(0xAA0B2545), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
+                        }
+                    }
                     if (t.description.isNotBlank()) Text(t.description, maxLines = 3, modifier = Modifier.padding(top = 4.dp))
                     Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) { t.activeLenses.forEach { LensTag(it) } }
-                    if (fotos.isNotEmpty()) {
+                    if (fotos.size > 1) {
                         Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            fotos.take(4).forEachIndexed { k, f ->
-                                EncryptedImage(vm.repo.vault, f.path, Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, k)) }, maxSide = 200)
+                            fotos.drop(1).take(4).forEachIndexed { k, f ->
+                                EncryptedImage(vm.repo.vault, f.path, Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, k + 1)) }, maxSide = 200)
                             }
-                            if (fotos.size > 4) Text("+${fotos.size - 4}", color = C.Muted, modifier = Modifier.align(Alignment.CenterVertically))
+                            if (fotos.size > 5) Text("+${fotos.size - 5}", color = C.Muted, modifier = Modifier.align(Alignment.CenterVertically))
                         }
                     }
                     Row(Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {

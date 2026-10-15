@@ -33,7 +33,7 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
         if (uri != null) vm.exportExcel(dinasId, uri)
     }
     val s = snap
-    Column(Modifier.fillMaxSize().background(C.Bg)) {
+    Column(Modifier.fillMaxSize()) {
         Header(s?.dinas?.name ?: "Dinas", onBack = { vm.pop() }, actions = {
             Box {
                 HeaderAction("Menu") { menu = true }
@@ -49,9 +49,6 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
                 }
             }
         })
-        Row(Modifier.fillMaxWidth().background(C.Card).horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            DetailTab.values().forEach { t -> Chip(t.label, vm.tab == t) { vm.tab = t } }
-        }
         if (s == null) Empty("Memuat…")
         else Box(Modifier.weight(1f)) {
             when (vm.tab) {
@@ -61,6 +58,10 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
                 DetailTab.TINDAK -> TindakTab(vm, s)
             }
         }
+        BottomNav(
+            listOf("🗺" to "Peta", "📋" to "Temuan", "📊" to "Ringkasan", "✅" to "Tindak Lanjut"),
+            vm.tab.ordinal,
+        ) { vm.tab = DetailTab.values()[it] }
     }
     if (editDinas && s != null) DinasDialog(s.dinas, { editDinas = false }) { n, a, b, note -> vm.work { vm.repo.updateDinas(s.dinas.copy(name = n, startMs = a, endMs = b, note = note)) } }
     if (confirmDelete) Confirm("Hapus dinas?", "Semua titik, temuan, foto, dan PDF di dinas ini dihapus permanen. Buat cadangan dulu bila perlu.",

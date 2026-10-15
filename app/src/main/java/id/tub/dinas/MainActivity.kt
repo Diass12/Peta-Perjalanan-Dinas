@@ -24,6 +24,7 @@ import id.tub.dinas.ui.screens.*
 import id.tub.dinas.ui.theme.C
 import id.tub.dinas.ui.theme.DinasTheme
 import id.tub.dinas.ui.theme.ThemeState
+import id.tub.dinas.ui.theme.screenBackground
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -106,30 +107,7 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
     }
 }
 
-/** Latar langit (gradasi + awan sederhana) hanya digambar pada tema Langit. */
 @Composable
 private fun SkyBackground(content: @Composable () -> Unit) {
-    val m = if (ThemeState.sky) Modifier
-        .background(Brush.verticalGradient(listOf(Color(0xFF2F7FE0), Color(0xFF7DB9F2), Color(0xFFD9EAFB))))
-        .drawBehind {
-            val cloud = Color(0x55FFFFFF)
-            drawOval(cloud, Offset(size.width * 0.05f, size.height * 0.10f), Size(size.width * 0.55f, size.height * 0.07f))
-            drawOval(cloud, Offset(size.width * 0.45f, size.height * 0.30f), Size(size.width * 0.60f, size.height * 0.08f))
-            drawOval(cloud, Offset(-size.width * 0.1f, size.height * 0.55f), Size(size.width * 0.70f, size.height * 0.09f))
-            drawOval(cloud, Offset(size.width * 0.35f, size.height * 0.80f), Size(size.width * 0.70f, size.height * 0.08f))
-        } else Modifier.background(Color(0xFFF6F4EE))
-    Box(Modifier.fillMaxSize().then(m)) { content() }
-}
-
-@Composable
-fun LockScreen(onUnlock: () -> Unit) {
-    LaunchedEffect(Unit) { onUnlock() }
-    Column(Modifier.fillMaxSize().background(C.Ink).padding(32.dp), Arrangement.Center, Alignment.CenterHorizontally) {
-        Text("📍", fontSize = 48.sp)
-        Spacer(Modifier.height(12.dp))
-        Text("Dokumentasi Dinas", color = Color.White, fontSize = 22.sp)
-        Text("Aplikasi terkunci", color = Color(0xFFB8C2CB), fontSize = 14.sp)
-        Spacer(Modifier.height(24.dp))
-        AmberButton("Buka kunci", onClick = onUnlock)
-    }
+    Box(Modifier.fillMaxSize().screenBackground()) { content() }
 }

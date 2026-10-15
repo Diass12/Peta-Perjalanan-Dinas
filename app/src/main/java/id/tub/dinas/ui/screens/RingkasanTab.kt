@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,20 @@ fun RingkasanTab(s: DinasSnapshot) {
                 }
             }
         }
+        item {
+            Panel {
+                Text("PROGRES TINDAK LANJUT", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                Spacer(Modifier.height(6.dp))
+                val tot = maxOf(st.total, 1).toFloat()
+                BarRow("Selesai", st.done, st.total, st.done / tot, Color(0xFF22C55E))
+                BarRow("Proses", st.inProgress, st.total, st.inProgress / tot, Color(0xFFFBBF24))
+                BarRow("Belum", st.notStarted, st.total, st.notStarted / tot, Color(0xFF4FA3FF))
+                Spacer(Modifier.height(10.dp))
+                Text("CAKUPAN LENSA", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                Spacer(Modifier.height(6.dp))
+                Lens.values().forEach { l -> BarRow(l.label, st.perLens[l] ?: 0, st.total, (st.perLens[l] ?: 0) / tot, C.lens(l)) }
+            }
+        }
         itemsIndexed(list, key = { _, t -> t.id }) { i, t ->
             Panel {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -64,5 +79,14 @@ private fun Tile(value: String, label: String, modifier: Modifier) {
     Column(modifier.background(C.Bg, RoundedCornerShape(10.dp)).padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, style = MaterialTheme.typography.titleLarge)
         Text(label, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun BarRow(label: String, n: Int, total: Int, frac: Float, color: Color) {
+    Column(Modifier.padding(bottom = 8.dp)) {
+        Row { Text(label, Modifier.weight(1f), fontWeight = FontWeight.SemiBold); Text("$n / $total", color = C.Muted) }
+        Spacer(Modifier.height(3.dp))
+        SegBar(frac, color)
     }
 }

@@ -2,7 +2,9 @@ package id.tub.dinas.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,7 +41,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
         s.temuan.mapNotNull { t -> t.geo?.let { MapPin("m:${t.id}", it, t.title, PinKind.LAP) } }
 
     Column(Modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxWidth().height(230.dp)) {
+        Box(Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(230.dp).clip(RoundedCornerShape(20.dp))) {
             OsmMap(pins, sat, Modifier.fillMaxSize(), onPinClick = { id ->
                 if (id.startsWith("t:")) vm.editor = Editor.Titik(id.removePrefix("t:")) else vm.editor = Editor.Temuan(id.removePrefix("m:"), false)
             })
@@ -47,8 +49,8 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
                 Chip(if (sat) "Satelit" else "Peta", true, C.Ink) { sat = !sat; vm.settings.satellite = sat }
             }
         }
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text("● Dokumentasi", color = C.PinDok, style = MaterialTheme.typography.bodyMedium)
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp).background(Color(0xCCFFFFFF), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text("● Dokumentasi", color = Color(0xFFB88A00), style = MaterialTheme.typography.bodyMedium)
             Text("● Laporan", color = C.PinLap, style = MaterialTheme.typography.bodyMedium)
         }
         Box(Modifier.weight(1f)) {

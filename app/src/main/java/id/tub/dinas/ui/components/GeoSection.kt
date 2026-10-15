@@ -23,6 +23,7 @@ import id.tub.dinas.ui.map.MapPin
 import id.tub.dinas.ui.map.OsmMap
 import id.tub.dinas.ui.map.PinKind
 import id.tub.dinas.ui.theme.C
+import id.tub.dinas.ui.theme.screenBackground
 
 /** Pengatur lokasi: kunci GPS, tempel koordinat, pilih di peta, atau pakai lokasi dari foto. */
 @Composable
@@ -105,7 +106,7 @@ private fun PickerDialog(vm: MainViewModel, current: GeoPoint?, others: List<Map
     var sel by remember { mutableStateOf(current) }
     var sat by remember { mutableStateOf(vm.settings.satellite) }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Column(Modifier.fillMaxSize().background(C.Solid)) {
+        Column(Modifier.fillMaxSize().screenBackground()) {
             Header("Pilih lokasi di peta", onBack = onDismiss, actions = { HeaderAction(if (sat) "Peta" else "Satelit") { sat = !sat } })
             val pins = others + listOfNotNull(sel?.let { MapPin("pick", it, "Dipilih", PinKind.PICK) })
             OsmMap(pins, sat, Modifier.weight(1f).fillMaxWidth(), onTap = { sel = it.copy(source = "peta") }, fitKey = current?.lat ?: 0.0)
