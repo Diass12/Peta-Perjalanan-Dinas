@@ -33,6 +33,8 @@ class Repository(
 
     // ---------- dinas ----------
     fun observeDinas(): Flow<List<DinasModel>> = dao.observeDinas().map { l -> l.map { it.toModel() } }
+    /** Titik, temuan, temuan selesai: bahan hitung XP. */
+    fun observeXp(): Flow<Triple<Int, Int, Int>> = combine(dao.countAllTitik(), dao.countAllTemuan(), dao.countAllSelesai()) { a, b, c -> Triple(a, b, c) }
     fun observeCounts(id: String): Flow<Pair<Int, Int>> = combine(dao.countTitik(id), dao.countTemuan(id)) { a, b -> a to b }
 
     suspend fun createDinas(name: String, startMs: Long?, endMs: Long?, note: String): String = withContext(Dispatchers.IO) {

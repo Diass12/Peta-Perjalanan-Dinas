@@ -7,18 +7,21 @@ data class SummaryStats(
     val inProgress: Int,
     val notStarted: Int,
     val perLens: Map<Lens, Int>,
+    val discrepancy: Int = 0,
 )
 
 object SummaryCalc {
     fun calc(list: List<TemuanModel>): SummaryStats {
         val done = list.count { it.status == Status.SELESAI }
         val pro = list.count { it.status == Status.PROSES }
+        val sel = list.count { it.status == Status.SELISIH }
         return SummaryStats(
             total = list.size,
             allThree = list.count { t -> Lens.values().all { t.isActive(it) } },
             done = done,
             inProgress = pro,
-            notStarted = list.size - done - pro,
+            notStarted = list.size - done - pro - sel,
+            discrepancy = sel,
             perLens = Lens.values().associateWith { l -> list.count { it.isActive(l) } },
         )
     }
@@ -29,7 +32,8 @@ object SummaryCalc {
             "$titikCount titik dokumentasi sudah dicatat. Belum ada temuan laporan."
         else
             "${s.allThree} dari ${s.total} temuan menyentuh ketiga lensa sekaligus. " +
-                "Tindak lanjut: ${s.done} selesai, ${s.inProgress} dalam proses, ${s.notStarted} belum dimulai."
+                "Tindak lanjut: ${s.done} selesai, ${s.inProgress} dalam proses, ${s.notStarted} belum dimulai." +
+                (if (s.discrepancy > 0) " ${s.discrepancy} temuan berstatus selisih." else "")
 
     /** Teks sel keterangan lensa untuk tabel (null = lensa tidak dipilih). */
     fun lensText(t: TemuanModel, l: Lens): String? {

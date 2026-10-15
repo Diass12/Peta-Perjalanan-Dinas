@@ -25,6 +25,8 @@ import id.tub.dinas.domain.Lens
 object ThemeState {
     var sky by mutableStateOf(true)
     var avatar by mutableStateOf(0)
+    var fx by mutableStateOf(true)
+    var playerName by mutableStateOf("Dias")
 }
 
 object C {

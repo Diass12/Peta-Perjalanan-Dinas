@@ -17,6 +17,9 @@ interface AppDao {
     suspend fun dinasById(id: String): DinasEntity?
     @Upsert suspend fun upsertDinas(e: DinasEntity)
     @Query("DELETE FROM dinas WHERE id = :id") suspend fun deleteDinas(id: String)
+    @Query("SELECT COUNT(*) FROM titik") fun countAllTitik(): Flow<Int>
+    @Query("SELECT COUNT(*) FROM temuan") fun countAllTemuan(): Flow<Int>
+    @Query("SELECT COUNT(*) FROM temuan WHERE status = 'SELESAI'") fun countAllSelesai(): Flow<Int>
     @Query("SELECT COUNT(*) FROM titik WHERE dinasId = :id") fun countTitik(id: String): Flow<Int>
     @Query("SELECT COUNT(*) FROM temuan WHERE dinasId = :id") fun countTemuan(id: String): Flow<Int>
 

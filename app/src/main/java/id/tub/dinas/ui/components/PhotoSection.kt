@@ -67,7 +67,7 @@ fun PhotoSection(
         photos.forEachIndexed { i, f ->
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                EncryptedImage(vm.repo.vault, f.path, Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).clickable { onOpen(i) }, maxSide = 300)
+                EncryptedImage(vm.repo.vault, f.path, Modifier.size(84.dp).itemFrame(10.dp).clickable { onOpen(i) }, maxSide = 300)
                 Column(Modifier.weight(1f)) {
                     var cap by remember(f.id, f.caption) { mutableStateOf(f.caption) }
                     OutlinedTextField(

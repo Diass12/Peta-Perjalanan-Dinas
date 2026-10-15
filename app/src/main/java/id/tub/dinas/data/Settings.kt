@@ -25,6 +25,15 @@ class Settings(ctx: Context) {
     var satellite: Boolean
         get() = p.getBoolean("satellite", false)
         set(v) { p.edit().putBoolean("satellite", v).apply() }
+    var fx: Boolean
+        get() = p.getBoolean("fx", true)
+        set(v) { p.edit().putBoolean("fx", v).apply() }
+    var sfx: Boolean
+        get() = p.getBoolean("sfx", true)
+        set(v) { p.edit().putBoolean("sfx", v).apply() }
+    var playerName: String
+        get() = p.getString("playerName", "Dias") ?: "Dias"
+        set(v) { p.edit().putString("playerName", v).apply() }
     var avatar: Int
         get() = p.getInt("avatar", 0)
         set(v) { p.edit().putInt("avatar", v).apply() }

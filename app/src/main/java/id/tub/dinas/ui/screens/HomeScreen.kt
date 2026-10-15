@@ -35,8 +35,28 @@ fun HomeScreen(vm: MainViewModel) {
                         androidx.compose.ui.res.painterResource(id.tub.dinas.R.drawable.peta_indonesia), null,
                         Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(20.dp)).border(1.dp, Color(0x886FD8FF), RoundedCornerShape(20.dp)),
                         contentScale = androidx.compose.ui.layout.ContentScale.Crop, alignment = androidx.compose.ui.Alignment.CenterEnd)
-                    Avatar(id.tub.dinas.ui.theme.ThemeState.avatar, 64.dp, Modifier.align(androidx.compose.ui.Alignment.BottomStart).padding(10.dp))
                   }
+                }
+                item {
+                    val xp by remember { vm.repo.observeXp() }.collectAsState(Triple(0, 0, 0))
+                    val pts = xp.first * 10 + xp.second * 20 + xp.third * 50
+                    val lv = Math.floor(Math.sqrt(pts / 25.0)).toInt() + 1
+                    val from = 25 * (lv - 1) * (lv - 1); val to = 25 * lv * lv
+                    val title = when { lv >= 20 -> "Veteran Lapangan"; lv >= 10 -> "Auditor Lapangan"; lv >= 5 -> "Surveyor"; else -> "Pemula Lapangan" }
+                    Panel {
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Avatar(id.tub.dinas.ui.theme.ThemeState.avatar, 56.dp)
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(id.tub.dinas.ui.theme.ThemeState.playerName, style = MaterialTheme.typography.titleMedium)
+                                Text("Lv. $lv  $title", color = androidx.compose.ui.graphics.Color(0xFFB88A00), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                                Spacer(Modifier.height(4.dp))
+                                XpBar((pts - from).toFloat() / (to - from))
+                                Text("$pts / $to XP", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                            }
+                            if (xp.third > 0) { Spacer(Modifier.width(8.dp)); Pic(id.tub.dinas.R.drawable.ic_lencana, 40.dp) }
+                        }
+                    }
                 }
                 items(list, key = { it.id }) { d ->
                     val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)

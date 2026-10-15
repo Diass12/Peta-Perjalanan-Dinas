@@ -1,6 +1,7 @@
 package id.tub.dinas.ui.map
 
 import android.graphics.Color as AColor
+import id.tub.dinas.ui.theme.ThemeState
 import android.graphics.drawable.GradientDrawable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -22,10 +23,10 @@ import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.util.GeoPoint as OsmPoint
 
-enum class PinKind(val argb: Int, val res: Int) {
-    DOK(0xFFE9C23B.toInt(), id.tub.dinas.R.drawable.pin_dok),
-    LAP(0xFF14532D.toInt(), id.tub.dinas.R.drawable.pin_lap),
-    PICK(0xFFB3261E.toInt(), id.tub.dinas.R.drawable.pin_saya),
+enum class PinKind(val argb: Int, val res: Int, val glow: Int) {
+    DOK(0xFFE9C23B.toInt(), id.tub.dinas.R.drawable.pin_dok, 0xFFFFD54A.toInt()),
+    LAP(0xFF14532D.toInt(), id.tub.dinas.R.drawable.pin_lap, 0xFF39FF88.toInt()),
+    PICK(0xFFB3261E.toInt(), id.tub.dinas.R.drawable.pin_saya, 0xFFFF5A4A.toInt()),
 }
 
 data class MapPin(val id: String, val geo: GeoPoint, val title: String, val kind: PinKind)
@@ -39,10 +40,21 @@ private val esri = object : OnlineTileSourceBase(
         baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex)
 }
 
-private fun pinIcon(m: MapView, res: Int, h: Int): android.graphics.drawable.Drawable {
+private fun pinIcon(m: MapView, res: Int, h: Int, glow: Int?): android.graphics.drawable.Drawable {
     val src = android.graphics.BitmapFactory.decodeResource(m.resources, res)
     val w = (src.width * h.toFloat() / src.height).toInt()
-    return android.graphics.drawable.BitmapDrawable(m.resources, android.graphics.Bitmap.createScaledBitmap(src, w, h, true))
+    val pin = android.graphics.Bitmap.createScaledBitmap(src, w, h, true)
+    if (glow == null) return android.graphics.drawable.BitmapDrawable(m.resources, pin)
+    val pad = (h * 0.35f).toInt()
+    val out = android.graphics.Bitmap.createBitmap(w + 2 * pad, h + 2 * pad, android.graphics.Bitmap.Config.ARGB_8888)
+    val cv = android.graphics.Canvas(out)
+    val blur = android.graphics.Paint().apply { maskFilter = android.graphics.BlurMaskFilter(pad * 0.7f, android.graphics.BlurMaskFilter.Blur.NORMAL) }
+    val off = IntArray(2)
+    val alpha = pin.extractAlpha(blur, off)
+    val gp = android.graphics.Paint().apply { color = glow; colorFilter = android.graphics.PorterDuffColorFilter(glow, android.graphics.PorterDuff.Mode.SRC_IN) }
+    repeat(2) { cv.drawBitmap(alpha, (pad + off[0]).toFloat(), (pad + off[1]).toFloat(), gp) }
+    cv.drawBitmap(pin, pad.toFloat(), pad.toFloat(), null)
+    return android.graphics.drawable.BitmapDrawable(m.resources, out)
 }
 
 @Composable
@@ -86,8 +98,8 @@ fun OsmMap(
             val mk = Marker(m)
             mk.position = OsmPoint(pin.geo.lat, pin.geo.lng)
             mk.title = pin.title
-            mk.icon = pinIcon(m, pin.kind.res, h)
-            mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            mk.icon = pinIcon(m, pin.kind.res, h, if (ThemeState.fx) pin.kind.glow else null)
+            mk.setAnchor(Marker.ANCHOR_CENTER, if (ThemeState.fx) 0.794f else Marker.ANCHOR_BOTTOM)
             mk.setOnMarkerClickListener { marker, _ -> if (onPinClick != null) { onPinClick(pin.id); true } else { marker.showInfoWindow(); true } }
             m.overlays.add(mk)
         }

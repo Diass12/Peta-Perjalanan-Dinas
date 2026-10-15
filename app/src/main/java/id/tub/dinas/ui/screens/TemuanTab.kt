@@ -37,11 +37,12 @@ fun TemuanTab(vm: MainViewModel, s: DinasSnapshot) {
                 Panel(onClick = { vm.editor = Editor.Temuan(t.id, false) }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("${i + 1}. ${t.title}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        if (t.status == id.tub.dinas.domain.Status.SELESAI) { Pic(id.tub.dinas.R.drawable.ic_lencana, 30.dp); Spacer(Modifier.width(6.dp)) }
                         StatusPill(t.status)
                     }
                     if (t.code.isNotBlank()) Text(t.code, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                     if (fotos.isNotEmpty()) {
-                        Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(150.dp).clip(RoundedCornerShape(14.dp)).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, 0)) }) {
+                        Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(150.dp).itemFrame(14.dp).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, 0)) }) {
                             EncryptedImage(vm.repo.vault, fotos[0].path, Modifier.matchParentSize(), maxSide = 900)
                             Text("📷 ${fotos.size}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold,
                                 modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).background(Color(0xAA0B2545), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
@@ -52,7 +53,7 @@ fun TemuanTab(vm: MainViewModel, s: DinasSnapshot) {
                     if (fotos.size > 1) {
                         Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             fotos.drop(1).take(4).forEachIndexed { k, f ->
-                                EncryptedImage(vm.repo.vault, f.path, Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, k + 1)) }, maxSide = 200)
+                                EncryptedImage(vm.repo.vault, f.path, Modifier.size(56.dp).itemFrame(8.dp).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, k + 1)) }, maxSide = 200)
                             }
                             if (fotos.size > 5) Text("+${fotos.size - 5}", color = C.Muted, modifier = Modifier.align(Alignment.CenterVertically))
                         }

@@ -92,7 +92,12 @@ class MainActivity : FragmentActivity() {
 @Composable
 private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
     if (vm.locked) { LockScreen(onUnlock); return }
-    LaunchedEffect(Unit) { ThemeState.sky = vm.settings.skyTheme; ThemeState.avatar = vm.settings.avatar }
+    val appCtx = androidx.compose.ui.platform.LocalContext.current.applicationContext
+    LaunchedEffect(Unit) {
+        ThemeState.sky = vm.settings.skyTheme; ThemeState.avatar = vm.settings.avatar
+        ThemeState.fx = vm.settings.fx; ThemeState.playerName = vm.settings.playerName
+        id.tub.dinas.ui.components.Sfx.init(appCtx); id.tub.dinas.ui.components.Sfx.enabled = vm.settings.sfx
+    }
     SkyBackground {
     BackHandler(enabled = vm.stack.size > 1 || vm.editor != null) {
         if (vm.editor != null) vm.editor = null else vm.pop()
@@ -110,7 +115,10 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
 
 @Composable
 private fun SkyBackground(content: @Composable () -> Unit) {
-    Box(Modifier.fillMaxSize().screenBackground()) { content() }
+    Box(Modifier.fillMaxSize().screenBackground()) {
+        if (ThemeState.sky && ThemeState.fx) id.tub.dinas.ui.components.Sparkles(Modifier.fillMaxSize())
+        content()
+    }
 }
 
 @Composable

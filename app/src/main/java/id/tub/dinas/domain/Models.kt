@@ -7,8 +7,8 @@ enum class Lens(val label: String, val key: String) {
     ADM("Administrasi", "adm");
 }
 
-enum class Status(val label: String) {
-    BELUM("Belum"), PROSES("Proses"), SELESAI("Selesai");
+enum class Status(val label: String, val tag: String) {
+    BELUM("Belum", "BELUM"), PROSES("Proses", "PENDING"), SELESAI("Selesai", "VERIFIED"), SELISIH("Selisih", "DISCREPANCY");
 
     companion object {
         fun from(s: String?): Status = values().firstOrNull { it.name == s } ?: BELUM

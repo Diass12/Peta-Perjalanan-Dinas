@@ -53,11 +53,11 @@ fun HeaderAction(label: String, onClick: () -> Unit) =
 
 @Composable
 fun PrimaryButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) =
-    Button(onClick, modifier, enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Ink, contentColor = Color.White), shape = RoundedCornerShape(10.dp)) { Text(text) }
+    Button({ Sfx.click(); onClick() }, modifier, enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Ink, contentColor = Color.White), shape = RoundedCornerShape(10.dp)) { Text(text) }
 
 @Composable
 fun AmberButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) =
-    Button(onClick, modifier, enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Amber, contentColor = C.Ink), shape = RoundedCornerShape(10.dp)) { Text(text, fontWeight = FontWeight.Bold) }
+    Button({ Sfx.menu(); onClick() }, modifier, enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Amber, contentColor = C.Ink), shape = RoundedCornerShape(10.dp)) { Text(text, fontWeight = FontWeight.Bold) }
 
 @Composable
 fun SoftButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, danger: Boolean = false, onClick: () -> Unit) =
@@ -110,28 +110,29 @@ fun LensTag(l: Lens) = Row(Modifier.background(C.lensBg(l), RoundedCornerShape(6
 fun Pic(@DrawableRes id: Int, size: Dp = 24.dp, modifier: Modifier = Modifier) = Image(painterResource(id), null, modifier.size(size))
 
 fun lensIcon(l: Lens): Int = when (l) { Lens.ASET -> R.drawable.ic_lensa_aset; Lens.OPS -> R.drawable.ic_lensa_ops; Lens.ADM -> R.drawable.ic_lensa_adm }
-fun statusIcon(s: Status): Int = when (s) { Status.SELESAI -> R.drawable.ic_selesai; Status.PROSES -> R.drawable.ic_proses; Status.BELUM -> R.drawable.ic_belum }
+fun statusIcon(s: Status): Int = when (s) { Status.SELESAI -> R.drawable.ic_selesai; Status.PROSES -> R.drawable.ic_proses; Status.BELUM -> R.drawable.ic_belum; Status.SELISIH -> R.drawable.ic_belum }
 
 /** Tombol dengan ikon bergambar di kiri teks. */
 @Composable
 fun IconTextButton(@DrawableRes icon: Int, text: String, primary: Boolean = true, onClick: () -> Unit) {
     val content: @Composable RowScope.() -> Unit = { Pic(icon, 22.dp); Spacer(Modifier.width(6.dp)); Text(text) }
-    if (primary) Button(onClick, colors = ButtonDefaults.buttonColors(containerColor = C.Ink, contentColor = Color.White), shape = RoundedCornerShape(10.dp), content = content)
-    else OutlinedButton(onClick, shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, C.Line), colors = ButtonDefaults.outlinedButtonColors(contentColor = C.Ink), content = content)
+    val click = { Sfx.click(); onClick() }
+    if (primary) Button(click, colors = ButtonDefaults.buttonColors(containerColor = C.Ink, contentColor = Color.White), shape = RoundedCornerShape(10.dp), content = content)
+    else OutlinedButton(click, shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, C.Line), colors = ButtonDefaults.outlinedButtonColors(contentColor = C.Ink), content = content)
 }
 
 @Composable
 fun StatusPill(s: Status) {
     if (ThemeState.sky) {
-        val c = when (s) { Status.SELESAI -> Color(0xFF4ADE80); Status.PROSES -> Color(0xFFFBBF24); Status.BELUM -> Color(0xFFCBD5E1) }
+        val c = when (s) { Status.SELESAI -> Color(0xFF34F5A5); Status.PROSES -> Color(0xFFFBBF24); Status.BELUM -> Color(0xFFCBD5E1); Status.SELISIH -> Color(0xFFFF4D4D) }
         val shape = RoundedCornerShape(8.dp)
-        Row(Modifier.background(Color(0xCC0B2545), shape).border(1.dp, c.copy(alpha = 0.8f), shape).padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.background(Color(0xE60B2545), shape).border(1.5.dp, c, shape).padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
             Pic(statusIcon(s), 16.dp); Spacer(Modifier.width(4.dp))
-            Text("[${s.label.uppercase()}]", color = c, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text("[${s.tag}]", color = c, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
         }
         return
     }
-    val (fg, bg) = when (s) { Status.SELESAI -> Color(0xFF0F766E) to Color(0xFFD8F0EC); Status.PROSES -> Color(0xFFB45309) to Color(0xFFFBEBD9); Status.BELUM -> C.Muted to Color(0xFFECE9E0) }
+    val (fg, bg) = when (s) { Status.SELESAI -> Color(0xFF0F766E) to Color(0xFFD8F0EC); Status.PROSES -> Color(0xFFB45309) to Color(0xFFFBEBD9); Status.BELUM -> C.Muted to Color(0xFFECE9E0); Status.SELISIH -> Color(0xFFB3261E) to Color(0xFFF8D7D4) }
     Text(s.label, color = fg, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.background(bg, RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
 }
 
@@ -175,3 +176,21 @@ fun Confirm(title: String, text: String, confirmLabel: String = "Hapus", onConfi
 
 @Composable
 fun Empty(text: String) = Text(text, color = if (ThemeState.sky) Color.White else C.Muted, modifier = Modifier.fillMaxWidth().padding(28.dp), fontSize = 14.sp)
+
+
+/** Bingkai slot item ala RPG: garis emas ganda dengan sudut membulat. */
+fun Modifier.itemFrame(radius: Dp = 10.dp): Modifier {
+    val outer = RoundedCornerShape(radius)
+    val gold = Brush.linearGradient(listOf(Color(0xFFFFE9A6), Color(0xFFD9A441), Color(0xFFFFF3C4), Color(0xFFB9852B)))
+    return this.clip(outer).border(2.5.dp, gold, outer).padding(2.5.dp).clip(RoundedCornerShape((radius - 2.dp).coerceAtLeast(2.dp)))
+        .border(1.dp, Color(0x99FFFFFF), RoundedCornerShape((radius - 2.dp).coerceAtLeast(2.dp)))
+}
+
+/** Bar XP bersegmen emas, dengan teks level di atasnya. */
+@Composable
+fun XpBar(fraction: Float, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(8.dp)
+    Box(modifier.fillMaxWidth().height(14.dp).background(Color(0xCC0B2545), shape).border(1.dp, Color(0xAAFFD166), shape).padding(2.dp)) {
+        Box(Modifier.fillMaxHeight().fillMaxWidth(fraction.coerceIn(0.02f, 1f)).background(Brush.horizontalGradient(listOf(Color(0xFFFFD166), Color(0xFF5CD6FF))), RoundedCornerShape(6.dp)))
+    }
+}

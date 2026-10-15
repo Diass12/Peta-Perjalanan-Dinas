@@ -169,7 +169,7 @@ object ExcelExporter {
         val th = XStyle(bold = true, size = 9.0, color = "FFFFFF", fill = INK, v = "center", h = "center", border = true)
         listOf("#", "TEMUAN", "PENANGGUNG JAWAB", "TINDAK LANJUT", "TARGET", "STATUS", "KODE").forEachIndexed { i, h -> sh.text(r, 1 + i, h, th) }
         sh.rowHeight(r, 24.0); r++
-        val statusFill = mapOf(Status.SELESAI to "D8F0EC", Status.PROSES to "FBEBD9", Status.BELUM to "ECE9E0")
+        val statusFill = mapOf(Status.SELESAI to "D8F0EC", Status.PROSES to "FBEBD9", Status.BELUM to "ECE9E0", Status.SELISIH to "F8D7D4")
         s.temuan.sortedBy { it.order }.forEachIndexed { i, t ->
             val c = XStyle(border = true)
             sh.text(r, 1, "${i + 1}", XStyle(border = true, h = "center", bold = true))

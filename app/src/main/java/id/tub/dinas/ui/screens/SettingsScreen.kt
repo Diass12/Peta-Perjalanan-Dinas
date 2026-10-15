@@ -45,7 +45,20 @@ fun SettingsScreen(vm: MainViewModel) {
             Panel {
                 Text("Karakter", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
+                var nm by remember { mutableStateOf(ThemeState.playerName) }
+                Field(nm, { nm = it.take(24); ThemeState.playerName = nm; s.playerName = nm }, "Nama", singleLine = true)
+                Spacer(Modifier.height(8.dp))
                 AvatarPicker(ThemeState.avatar) { ThemeState.avatar = it; s.avatar = it }
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text("Efek visual (kilau, glow)", Modifier.weight(1f))
+                    Switch(ThemeState.fx, { ThemeState.fx = it; s.fx = it })
+                }
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    var snd by remember { mutableStateOf(s.sfx) }
+                    Text("Efek suara", Modifier.weight(1f))
+                    Switch(snd, { snd = it; s.sfx = it; Sfx.enabled = it; if (it) Sfx.pick() })
+                }
             }
             Panel {
                 Text("Keamanan", style = MaterialTheme.typography.titleMedium)
