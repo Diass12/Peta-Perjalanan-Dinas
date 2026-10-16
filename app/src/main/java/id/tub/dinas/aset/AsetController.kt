@@ -60,6 +60,10 @@ class AsetController(private val vm: MainViewModel) {
                     "nofoto" -> f[a.id].isNullOrEmpty()
                     "nokode" -> a.code.isEmpty()
                     "dup" -> KodeAset.norm(a.code) in dup
+                    "noname" -> a.name.isBlank()
+                    "nodept" -> a.dept.isBlank()
+                    "noloc" -> a.location.isBlank()
+                    "badcode" -> a.code.isNotEmpty() && KodeAset.validasi(a.code) == null
                     else -> true
                 }
         }
@@ -164,6 +168,104 @@ class AsetController(private val vm: MainViewModel) {
     fun buatTemuan(asetId: String, dinasId: String) = vm.work {
         repo.asetToTemuan(asetId, dinasId, null) ?: throw IllegalArgumentException("Aset tidak ditemukan")
         vm.toast("Temuan dibuat di dinas terpilih")
+    }
+
+
+    // ---------------- master, pilih banyak, operasi massal ----------------
+
+    val master by lazy { MasterStore(app) }
+    var masterVer by mutableStateOf(0)
+    var selMode by mutableStateOf(false)
+    var selected by mutableStateOf<Set<String>>(emptySet())
+    var sibuk by mutableStateOf<String?>(null)          // pesan progres operasi panjang
+    @Volatile var berhenti = false
+
+    fun toggleSel(id: String) { selected = if (id in selected) selected - id else selected + id; if (selected.isEmpty()) selMode = false }
+    fun mulaiPilih(id: String) { selMode = true; selected = setOf(id) }
+    fun selesaiPilih() { selMode = false; selected = emptySet() }
+
+    fun opsi(f: MasterField, list: List<AsetModel>): List<String> { masterVer; return master.options(f, list) }
+
+    /** Ganti nilai master di semua aset yang memakainya. */
+    fun renameMaster(f: MasterField, lama: String, baru: String) = vm.work {
+        val t = baru.trim(); if (t.isEmpty()) return@work
+        master.rename(f, lama, t)
+        var n = 0
+        for (a in repo.asetList()) if (f.get(a).equals(lama, true)) { repo.saveAset(f.set(a, t).addLog("master ${f.label}: $lama → $t")); n++ }
+        masterVer++
+        vm.toast("$n aset diperbarui")
+    }
+
+    fun bulkEdit(ids: Set<String>, ket: String, ubah: (AsetModel) -> AsetModel) = vm.work {
+        var n = 0
+        for (a in repo.asetList()) if (a.id in ids) { repo.saveAset(ubah(a).addLog(ket)); n++ }
+        vm.toast("$n aset diubah")
+    }
+
+    fun bulkSimpan(daftar: List<AsetModel>) = vm.work {
+        for (a in daftar) {
+            val (st, src) = KodeAset.hitungStatusBarcode(a.code, a.pcodes, a.pcodes.isNotEmpty(), a.barcode, a.barcodeSrc)
+            repo.saveAset(a.copy(barcode = st, barcodeSrc = src).addLog("edit tabel"))
+        }
+        vm.toast("${daftar.size} aset disimpan")
+    }
+
+    fun bulkHapus(ids: Set<String>) = vm.work { ids.forEach { repo.deleteAset(it) }; vm.toast("${ids.size} aset dihapus"); selesaiPilih() }
+
+    /** mode "urut": foto ke-i untuk aset ke-i; "sama": semua foto ke semua aset terpilih. */
+    fun bulkFoto(ids: List<String>, uris: List<Uri>, mode: String) = vm.work {
+        try {
+            var ok = 0
+            val pairs = if (mode == "urut") ids.zip(uris) else ids.flatMap { id -> uris.map { id to it } }
+            for ((i, pr) in pairs.withIndex()) {
+                sibuk = "Menyimpan foto ${i + 1}/${pairs.size}…"
+                try {
+                    val p = withContext(Dispatchers.IO) { PhotoPipeline.process(app, pr.second, vm.settings.photoPreset, null) }
+                    repo.addAsetFoto(pr.first, p.jpeg, p.takenAt ?: System.currentTimeMillis()); ok++
+                } catch (e: Exception) { vm.toast("Foto dilewati: ${e.message ?: "tidak terbaca"}") }
+            }
+            vm.toast("$ok foto ditambahkan")
+        } finally { sibuk = null }
+    }
+
+    /** Hitung ulang status barcode semua aset yang tidak diatur manual. */
+    fun hitungUlang() = vm.work {
+        var n = 0
+        for (a in repo.asetList()) {
+            if (a.barcodeSrc == SumberBarcode.MANUAL) continue
+            val (st, src) = KodeAset.hitungStatusBarcode(a.code, a.pcodes, a.pcodes.isNotEmpty(), a.barcode, a.barcodeSrc)
+            if (st != a.barcode || src != a.barcodeSrc) { repo.saveAset(a.copy(barcode = st, barcodeSrc = src).addLog("hitung ulang barcode")); n++ }
+        }
+        vm.toast("$n aset diperbarui statusnya")
+    }
+
+    /** OCR ulang (mode dalam) pada maksimum 3 foto tiap aset berfoto. Bisa dihentikan lewat `berhenti`. */
+    fun ocrSemua() = vm.work {
+        berhenti = false
+        try {
+            val daftar = repo.asetBundles().filter { it.fotos.isNotEmpty() }
+            var ubah = 0
+            for ((i, b) in daftar.withIndex()) {
+                if (berhenti) break
+                sibuk = "OCR ${i + 1}/${daftar.size} — ketuk Berhenti untuk membatalkan"
+                val kode = LinkedHashSet<String>()
+                for (f in b.fotos.take(3)) {
+                    val bytes = repo.asetFotoBytes(f.path) ?: continue
+                    kode.addAll(runCatching { CodeScanner.bacaJpeg(bytes).kode }.getOrDefault(emptyList()))
+                    if (kode.isNotEmpty()) break
+                }
+                if (kode.isEmpty()) continue
+                var a = repo.asetById(b.aset.id) ?: continue
+                val pc = (a.pcodes + kode).distinct()
+                if (pc != a.pcodes) {
+                    a = a.copy(pcodes = pc)
+                    if (a.code.isBlank() && kode.size == 1) a = a.copy(code = kode.first())
+                    val (st, src) = KodeAset.hitungStatusBarcode(a.code, a.pcodes, true, a.barcode, a.barcodeSrc)
+                    repo.saveAset(a.copy(barcode = st, barcodeSrc = src).addLog("OCR ulang")); ubah++
+                }
+            }
+            vm.toast(if (berhenti) "Dihentikan. $ubah aset diperbarui" else "Selesai. $ubah aset diperbarui")
+        } finally { sibuk = null }
     }
 
     // ---------------- import ----------------

@@ -118,21 +118,21 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                     Label("Kategori")
                     FlowChips(KodeAset.KATEGORI.map { it to KodeAset.labelKategori(it) }, m.category) { m = m.copy(category = it) }
                     Spacer(Modifier.height(6.dp))
-                    Field(m.classif, { m = m.copy(classif = it) }, "Klasifikasi (otomatis dari kode)", singleLine = true)
+                    MasterPick("Klasifikasi (otomatis dari kode)", m.classif, c.opsi(id.tub.dinas.aset.MasterField.KLASIF, list)) { m = m.copy(classif = it) }
                     Spacer(Modifier.height(6.dp))
-                    Field(m.owner, { m = m.copy(owner = it) }, "PT pemilik", singleLine = true)
+                    MasterPick("PT pemilik", m.owner, c.opsi(id.tub.dinas.aset.MasterField.PT, list)) { m = m.copy(owner = it) }
                     Label("Kepemilikan")
                     FlowChips(listOf("own" to "Milik Sendiri", "lease" to "Sewa"), m.tenure) { m = m.copy(tenure = it) }
                 }
 
                 Panel {
-                    Field(m.dept, { m = m.copy(dept = it) }, "Departemen", singleLine = true)
+                    MasterPick("Departemen", m.dept, c.opsi(id.tub.dinas.aset.MasterField.DEPT, list)) { m = m.copy(dept = it) }
                     Spacer(Modifier.height(6.dp))
-                    Field(m.location, { m = m.copy(location = it) }, "Lokasi", singleLine = true)
+                    MasterPick("Lokasi", m.location, c.opsi(id.tub.dinas.aset.MasterField.LOKASI, list)) { m = m.copy(location = it) }
                     Spacer(Modifier.height(6.dp))
                     Field(m.user, { m = m.copy(user = it) }, "User / pengguna", singleLine = true)
                     Label("Kondisi")
-                    FlowChips(listOf("Baik", "Cukup", "Rusak").map { it to it }, m.cond) { m = m.copy(cond = if (m.cond == it) "" else it) }
+                    FlowChips(c.opsi(id.tub.dinas.aset.MasterField.KONDISI, list).map { it to it }, m.cond) { m = m.copy(cond = if (m.cond == it) "" else it) }
                     Spacer(Modifier.height(6.dp))
                     Field(m.acq, { m = m.copy(acq = it) }, "Tgl pembelian (yyyy-mm-dd)", singleLine = true)
                     Spacer(Modifier.height(6.dp))

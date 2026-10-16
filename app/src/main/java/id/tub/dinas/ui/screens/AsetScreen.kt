@@ -6,6 +6,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -68,36 +70,68 @@ fun AsetScreen(vm: MainViewModel, embedded: Boolean = false) {
 
     val filtered = remember(list, c.query, c.kategori, c.barcode, c.auditFilter, c.peringatan, fotos) { c.filtered(list) }
 
+    var menu by remember { mutableStateOf(false) }
+    var masterOpen by remember { mutableStateOf(false) }
+    var aksi by remember { mutableStateOf<String?>(null) }      // dialog aksi massal yang sedang terbuka
+    val sel = c.selected
     Column(Modifier.fillMaxSize().background(C.Bg)) {
-        if (!embedded) Header("Aset", onBack = { vm.pop() }, actions = {
-            HeaderAction("Impor") { importPick.launch(arrayOf("*/*")) }
-            HeaderAction("Ekspor") { exportDialog = true }
-            HeaderAction("+ Baru") { c.baru() }
-        })
+        if (!embedded) Header("Aset", onBack = { vm.pop() })
+        // satu baris atas: tab + satu menu aksi
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Chip("Daftar (${list.size})", c.tab == 0, onClick = { c.tab = 0 })
             Chip("Audit", c.tab == 1, onClick = { c.tab = 1 })
-            if (embedded) {
-                Spacer(Modifier.weight(1f))
-                Chip("Impor", false, onClick = { importPick.launch(arrayOf("*/*")) })
-                Chip("Ekspor", false, onClick = { exportDialog = true })
-                Chip("+ Baru", true, onClick = { c.baru() })
+            Chip("Ringkasan", c.tab == 2, onClick = { c.tab = 2 })
+            Spacer(Modifier.weight(1f))
+            Box {
+                Text("⋯", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = if (id.tub.dinas.ui.theme.ThemeState.sky) Color.White else C.Ink,
+                    modifier = Modifier.clickable { menu = true }.padding(horizontal = 10.dp))
+                DropdownMenu(menu, { menu = false }) {
+                    DropdownMenuItem({ Text("Pilih banyak aset") }, { menu = false; c.selMode = true; c.tab = 0 })
+                    DropdownMenuItem({ Text("Impor Excel / cadangan") }, { menu = false; importPick.launch(arrayOf("*/*")) })
+                    DropdownMenuItem({ Text("Ekspor…") }, { menu = false; exportDialog = true })
+                    DropdownMenuItem({ Text("Data Master") }, { menu = false; masterOpen = true })
+                    DropdownMenuItem({ Text("Hitung ulang status barcode") }, { menu = false; c.hitungUlang() })
+                    DropdownMenuItem({ Text("OCR ulang semua foto") }, { menu = false; c.ocrSemua() })
+                    DropdownMenuItem({ Text("Label QR (semua berkode)") }, { menu = false; aksi = "label-semua" })
+                    DropdownMenuItem({ Text("Sesi audit baru") }, { menu = false; resetAsk = true })
+                }
             }
         }
         Box(Modifier.weight(1f)) {
-            if (c.tab == 0) DaftarTab(vm, list, filtered, fotos)
-            else AuditTab(vm, list, fotos) { resetAsk = true }
-        }
-        Column(Modifier.fillMaxWidth().then(if (embedded) Modifier else Modifier.navigationBarsPadding()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            val found = list.count { it.state == AuditState.FOUND }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Switch(c.auditMode, { c.auditMode = it })
-                Spacer(Modifier.width(8.dp))
-                Text(if (c.auditMode) "Mode Audit: aset yang di-scan ditandai Ditemukan ($found/${list.size})" else "Mode Audit mati (scan hanya mencocokkan & menambah foto)",
-                    Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = if (id.tub.dinas.ui.theme.ThemeState.sky) Color.White else C.Muted)
+            when (c.tab) {
+                0 -> DaftarTab(vm, list, filtered, fotos)
+                1 -> AuditTab(vm, list, fotos) { resetAsk = true }
+                else -> AsetRingkasanTab(vm, list, fotos) { kat, per, bc, st ->
+                    c.kategori = kat; c.peringatan = per; c.barcode = bc; c.auditFilter = st; c.query = ""; c.tab = 0
+                }
             }
-            AmberButton("Scan kode aset", Modifier.fillMaxWidth()) { scanMenu = true }
         }
+        // satu bar aksi di bawah
+        if (c.selMode) SelectionBar(vm, list, filtered) { aksi = it }
+        else Row(Modifier.fillMaxWidth().then(if (embedded) Modifier else Modifier.navigationBarsPadding()).padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            val onSky = id.tub.dinas.ui.theme.ThemeState.sky
+            Switch(c.auditMode, { c.auditMode = it })
+            Text(if (c.auditMode) "Audit\n${list.count { it.state == AuditState.FOUND }}/${list.size}" else "Audit\nmati", fontSize = 11.sp, lineHeight = 13.sp, color = if (onSky) Color.White else C.Muted)
+            Spacer(Modifier.weight(1f))
+            SoftButton("+ Baru") { c.baru() }
+            AmberButton("Scan kode") { scanMenu = true }
+        }
+    }
+
+    if (masterOpen) MasterDialog(vm) { masterOpen = false }
+    when (aksi) {
+        "tabel" -> BulkGridDialog(vm, list.filter { it.id in sel }.map { it.id }) { aksi = null }
+        "massal" -> BulkEditDialog(vm, sel) { aksi = null }
+        "foto" -> BulkFotoDialog(vm, list.filter { it.id in sel }.map { it.id }) { aksi = null }
+        "status" -> BulkStatusDialog(vm, sel) { aksi = null }
+        "hapus" -> Confirm("Hapus ${sel.size} aset?", "Aset terpilih dan semua fotonya dihapus permanen.", onConfirm = { c.bulkHapus(sel) }, onDismiss = { aksi = null })
+        "ekspor" -> { exportDialog = true; aksi = null }
+        else -> {}
+    }
+    c.sibuk?.let { msg ->
+        AlertDialog(onDismissRequest = {}, title = { Text("Sedang diproses") }, text = { Text(msg) },
+            confirmButton = { TextButton(onClick = { c.berhenti = true }) { Text("Berhenti") } })
     }
 
     if (scanMenu) AlertDialog(
@@ -119,11 +153,11 @@ fun AsetScreen(vm: MainViewModel, embedded: Boolean = false) {
     c.editing?.let { id -> AsetEditor(vm, id) }
 
     if (exportDialog) ExportDialog(
-        total = list.size, terfilter = filtered.size,
+        total = list.size, terfilter = filtered.size, terpilih = sel.size,
         onDismiss = { exportDialog = false },
-        onGo = { n, onlyFiltered ->
+        onGo = { n, cakupan ->
             exportDialog = false
-            val scope = if (onlyFiltered) filtered else list
+            val scope = when (cakupan) { 1 -> filtered; 2 -> list.filter { it.id in sel }; else -> list }
             exportReq = n to scope
             create.launch("Physical Check ${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.xlsx")
         },
@@ -159,10 +193,16 @@ private fun DaftarTab(vm: MainViewModel, all: List<AsetModel>, shown: List<AsetM
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AsetCard(vm: MainViewModel, a: AsetModel, fotos: List<AsetFotoModel>) {
-    Panel(onClick = { vm.aset.editing = a.id }) {
+    val c = vm.aset
+    Panel(Modifier.combinedClickable(
+        onClick = { if (c.selMode) c.toggleSel(a.id) else c.editing = a.id },
+        onLongClick = { if (c.selMode) c.toggleSel(a.id) else c.mulaiPilih(a.id) },
+    )) {
         Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (c.selMode) Checkbox(a.id in c.selected, { c.toggleSel(a.id) })
             val cover = fotos.firstOrNull()
             if (cover != null) EncryptedImage(vm.repo.vault, cover.path, Modifier.size(64.dp).itemFrame(10.dp), maxSide = 200)
             Column(Modifier.weight(1f)) {
@@ -299,9 +339,9 @@ private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
 }
 
 @Composable
-private fun ExportDialog(total: Int, terfilter: Int, onDismiss: () -> Unit, onGo: (Int, Boolean) -> Unit) {
+private fun ExportDialog(total: Int, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onGo: (Int, Int) -> Unit) {
     var n by remember { mutableIntStateOf(2) }
-    var onlyFiltered by remember { mutableStateOf(false) }
+    var cakupan by remember { mutableIntStateOf(if (terpilih > 0) 2 else 0) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Ekspor Excel (Memo FAT)") },
@@ -310,14 +350,15 @@ private fun ExportDialog(total: Int, terfilter: Int, onDismiss: () -> Unit, onGo
                 Text("Tiga sheet: Tagged, Untagged, Belum Ada Kode Aset.", color = C.Muted)
                 Text("Cakupan", style = MaterialTheme.typography.labelSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Chip("Semua ($total)", !onlyFiltered, onClick = { onlyFiltered = false })
-                    Chip("Terfilter ($terfilter)", onlyFiltered, onClick = { onlyFiltered = true })
+                    Chip("Semua ($total)", cakupan == 0, onClick = { cakupan = 0 })
+                    Chip("Terfilter ($terfilter)", cakupan == 1, onClick = { cakupan = 1 })
+                    if (terpilih > 0) Chip("Terpilih ($terpilih)", cakupan == 2, onClick = { cakupan = 2 })
                 }
                 Text("Foto per aset", style = MaterialTheme.typography.labelSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { (1..4).forEach { k -> Chip("$k", n == k, onClick = { n = k }) } }
             }
         },
-        confirmButton = { TextButton(onClick = { onGo(n, onlyFiltered) }) { Text("Ekspor") } },
+        confirmButton = { TextButton(onClick = { onGo(n, cakupan) }) { Text("Ekspor") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
     )
 }

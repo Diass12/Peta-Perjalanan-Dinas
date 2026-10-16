@@ -26,8 +26,20 @@ class ScanRead(val kode: List<String>, val mentah: List<String>, val teks: Strin
 object CodeScanner {
     private const val MAX_SIDE = 2400
 
-    suspend fun baca(ctx: Context, uri: Uri): ScanRead {
-        val bmp = muat(ctx, uri)
+    suspend fun baca(ctx: Context, uri: Uri): ScanRead = proses(muat(ctx, uri))
+
+    /** Membaca dari byte JPEG (mis. foto aset yang tersimpan terenkripsi). */
+    suspend fun bacaJpeg(bytes: ByteArray): ScanRead {
+        val b = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, b)
+        if (b.outWidth <= 0 || b.outHeight <= 0) return ScanRead(emptyList(), emptyList(), "")
+        var sample = 1
+        while (maxOf(b.outWidth, b.outHeight) / (sample * 2) >= MAX_SIDE) sample *= 2
+        val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return ScanRead(emptyList(), emptyList(), "")
+        return proses(bmp)
+    }
+
+    private suspend fun proses(bmp: Bitmap): ScanRead {
         val barcode = BarcodeScanning.getClient()
         val ocr = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         try {
