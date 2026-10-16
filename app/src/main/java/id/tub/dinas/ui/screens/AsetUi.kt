@@ -159,7 +159,7 @@ private fun ScanGlyph() = Canvas(Modifier.size(30.dp)) {
 @Composable
 fun ANav(page: Int, onPage: (Int) -> Unit, onScan: () -> Unit) {
     @Composable
-    fun Item(glyph: String, label: String, on: Boolean, click: () -> Unit) = Column(Modifier.weight(1f).clickable(onClick = click).padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    fun RowScope.Item(glyph: String, label: String, on: Boolean, click: () -> Unit) = Column(Modifier.weight(1f).clickable(onClick = click).padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(glyph, fontSize = 22.sp, modifier = Modifier.alpha(if (on) 1f else 0.55f))
         Text(label, fontSize = 12.sp, fontWeight = if (on) FontWeight.ExtraBold else FontWeight.Medium, color = if (on) A.Accent else A.Muted)
     }
