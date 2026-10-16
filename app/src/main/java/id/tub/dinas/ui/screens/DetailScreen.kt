@@ -59,7 +59,7 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
                 }
             }
         }
-        if (vm.tab != DetailTab.ASET) {
+        run {
             val ink = if (ThemeState.sky) Color.White else C.Ink
             val period = s?.dinas?.let { listOf(fmtDate(it.startMs), fmtDate(it.endMs)).filter { x -> x.isNotEmpty() }.joinToString(" – ") }.orEmpty()
             Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp, top = 10.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -78,16 +78,15 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
             when (vm.tab) {
                 DetailTab.PETA -> PetaTab(vm, s)
                 DetailTab.TEMUAN -> TemuanTab(vm, s)
-                DetailTab.ASET -> AsetScreen(vm, embedded = true)
                 DetailTab.RINGKASAN -> RingkasanTab(s)
                 DetailTab.TINDAK -> TindakTab(vm, s)
             }
         }
-        val order = listOf(DetailTab.PETA, DetailTab.TEMUAN, DetailTab.ASET, DetailTab.RINGKASAN)
+        val order = listOf(DetailTab.PETA, DetailTab.TEMUAN, DetailTab.PETA, DetailTab.RINGKASAN)
         WhiteNav(
             listOf(id.tub.dinas.R.drawable.ic_peta to "Peta", id.tub.dinas.R.drawable.ic_temuan to "Temuan", id.tub.dinas.R.drawable.ic_lensa_aset to "Aset", id.tub.dinas.R.drawable.ic_ringkasan to "Ringkasan"),
             order.indexOf(vm.tab),
-        ) { vm.tab = order[it] }
+        ) { if (it == 2) vm.push(Screen.Aset) else vm.tab = order[it] }
     }
     if (editDinas && s != null) DinasDialog(s.dinas, { editDinas = false }) { n, a, b, note -> vm.work { vm.repo.updateDinas(s.dinas.copy(name = n, startMs = a, endMs = b, note = note)) } }
     if (confirmDelete) Confirm("Hapus dinas?", "Semua titik, temuan, foto, dan PDF di dinas ini dihapus permanen. Buat cadangan dulu bila perlu.",

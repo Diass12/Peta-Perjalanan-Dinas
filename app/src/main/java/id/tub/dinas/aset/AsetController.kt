@@ -33,16 +33,21 @@ class AsetController(private val vm: MainViewModel) {
     val fotos: StateFlow<Map<String, List<AsetFotoModel>>> =
         repo.observeAsetFoto().map { l -> l.groupBy { it.asetId } }.stateIn(vm.viewModelScope, SharingStarted.Eagerly, emptyMap())
 
-    var tab by mutableStateOf(0)                       // 0 daftar, 1 audit
+    var tab by mutableStateOf(0)                       // halaman: 0 Home, 1 Aset, 2 Audit, 3 Menu
+    var tampilScan by mutableStateOf(false)            // dialog pilih kamera/galeri
     var query by mutableStateOf("")
     var kategori by mutableStateOf<String?>(null)
     var barcode by mutableStateOf<StatusBarcode?>(null)
     var auditFilter by mutableStateOf<AuditState?>(null)
-    var peringatan by mutableStateOf<String?>(null)    // nofoto | nokode | dup
+    var peringatan by mutableStateOf<String?>(null)    // nofoto | nokode | dup | noname | nodept | noloc | badcode | noowner
+    var deptFilter by mutableStateOf<String?>(null)
+    var ownerFilter by mutableStateOf<String?>(null)
     var auditMode by mutableStateOf(false)
     var report by mutableStateOf<ScanReport?>(null)
     var editing by mutableStateOf<String?>(null)
     var importState by mutableStateOf<ImportState?>(null)
+
+    fun resetFilter() { query = ""; kategori = null; barcode = null; auditFilter = null; peringatan = null; deptFilter = null; ownerFilter = null }
 
     fun duplikat(list: List<AsetModel>): Set<String> =
         list.map { KodeAset.norm(it.code) }.filter { it.isNotEmpty() }.groupingBy { it }.eachCount().filter { it.value > 1 }.keys
@@ -56,10 +61,13 @@ class AsetController(private val vm: MainViewModel) {
                 (kategori == null || a.category == kategori) &&
                 (barcode == null || a.barcode == barcode) &&
                 (auditFilter == null || a.state == auditFilter) &&
+                (deptFilter == null || a.dept.equals(deptFilter, true)) &&
+                (ownerFilter == null || a.owner.equals(ownerFilter, true)) &&
                 when (peringatan) {
                     "nofoto" -> f[a.id].isNullOrEmpty()
                     "nokode" -> a.code.isEmpty()
                     "dup" -> KodeAset.norm(a.code) in dup
+                    "noowner" -> a.owner.isBlank()
                     "noname" -> a.name.isBlank()
                     "nodept" -> a.dept.isBlank()
                     "noloc" -> a.location.isBlank()

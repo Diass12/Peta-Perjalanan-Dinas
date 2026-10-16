@@ -15,4 +15,4 @@ sealed interface Editor {
     data class Temuan(val id: String, val isNew: Boolean) : Editor
 }
 
-enum class DetailTab(val label: String) { PETA("Peta"), TEMUAN("Temuan"), ASET("Aset"), RINGKASAN("Ringkasan"), TINDAK("Tindak Lanjut") }
+enum class DetailTab(val label: String) { PETA("Peta"), TEMUAN("Temuan"), RINGKASAN("Ringkasan"), TINDAK("Tindak Lanjut") }
