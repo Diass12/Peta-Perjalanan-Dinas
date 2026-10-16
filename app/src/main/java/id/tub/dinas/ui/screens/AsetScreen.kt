@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import id.tub.dinas.MainViewModel
+import id.tub.dinas.aset.ScanReport
 import id.tub.dinas.domain.*
 import id.tub.dinas.media.EncryptedImage
 import id.tub.dinas.ui.components.*
