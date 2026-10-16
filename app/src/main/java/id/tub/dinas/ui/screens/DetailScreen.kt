@@ -94,20 +94,23 @@ fun EditorHost(vm: MainViewModel, s: DinasSnapshot) {
     }
 }
 
-/** Menutup editor; entri baru yang masih kosong dibuang supaya tidak menumpuk sampah. */
+/** Menutup editor; entri baru yang masih kosong dibuang supaya tidak menumpuk sampah. Memakai data terbaru dari database, bukan snapshot lama. */
 fun closeEditor(vm: MainViewModel, s: DinasSnapshot) {
     val ed = vm.editor
     vm.editor = null
-    when (ed) {
-        is Editor.Titik -> {
-            val t = s.titik.firstOrNull { it.id == ed.id }
-            if (t != null && t.geo == null && t.note.isBlank() && s.fotoOf(OwnerType.TITIK, t.id).isEmpty() && t.title.startsWith("Titik ")) vm.work { vm.repo.deleteTitik(t.id) }
+    if (ed == null) return
+    vm.work {
+        val fresh = vm.repo.snapshot(s.dinas.id) ?: return@work
+        when (ed) {
+            is Editor.Titik -> {
+                val t = fresh.titik.firstOrNull { it.id == ed.id }
+                if (t != null && t.geo == null && t.note.isBlank() && fresh.fotoOf(OwnerType.TITIK, t.id).isEmpty() && fresh.mediaOf(OwnerType.TITIK, t.id).isEmpty() && t.title.startsWith("Titik ")) vm.repo.deleteTitik(t.id)
+            }
+            is Editor.Temuan -> {
+                val t = fresh.temuan.firstOrNull { it.id == ed.id }
+                if (ed.isNew && t != null && t.description.isBlank() && t.activeLenses.isEmpty() && t.geo == null &&
+                    fresh.fotoOf(OwnerType.TEMUAN, t.id).isEmpty() && fresh.mediaOf(OwnerType.TEMUAN, t.id).isEmpty() && fresh.lampiranOf(t.id).isEmpty() && t.title.startsWith("Temuan ")) vm.repo.deleteTemuan(t.id)
+            }
         }
-        is Editor.Temuan -> {
-            val t = s.temuan.firstOrNull { it.id == ed.id }
-            if (ed.isNew && t != null && t.description.isBlank() && t.activeLenses.isEmpty() && t.geo == null &&
-                s.fotoOf(OwnerType.TEMUAN, t.id).isEmpty() && t.title.startsWith("Temuan ")) vm.work { vm.repo.deleteTemuan(t.id) }
-        }
-        null -> {}
     }
 }

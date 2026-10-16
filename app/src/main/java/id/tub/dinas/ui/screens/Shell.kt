@@ -36,6 +36,15 @@ import id.tub.dinas.ui.theme.C
 import id.tub.dinas.ui.theme.ThemeState
 import kotlinx.coroutines.launch
 
+/** Bila belum ada dinas, aksi cepat membuat satu otomatis (bernama tanggal hari ini) supaya pengguna tidak tersangkut. */
+private suspend fun buatDinasOtomatis(vm: MainViewModel): String {
+    val now = System.currentTimeMillis()
+    val nama = "Dinas " + java.text.SimpleDateFormat("d MMM yyyy", java.util.Locale("id", "ID")).format(java.util.Date(now))
+    val id = vm.repo.createDinas(nama, now, null, "")
+    vm.settings.lastDinasId = id
+    return id
+}
+
 /** Cangkang aplikasi: 4 menu bawah — Beranda, Peta & GPS, Audit & Dokumen, Wawasan. */
 @Composable
 fun ShellScreen(vm: MainViewModel) {
@@ -122,12 +131,10 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
         item {
             Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PrimaryButton("📍 Kunci GPS", Modifier.weight(1f)) {
-                    if (aktif == null) { creating = true; return@PrimaryButton }
-                    vm.work { val id = vm.repo.saveTitik(aktif.id, null, "", "", null); vm.aktifId = aktif.id; vm.mainTab = 1; vm.editor = Editor.Titik(id) }
+                    vm.work { val did = aktif?.id ?: buatDinasOtomatis(vm); val id = vm.repo.saveTitik(did, null, "", "", null); vm.aktifId = did; vm.mainTab = 1; vm.editor = Editor.Titik(id) }
                 }
                 SoftButton("📷 Kamera audit", Modifier.weight(1f)) {
-                    if (aktif == null) { creating = true; return@SoftButton }
-                    vm.work { val id = vm.repo.newTemuan(aktif.id, null); vm.aktifId = aktif.id; vm.mainTab = 2; vm.editor = Editor.Temuan(id, true) }
+                    vm.work { val did = aktif?.id ?: buatDinasOtomatis(vm); val id = vm.repo.newTemuan(did, null); vm.aktifId = did; vm.mainTab = 2; vm.editor = Editor.Temuan(id, true) }
                 }
             }
         }

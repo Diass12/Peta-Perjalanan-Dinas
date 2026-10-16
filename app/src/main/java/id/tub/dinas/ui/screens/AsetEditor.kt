@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -53,6 +54,8 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
     var temuanDlg by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
     val fotos = fotosAll[asetId].orEmpty()
+    var besar by remember { mutableStateOf<Int?>(null) }
+    besar?.let { b -> id.tub.dinas.ui.components.ZoomViewer(vm, fotos.map { it.path }, b) { besar = null } }
 
     fun close() { c.editing = null; c.pendingNew = null }
     val kartu = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri -> if (uri != null && existing != null) c.exportKartu(uri, existing) }
@@ -117,10 +120,11 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                         fotos.forEachIndexed { i, f ->
                             Spacer(Modifier.height(8.dp))
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                EncryptedImage(vm.repo.vault, f.path, Modifier.size(84.dp).itemFrame(10.dp), maxSide = 300)
+                                EncryptedImage(vm.repo.vault, f.path, Modifier.size(84.dp).itemFrame(10.dp).clickable { besar = i }, maxSide = 300)
                                 Column(Modifier.weight(1f)) {
                                     Text(if (i == 0) "★ Foto utama" else "Foto ${i + 1}", style = MaterialTheme.typography.bodyMedium)
                                     Row {
+                                        TextButton(onClick = { besar = i }) { Text("Perbesar") }
                                         if (i > 0) TextButton(onClick = { c.jadikanUtama(asetId, f.id) }) { Text("Jadikan utama") }
                                         TextButton(onClick = { c.hapusFoto(f.id) }) { Text("Hapus", color = C.Danger) }
                                     }

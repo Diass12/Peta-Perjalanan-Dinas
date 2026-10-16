@@ -28,7 +28,7 @@ private fun pinsExcept(s: DinasSnapshot, exceptId: String): List<MapPin> =
 @Composable
 fun TitikEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () -> Unit, onSaved: () -> Unit) {
     val t = s.titik.firstOrNull { it.id == id }
-    if (t == null) { LaunchedEffect(Unit) { onSaved() }; return }
+    if (t == null) { LaunchedEffect(Unit) { kotlinx.coroutines.delay(3000); onSaved() }; Box(Modifier.fillMaxSize().background(C.Bg), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = C.Brand) }; return }
     var title by remember(id) { mutableStateOf(if (t.title.startsWith("Titik ") && t.geo == null && t.note.isBlank()) "" else t.title) }
     var note by remember(id) { mutableStateOf(t.note) }
     var geo by remember(id) { mutableStateOf(t.geo) }
@@ -54,7 +54,7 @@ fun TitikEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () -> 
 @Composable
 fun TemuanEditor(vm: MainViewModel, s: DinasSnapshot, id: String, onClose: () -> Unit, onSaved: () -> Unit) {
     val t = s.temuan.firstOrNull { it.id == id }
-    if (t == null) { LaunchedEffect(Unit) { onSaved() }; return }
+    if (t == null) { LaunchedEffect(Unit) { kotlinx.coroutines.delay(3000); onSaved() }; Box(Modifier.fillMaxSize().background(C.Bg), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = C.Brand) }; return }
     var title by remember(id) { mutableStateOf(if (t.title.startsWith("Temuan ") && t.description.isBlank()) "" else t.title) }
     var code by remember(id) { mutableStateOf(t.code) }
     var desc by remember(id) { mutableStateOf(t.description) }

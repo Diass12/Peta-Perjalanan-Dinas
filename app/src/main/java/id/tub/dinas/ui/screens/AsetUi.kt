@@ -314,7 +314,9 @@ fun AAssetCard(vm: MainViewModel, a: AsetModel, fotos: List<AsetFotoModel>) {
         Row(Modifier.padding(14.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             if (c.selMode) Checkbox(picked, { c.toggleSel(a.id) }, colors = CheckboxDefaults.colors(checkedColor = A.Accent, uncheckedColor = A.Muted))
             val cover = fotos.firstOrNull()
-            if (cover != null) EncryptedImage(vm.repo.vault, cover.path, Modifier.size(74.dp).clip(RoundedCornerShape(14.dp)), maxSide = 220)
+            var besar by remember { mutableStateOf(false) }
+            if (cover != null) EncryptedImage(vm.repo.vault, cover.path, Modifier.size(74.dp).clip(RoundedCornerShape(14.dp)).clickable { if (c.selMode) c.toggleSel(a.id) else besar = true }, maxSide = 220)
+            if (besar) id.tub.dinas.ui.components.ZoomViewer(vm, fotos.map { it.path }, 0) { besar = false }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 if (a.code.isEmpty()) Text("Tanpa Kode", color = A.Accent, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, fontStyle = FontStyle.Italic)
                 else Text(a.code, color = A.Accent, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, fontFamily = FontFamily.Monospace)
