@@ -40,33 +40,33 @@ import id.tub.dinas.media.EncryptedImage
 
 /** Palet modul Aset: meniru tampilan AsetScan (ungu–magenta–oranye, kartu gelap). */
 object A {
-    val Bg = Color(0xFF14122B)
-    val Card = Color(0xFF1E1B3A)
-    val Card2 = Color(0xFF2B2752)
-    val Line = Color(0xFF3A3668)
-    val Muted = Color(0xFFA09EC8)
-    val Accent = Color(0xFF8B7CFF)
-    val Green = Color(0xFF34D399)
-    val Amber = Color(0xFFFBBF24)
-    val Red = Color(0xFFF87171)
-    val Blue = Color(0xFF60A5FA)
-    val Pink = Color(0xFFE879F9)
-    val Grad = Brush.horizontalGradient(listOf(Color(0xFF5B45F0), Color(0xFFC84FE0), Color(0xFFF08A5D)))
-    val Head = Brush.linearGradient(listOf(Color(0xFF4F3FE8), Color(0xFFB04FE6), Color(0xFFF08A5D)))
-    private val cat = listOf(Color(0xFFF59E5B), Color(0xFF4C7DF0), Color(0xFF3CC4A0), Color(0xFF8B5CF6), Color(0xFFE0508F))
+    val Bg = Color(0xFFF5F7FB)
+    val Card = Color(0xFFFFFFFF)
+    val Card2 = Color(0xFFEEF1F6)
+    val Line = Color(0xFFE5E7EB)
+    val Ink = Color(0xFF111827)
+    val Muted = Color(0xFF6B7280)
+    val Accent = Color(0xFF2563EB)
+    val Green = Color(0xFF15803D)
+    val Amber = Color(0xFFD97706)
+    val Red = Color(0xFFDC2626)
+    val Blue = Color(0xFF2563EB)
+    val Pink = Color(0xFFC026D3)
+    val Grad = Brush.horizontalGradient(listOf(Color(0xFF2563EB), Color(0xFF2563EB)))
+    val Head = Brush.linearGradient(listOf(Color.White, Color.White))
+    private val cat = listOf(Color(0xFFD97706), Color(0xFF2563EB), Color(0xFF0D9488), Color(0xFF7C3AED), Color(0xFFDB2777))
     fun cat(k: String): Color = cat[KodeAset.KATEGORI.indexOf(k).coerceAtLeast(0) % cat.size]
     fun state(s: AuditState): Color = when (s) { AuditState.FOUND -> Green; AuditState.MISSING -> Red; AuditState.DAMAGED -> Amber; AuditState.PENDING -> Muted }
 }
 
 @Composable
 fun AHeader(title: String, sub: String, onBack: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}, extra: @Composable ColumnScope.() -> Unit = {}) {
-    Column(Modifier.fillMaxWidth().background(A.Head, RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
-        .statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 14.dp, bottom = 18.dp)) {
+    Column(Modifier.fillMaxWidth().background(Color.White).statusBarsPadding().padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (onBack != null) Text("‹", color = Color.White, fontSize = 34.sp, modifier = Modifier.clickable { onBack() }.padding(end = 8.dp))
+            if (onBack != null) Text("‹", color = A.Ink, fontSize = 34.sp, modifier = Modifier.clickable { onBack() }.padding(end = 8.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
-                Text(sub, color = Color(0xCCFFFFFF), fontSize = 14.sp, maxLines = 1)
+                Text(title, color = A.Ink, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(sub, color = A.Muted, fontSize = 13.sp, maxLines = 1)
             }
             actions()
         }
@@ -76,18 +76,18 @@ fun AHeader(title: String, sub: String, onBack: (() -> Unit)? = null, actions: @
 
 @Composable
 fun IconBtn(glyph: String, active: Boolean = false, onClick: () -> Unit) {
-    Box(Modifier.size(40.dp).clip(RoundedCornerShape(14.dp)).background(if (active) Color.White else Color(0x38FFFFFF)).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-        Text(glyph, fontSize = 18.sp, color = if (active) Color(0xFF5B45F0) else Color.White, fontWeight = FontWeight.Bold)
+    Box(Modifier.size(40.dp).clip(RoundedCornerShape(14.dp)).background(if (active) A.Accent else A.Card2).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Text(glyph, fontSize = 18.sp, color = if (active) Color.White else A.Ink, fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
 fun ACard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) =
-    Column(modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(24.dp)).padding(16.dp), content = content)
+    Column(modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(16.dp)).border(1.dp, A.Line, RoundedCornerShape(16.dp)).padding(16.dp), content = content)
 
 @Composable
 fun ATitle(glyph: String, text: String) = Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
-    Text(glyph, fontSize = 18.sp); Spacer(Modifier.width(8.dp)); Text(text, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    Text(glyph, fontSize = 18.sp); Spacer(Modifier.width(8.dp)); Text(text, color = A.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
 }
 
 @Composable
@@ -99,7 +99,7 @@ fun AGradButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit
 @Composable
 fun ADarkButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) =
     Box(modifier.clip(RoundedCornerShape(16.dp)).background(A.Card2).clickable(onClick = onClick).padding(horizontal = 18.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
-        Text(text, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+        Text(text, color = A.Ink, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
     }
 
 @Composable
@@ -112,7 +112,7 @@ fun AChip(text: String, selected: Boolean, dot: Color? = null, onClick: () -> Un
     Row(Modifier.clip(shape).then(if (selected) Modifier.background(A.Grad) else Modifier.background(A.Card).border(1.dp, A.Line, shape))
         .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
         if (dot != null) { Box(Modifier.size(9.dp).background(dot, CircleShape)); Spacer(Modifier.width(7.dp)) }
-        Text(text, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Text(text, color = if (selected) Color.White else A.Ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
     }
 }
 
@@ -123,7 +123,7 @@ fun APill(label: String, options: List<String>, selected: String?, modifier: Mod
     Box(modifier) {
         Row(Modifier.fillMaxWidth().clip(shape).background(A.Card).border(1.dp, A.Line, shape).clickable { open = true }.padding(horizontal = 16.dp, vertical = 11.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            Text(selected ?: label, color = Color.White, fontSize = 14.sp, maxLines = 1, modifier = Modifier.weight(1f))
+            Text(selected ?: label, color = A.Ink, fontSize = 14.sp, maxLines = 1, modifier = Modifier.weight(1f))
             Text("⌄", color = A.Muted, fontSize = 16.sp)
         }
         DropdownMenu(open, { open = false }) {
@@ -164,7 +164,7 @@ fun ANav(page: Int, onPage: (Int) -> Unit, onScan: () -> Unit) {
         Text(label, fontSize = 12.sp, fontWeight = if (on) FontWeight.ExtraBold else FontWeight.Medium, color = if (on) A.Accent else A.Muted)
     }
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).navigationBarsPadding().padding(top = 10.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().background(A.Card).navigationBarsPadding().padding(top = 10.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Item("🏠", "Home", page == 0) { onPage(0) }
             Item("📦", "Aset", page == 1) { onPage(1) }
             Spacer(Modifier.weight(1f))
@@ -184,9 +184,9 @@ private fun rupiah(d: Double): String = when {
 
 @Composable
 private fun StatTile(value: String, label: String, glyph: String, c1: Color, c2: Color, modifier: Modifier, onClick: () -> Unit) =
-    Box(modifier.clip(RoundedCornerShape(24.dp)).background(Brush.linearGradient(listOf(c1, c2))).clickable(onClick = onClick).padding(16.dp)) {
+    Box(modifier.clip(RoundedCornerShape(24.dp)).background(c1).clickable(onClick = onClick).padding(16.dp)) {
         Text(glyph, fontSize = 26.sp, modifier = Modifier.align(Alignment.TopEnd).alpha(0.5f))
-        Column { Text(value, color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.ExtraBold); Text(label, color = Color(0xE6FFFFFF), fontSize = 14.sp) }
+        Column { Text(value, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold); Text(label, color = Color(0xE6FFFFFF), fontSize = 14.sp) }
     }
 
 @Composable
@@ -194,7 +194,7 @@ private fun BarRow(label: String, share: Float, right: String, color: Brush, dot
     Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
         Row(Modifier.weight(0.42f), verticalAlignment = Alignment.CenterVertically) {
             if (dot != null) { Box(Modifier.size(10.dp).background(dot, CircleShape)); Spacer(Modifier.width(8.dp)) }
-            Text(label, color = Color.White, fontSize = 15.sp, maxLines = 2)
+            Text(label, color = A.Ink, fontSize = 15.sp, maxLines = 2)
         }
         Box(Modifier.weight(0.42f).height(12.dp).clip(RoundedCornerShape(6.dp)).background(A.Card2)) {
             Box(Modifier.fillMaxHeight().fillMaxWidth(share.coerceIn(0.03f, 1f)).clip(RoundedCornerShape(6.dp)).background(color))
@@ -217,28 +217,28 @@ fun AHome(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Aset
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ARing(frac, 112.dp, 14.dp, A.Card2, A.Grad) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("${Math.round(frac * 100)}%", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
+                            Text("${Math.round(frac * 100)}%", color = A.Ink, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
                             Text("teraudit", color = A.Muted, fontSize = 12.sp)
                         }
                     }
                     Spacer(Modifier.width(18.dp))
                     Column {
-                        Text("Progres Audit", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text("Progres Audit", color = A.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         Text("$done dari $n", color = A.Muted, fontSize = 15.sp)
                         Spacer(Modifier.height(4.dp))
-                        Row { Text("Total NBV: ", color = Color.White, fontSize = 15.sp); Text(rupiah(list.sumOf { it.nbv ?: 0.0 }), color = A.Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
+                        Row { Text("Total NBV: ", color = A.Ink, fontSize = 15.sp); Text(rupiah(list.sumOf { it.nbv ?: 0.0 }), color = A.Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
                         Spacer(Modifier.height(10.dp))
                         AGradButton("Mulai Scan Audit", onClick = onScanAudit)
                     }
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatTile("$n", "Total Aset", "📦", Color(0xFF5B45F0), Color(0xFF8B6CF6), Modifier.weight(1f)) { go { } }
-                StatTile("${list.count { it.state == AuditState.FOUND }}", "Ditemukan", "✔", Color(0xFF34C3A0), Color(0xFF5CC8E8), Modifier.weight(1f)) { go { auditFilter = AuditState.FOUND } }
+                StatTile("$n", "Total Aset", "📦", Color(0xFF2563EB), Color(0xFF2563EB), Modifier.weight(1f)) { go { } }
+                StatTile("${list.count { it.state == AuditState.FOUND }}", "Ditemukan", "✔", Color(0xFF15803D), Color(0xFF15803D), Modifier.weight(1f)) { go { auditFilter = AuditState.FOUND } }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatTile("${list.count { it.state == AuditState.MISSING || it.state == AuditState.DAMAGED }}", "Hilang / Rusak", "⚠", Color(0xFFF0605D), Color(0xFFF0A45D), Modifier.weight(1f)) { go { auditFilter = AuditState.MISSING } }
-                StatTile("${list.count { it.state == AuditState.PENDING }}", "Belum Diaudit", "🏷", Color(0xFF4C7DF0), Color(0xFF6A5CF0), Modifier.weight(1f)) { go { auditFilter = AuditState.PENDING } }
+                StatTile("${list.count { it.state == AuditState.MISSING || it.state == AuditState.DAMAGED }}", "Hilang / Rusak", "⚠", Color(0xFFDC2626), Color(0xFFDC2626), Modifier.weight(1f)) { go { auditFilter = AuditState.MISSING } }
+                StatTile("${list.count { it.state == AuditState.PENDING }}", "Belum Diaudit", "🏷", Color(0xFF6B7280), Color(0xFF6B7280), Modifier.weight(1f)) { go { auditFilter = AuditState.PENDING } }
             }
             ACard {
                 ATitle("🏷", "Per Kategori")
@@ -269,7 +269,7 @@ fun AHome(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Aset
                     AChip("Sewa  ${list.count { it.tenure == "lease" }}", false, A.Amber) { }
                 }
                 val pts = list.map { it.owner.trim() }.filter { it.isNotEmpty() }.groupingBy { it }.eachCount().entries.sortedByDescending { it.value }
-                pts.forEach { (pt, m) -> Row(Modifier.fillMaxWidth().clickable { go { ownerFilter = pt } }.padding(top = 10.dp)) { Text(pt, color = Color.White, modifier = Modifier.weight(1f)); Text("$m", color = A.Muted) } }
+                pts.forEach { (pt, m) -> Row(Modifier.fillMaxWidth().clickable { go { ownerFilter = pt } }.padding(top = 10.dp)) { Text(pt, color = A.Ink, modifier = Modifier.weight(1f)); Text("$m", color = A.Muted) } }
             }
             ACard {
                 ATitle("🧹", "Kualitas Data")
@@ -280,7 +280,7 @@ fun AHome(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Aset
                         val shape = RoundedCornerShape(22.dp)
                         Row(Modifier.clip(shape).border(1.5.dp, color, shape).clickable(enabled = count > 0) { go { peringatan = key } }.padding(horizontal = 14.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text("$count", color = color, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp); Spacer(Modifier.width(6.dp))
-                            Text(label, color = Color.White, fontSize = 14.sp)
+                            Text(label, color = A.Ink, fontSize = 14.sp)
                         }
                     }
                     Q(list.count { fotos[it.id].isNullOrEmpty() }, "Tanpa Foto", A.Amber, "nofoto")
@@ -318,12 +318,12 @@ fun AAssetCard(vm: MainViewModel, a: AsetModel, fotos: List<AsetFotoModel>) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 if (a.code.isEmpty()) Text("Tanpa Kode", color = A.Accent, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, fontStyle = FontStyle.Italic)
                 else Text(a.code, color = A.Accent, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, fontFamily = FontFamily.Monospace)
-                Text(a.name.ifEmpty { "—" }, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 2)
+                Text(a.name.ifEmpty { "—" }, color = A.Ink, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 2)
                 @OptIn(ExperimentalLayoutApi::class)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     val ck = A.cat(a.category)
                     ATag(KodeAset.labelKategori(a.category), ck, ck.copy(alpha = 0.18f))
-                    if (a.dept.isNotEmpty()) ATag(a.dept, Color.White, A.Card2)
+                    if (a.dept.isNotEmpty()) ATag(a.dept, A.Ink, A.Card2)
                     ATag(a.state.label, A.state(a.state), A.state(a.state).copy(alpha = 0.16f))
                     when (a.barcode) {
                         StatusBarcode.TAGGED -> ATag("🏷 Tagged", Color(0xFF065F46), Color(0xFFA7F3D0))
@@ -355,8 +355,8 @@ fun AAssets(vm: MainViewModel, all: List<AsetModel>, shown: List<AsetModel>, fot
             OutlinedTextField(c.query, { c.query = it }, Modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(20.dp),
                 placeholder = { Text("Cari kode, nama, lokasi…") }, leadingIcon = { Text("🔍", fontSize = 16.sp) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = A.Card, unfocusedContainerColor = A.Card, focusedBorderColor = Color.Transparent, unfocusedBorderColor = Color.Transparent,
-                    focusedTextColor = Color.White, unfocusedTextColor = Color.White, cursorColor = Color.White,
+                    focusedContainerColor = A.Card, unfocusedContainerColor = A.Card, focusedBorderColor = A.Accent, unfocusedBorderColor = A.Line,
+                    focusedTextColor = A.Ink, unfocusedTextColor = A.Ink, cursorColor = A.Ink,
                     focusedPlaceholderColor = A.Muted, unfocusedPlaceholderColor = A.Muted))
         })
         if (all.isEmpty()) Text("Belum ada aset. Buka tab Menu → Impor Excel / cadangan, atau ketuk tombol Scan untuk mulai.", color = A.Muted, modifier = Modifier.padding(24.dp))
@@ -404,8 +404,8 @@ fun AAudit(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Ase
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 90.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             AHeader("Audit", "$done dari ${list.size} teraudit", actions = {
-                ARing(frac, 84.dp, 10.dp, Color(0x40FFFFFF), Brush.linearGradient(listOf(Color.White, Color.White))) {
-                    Text("${Math.round(frac * 100)}%", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                ARing(frac, 84.dp, 10.dp, A.Card2, A.Grad) {
+                    Text("${Math.round(frac * 100)}%", color = A.Ink, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
                 }
             })
         }
@@ -450,10 +450,10 @@ fun AAudit(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Ase
 @Composable
 private fun MenuRow(glyph: String, c1: Color, c2: Color, title: String, sub: String, onClick: () -> Unit) =
     Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(54.dp).clip(RoundedCornerShape(16.dp)).background(Brush.linearGradient(listOf(c1, c2))), contentAlignment = Alignment.Center) { Text(glyph, fontSize = 24.sp) }
+        Box(Modifier.size(54.dp).clip(RoundedCornerShape(16.dp)).background(c1), contentAlignment = Alignment.Center) { Text(glyph, fontSize = 24.sp) }
         Spacer(Modifier.width(16.dp))
         Column(Modifier.weight(1f)) {
-            Text(title, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(title, color = A.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(sub, color = A.Muted, fontSize = 14.sp)
         }
     }
@@ -499,11 +499,11 @@ fun AMenu(vm: MainViewModel, count: Int, onImport: () -> Unit, onExport: () -> U
 @Composable
 fun ASelectionBar(vm: MainViewModel, shown: List<AsetModel>, onAction: (String) -> Unit) {
     val c = vm.aset
-    Column(Modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 30.dp),
+    Column(Modifier.fillMaxWidth().background(A.Card).padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 30.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("${c.selected.size}", color = A.Accent, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
-            Text("dipilih", color = Color.White, fontSize = 16.sp, modifier = Modifier.weight(1f))
+            Text("dipilih", color = A.Ink, fontSize = 16.sp, modifier = Modifier.weight(1f))
             ADarkButton("Pilih semua (${shown.size})") { c.selected = shown.map { it.id }.toSet() }
             ADarkButton("Kosongkan") { c.selected = emptySet() }
         }

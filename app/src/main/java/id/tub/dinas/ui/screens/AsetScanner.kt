@@ -196,9 +196,9 @@ fun AsetScanner(vm: MainViewModel, onClose: () -> Unit) {
                     Box(Modifier.size(52.dp).clip(CircleShape).background(Color(0x99000000)).clickable { galeri.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, contentAlignment = Alignment.Center) { Text("🖼", fontSize = 22.sp) }
                     Box(Modifier.size(78.dp).border(4.dp, Color.White, CircleShape).padding(6.dp).clip(CircleShape).background(if (live) Color(0x55FFFFFF) else Color.White).clickable(enabled = !live && izin) { jepret() }, contentAlignment = Alignment.Center) {
                         if (proses) CircularProgressIndicator(Modifier.size(32.dp), strokeWidth = 3.dp)
-                        else if (multi && tray.isNotEmpty()) Text("${tray.size}", fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = Color(0xFF5B45F0))
+                        else if (multi && tray.isNotEmpty()) Text("${tray.size}", fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = Color(0xFF2563EB))
                     }
-                    if (multi) Box(Modifier.height(52.dp).clip(RoundedCornerShape(26.dp)).background(if (tray.isEmpty()) Color(0x99000000) else Color(0xFF5B45F0)).clickable { selesaiMulti() }.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) { Text("Selesai", color = Color.White, fontWeight = FontWeight.Bold) }
+                    if (multi) Box(Modifier.height(52.dp).clip(RoundedCornerShape(26.dp)).background(if (tray.isEmpty()) Color(0x99000000) else Color(0xFF2563EB)).clickable { selesaiMulti() }.padding(horizontal = 18.dp), contentAlignment = Alignment.Center) { Text("Selesai", color = Color.White, fontWeight = FontWeight.Bold) }
                     else Box(Modifier.size(52.dp).clip(CircleShape).background(if (senter) Color.White else Color(0x99000000)).clickable { senter = !senter }, contentAlignment = Alignment.Center) { Text("🔦", fontSize = 22.sp) }
                 }
             }

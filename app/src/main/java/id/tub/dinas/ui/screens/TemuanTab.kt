@@ -28,47 +28,51 @@ import id.tub.dinas.ui.theme.C
 fun TemuanTab(vm: MainViewModel, s: DinasSnapshot) {
     var delId by remember { mutableStateOf<String?>(null) }
     val list = s.temuan.sortedBy { it.order }
-    Box(Modifier.fillMaxSize()) {
-        if (list.isEmpty()) Empty("Belum ada temuan laporan. Ketuk “+ Temuan”, atau pindahkan titik dari tab Peta.")
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 80.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(list, key = { it.id }) { t ->
-                val i = list.indexOf(t)
-                val fotos = s.fotoOf(OwnerType.TEMUAN, t.id)
-                Panel(onClick = { vm.editor = Editor.Temuan(t.id, false) }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("${i + 1}. ${t.title}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                        if (t.status == id.tub.dinas.domain.Status.SELESAI) { Pic(id.tub.dinas.R.drawable.ic_lencana, 30.dp); Spacer(Modifier.width(6.dp)) }
-                        StatusPill(t.status)
-                    }
-                    if (t.code.isNotBlank()) Text(t.code, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                    if (fotos.isNotEmpty()) {
-                        Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(150.dp).itemFrame(14.dp).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, 0)) }) {
-                            EncryptedImage(vm.repo.vault, fotos[0].path, Modifier.matchParentSize(), maxSide = 900)
-                            Text("📷 ${fotos.size}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold,
-                                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).background(Color(0xAA0B2545), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
-                        }
-                    }
-                    if (t.description.isNotBlank()) Text(t.description, maxLines = 3, modifier = Modifier.padding(top = 4.dp))
-                    Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) { t.activeLenses.forEach { LensTag(it) } }
-                    if (fotos.size > 1) {
-                        Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            fotos.drop(1).take(4).forEachIndexed { k, f ->
-                                EncryptedImage(vm.repo.vault, f.path, Modifier.size(56.dp).itemFrame(8.dp).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, k + 1)) }, maxSide = 200)
+    Column(Modifier.fillMaxSize()) {
+        Box(Modifier.weight(1f)) {
+            if (list.isEmpty()) Empty("Belum ada temuan laporan. Ketuk “+ Temuan”, atau pindahkan titik dari tab Peta.")
+            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(list, key = { it.id }) { t ->
+                    val i = list.indexOf(t)
+                    val fotos = s.fotoOf(OwnerType.TEMUAN, t.id)
+                    var menu by remember { mutableStateOf(false) }
+                    Panel(onClick = { vm.editor = Editor.Temuan(t.id, false) }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(28.dp).background(C.OkSoft, androidx.compose.foundation.shape.CircleShape), contentAlignment = Alignment.Center) { Text("T${i + 1}", color = C.Ok, fontSize = 11.sp, fontWeight = FontWeight.Bold) }
+                            Spacer(Modifier.width(10.dp))
+                            Text(t.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                            StatusPill(t.status)
+                            Box {
+                                Text("⋮", fontSize = 22.sp, color = C.Muted, modifier = Modifier.clickable { menu = true }.padding(horizontal = 8.dp))
+                                DropdownMenu(menu, { menu = false }) {
+                                    if (i > 0) DropdownMenuItem({ Text("Naikkan") }, { menu = false; reorder(vm, s, list.map { it.id }, i, i - 1) })
+                                    if (i < list.lastIndex) DropdownMenuItem({ Text("Turunkan") }, { menu = false; reorder(vm, s, list.map { it.id }, i, i + 1) })
+                                    DropdownMenuItem({ Text("Hapus", color = C.Danger) }, { menu = false; delId = t.id })
+                                }
                             }
-                            if (fotos.size > 5) Text("+${fotos.size - 5}", color = C.Muted, modifier = Modifier.align(Alignment.CenterVertically))
                         }
-                    }
-                    Row(Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(enabled = i > 0, onClick = { reorder(vm, s, list.map { it.id }, i, i - 1) }) { Text("↑") }
-                        TextButton(enabled = i < list.lastIndex, onClick = { reorder(vm, s, list.map { it.id }, i, i + 1) }) { Text("↓") }
-                        Spacer(Modifier.weight(1f))
-                        TextButton(onClick = { delId = t.id }) { Text("Hapus", color = C.Danger) }
+                        if (t.code.isNotBlank()) Text(t.code, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                        if (t.description.isNotBlank()) Text(t.description, maxLines = 3, modifier = Modifier.padding(top = 6.dp), style = MaterialTheme.typography.bodyMedium)
+                        if (fotos.isNotEmpty()) {
+                            Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                fotos.take(3).forEachIndexed { k, f ->
+                                    Box {
+                                        EncryptedImage(vm.repo.vault, f.path, Modifier.size(88.dp).itemFrame(12.dp).clickable { vm.push(Screen.Photo(s.dinas.id, t.id, k)) }, maxSide = 300)
+                                        if (k == 2 && fotos.size > 3) Text("+${fotos.size - 3}", color = Color.White, fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.align(Alignment.Center).background(Color(0x99111827), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 2.dp))
+                                    }
+                                }
+                            }
+                        }
+                        if (t.activeLenses.isNotEmpty()) Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) { t.activeLenses.forEach { LensTag(it) } }
                     }
                 }
             }
         }
-        AmberButton("+ Temuan", Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
-            vm.work { val id = vm.repo.newTemuan(s.dinas.id, null); vm.editor = Editor.Temuan(id, true) }
+        Row(Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(12.dp)) {
+            AmberButton("+ Temuan", Modifier.fillMaxWidth()) {
+                vm.work { val id = vm.repo.newTemuan(s.dinas.id, null); vm.editor = Editor.Temuan(id, true) }
+            }
         }
     }
     delId?.let { id -> Confirm("Hapus temuan?", "Temuan, foto, dan PDF lampirannya dihapus permanen.", onConfirm = { vm.work { vm.repo.deleteTemuan(id) } }, onDismiss = { delId = null }) }
