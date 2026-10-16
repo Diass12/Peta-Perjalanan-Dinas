@@ -1,5 +1,6 @@
 package id.tub.dinas.ui.screens
 
+import id.tub.dinas.ui.components.Text
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -308,6 +310,22 @@ private fun DinasPickerInline(vm: MainViewModel, aktifId: String?) {
 
 @Composable
 fun WawasanTab(vm: MainViewModel) {
+    var mode by rememberSaveable { mutableIntStateOf(0) }
+    Column(Modifier.fillMaxSize()) {
+        Column(Modifier.statusBarsPadding().padding(start = 16.dp, end = 16.dp, top = 10.dp)) {
+            Text("Wawasan & Berita", style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Chip("📰 Berita", mode == 0) { mode = 0 }
+                Chip("🎭 Hiburan", mode == 1) { mode = 1 }
+            }
+        }
+        Box(Modifier.weight(1f)) { if (mode == 0) BeritaTab(vm) else HiburanTab(vm) }
+    }
+}
+
+@Composable
+fun BeritaTab(vm: MainViewModel) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var extra by remember { mutableStateOf(vm.settings.newsExtra) }
@@ -331,10 +349,10 @@ fun WawasanTab(vm: MainViewModel) {
 
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
-            Column(Modifier.statusBarsPadding().padding(top = 10.dp)) {
+            Column(Modifier.padding(top = 4.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Wawasan & Berita", style = MaterialTheme.typography.titleLarge)
+                        Text("Berita", style = MaterialTheme.typography.titleLarge)
                         Text("Ringkasan dari sumber publik; baca lengkap di situs aslinya", color = C.Muted, fontSize = 13.sp)
                     }
                     HeaderAction("Muat ulang") { muat() }

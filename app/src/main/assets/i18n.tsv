@@ -1,0 +1,629 @@
+Beranda|Home|首页|ホーム|홈
+Peta & GPS|Map & GPS|地图与GPS|地図とGPS|지도 및 GPS
+Peta|Map|地图|地図|지도
+Audit|Audit|审计|監査|감사
+Wawasan|Insights|资讯|インサイト|인사이트
+Wawasan & Berita|Insights & News|资讯与新闻|インサイトとニュース|인사이트 및 뉴스
+Audit & Dokumen|Audit & Documents|审计与文件|監査と書類|감사 및 문서
+Profil|Profile|个人资料|プロフィール|프로필
+Pengaturan|Settings|设置|設定|설정
+Menu|Menu|菜单|メニュー|메뉴
+Home|Home|首页|ホーム|홈
+Aset & Scan|Assets & Scan|资产与扫描|資産とスキャン|자산 및 스캔
+Aset|Assets|资产|資産|자산
+Uang Muka|Cash Advance|预支款|仮払金|선지급금
+Jadwal|Schedule|日程|スケジュール|일정
+Dinas baru|New trip|新差旅|新しい出張|새 출장
+Dinas|Business trip|差旅|出張|출장
+Titik & temuan lapangan|Points & field findings|地点与现场发现|ポイントと現場の指摘|지점 및 현장 발견사항
+Register, scan, audit|Register, scan, audit|登记、扫描、审计|台帳・スキャン・監査|등록, 스캔, 감사
+Pengajuan & bon|Requests & receipts|申请与收据|申請と領収書|신청 및 영수증
+Audit, meeting, tenggat|Audit, meetings, deadlines|审计、会议、截止日期|監査・会議・締切|감사, 회의, 마감
+Jadwal terdekat|Next on schedule|最近日程|直近の予定|다가오는 일정
+Sisa anggaran perjalanan|Remaining travel budget|差旅预算余额|出張予算の残り|출장 예산 잔액
+Belum ada uang muka berjalan.|No cash advance in progress.|暂无进行中的预支款。|進行中の仮払金はありません。|진행 중인 선지급금이 없습니다.
+Belum ada tugas aktif|No active assignment|暂无进行中的任务|進行中の任務なし|진행 중인 업무 없음
+Tugas aktif:|Active assignment:|进行中任务：|進行中の任務：|진행 중 업무:
+Kunci GPS|Lock GPS|锁定GPS|GPSを固定|GPS 고정
+Kamera audit|Audit camera|审计相机|監査カメラ|감사 카메라
+Temuan baru|New finding|新发现|新しい指摘|새 발견사항
+Temuan lapangan|Field findings|现场发现|現場の指摘|현장 발견사항
+Temuan laporan|Report finding|报告发现|報告の指摘|보고 발견사항
+Temuan|Findings|发现|指摘|발견사항
+Titik dokumentasi|Documentation points|记录地点|記録ポイント|기록 지점
+Titik|Point|地点|ポイント|지점
+titik|points|个地点|か所|개 지점
+temuan|findings|项发现|件の指摘|건 발견사항
+foto|photos|张照片|枚の写真|장의 사진
+aset|assets|项资产|件の資産|건의 자산
+Foto|Photo|照片|写真|사진
+Kunci titik GPS baru|Lock a new GPS point|锁定新GPS地点|新しいGPSポイントを固定|새 GPS 지점 고정
+Dinas pertama|First trip|首次差旅|初めての出張|첫 출장
+Kategori: Aset Korporat · Teknis Operasional · Administrasi (ketuk temuan untuk memilih).|Categories: Corporate Assets · Technical Operations · Administration (tap a finding to choose).|类别：公司资产 · 技术运营 · 行政（点按发现进行选择）。|カテゴリ：企業資産・技術運用・管理（指摘をタップして選択）。|범주: 법인 자산 · 기술 운영 · 행정 (발견사항을 눌러 선택).
+Temuan lapangan, verifikasi aset, dan administrasi biaya|Field findings, asset verification and expense admin|现场发现、资产核验与费用管理|現場の指摘・資産確認・経費管理|현장 발견, 자산 검증, 비용 관리
+Verifikasi aset|Asset verification|资产核验|資産確認|자산 검증
+Buka daftar|Open list|打开列表|一覧を開く|목록 열기
+Belum ada dinas aktif|No active trip|暂无进行中的差旅|進行中の出張なし|진행 중인 출장 없음
+Belum ada dinas|No trips yet|暂无差旅|出張はまだありません|출장이 없습니다
+Buat dinas dari Beranda untuk mulai mencatat temuan.|Create a trip from Home to start recording findings.|请先在首页创建差旅，再开始记录发现。|ホームで出張を作成すると指摘を記録できます。|홈에서 출장을 만들면 발견사항을 기록할 수 있습니다.
+Buat dinas lebih dulu dari Beranda (“Dinas baru”), lalu kunci titik GPS di sini.|Create a trip from Home (“New trip”) first, then lock GPS points here.|请先在首页创建差旅（“新差旅”），再在此锁定GPS地点。|先にホームで出張（「新しい出張」）を作成し、ここでGPSポイントを固定してください。|먼저 홈에서 출장(“새 출장”)을 만든 다음 여기서 GPS 지점을 고정하세요.
+Expense Ledger|Expense Ledger|费用台账|経費台帳|경비 원장
+Belum ada uang muka. Ketuk untuk membuat pengajuan dan mengunggah bon.|No cash advance yet. Tap to create a request and upload receipts.|暂无预支款。点按以创建申请并上传收据。|仮払金はまだありません。タップして申請し、領収書をアップロードします。|선지급금이 없습니다. 눌러서 신청하고 영수증을 업로드하세요.
+Dokumen & Tiket|Documents & Tickets|文件与票据|書類とチケット|문서 및 티켓
+Surat tugas, tiket, ID|Assignment letter, tickets, ID|派遣函、车票、证件|出張命令書・チケット・ID|출장명령서, 티켓, ID
+Galeri Lapangan|Field Gallery|现场相册|現場ギャラリー|현장 갤러리
+Foto audit + GPS|Audit photos + GPS|审计照片 + GPS|監査写真 + GPS|감사 사진 + GPS
+Galeri|Gallery|相册|ギャラリー|갤러리
+Ringkasan|Summary|摘要|概要|요약
+Tindak lanjut & statistik|Follow-up & statistics|跟进与统计|フォローアップと統計|후속 조치 및 통계
+Tindak Lanjut|Follow-up|跟进|フォローアップ|후속 조치
+Tindak lanjut|Follow-up|跟进|フォローアップ|후속 조치
+Pilih atau buat dinas dulu|Select or create a trip first|请先选择或创建差旅|先に出張を選択または作成してください|먼저 출장을 선택하거나 만드세요
+Ringkasan dari sumber publik; baca lengkap di situs aslinya|Summaries from public sources; read the full story on the original site|公开来源摘要；请至原网站阅读全文|公開情報源の要約。全文は元サイトでご覧ください|공개 출처 요약. 전체 기사는 원본 사이트에서 읽으세요
+Muat ulang|Refresh|刷新|再読み込み|새로고침
+Baca selengkapnya ↗|Read more ↗|阅读全文 ↗|続きを読む ↗|더 읽기 ↗
+Tidak ada kabar dari sumber ini.|No news from this source.|此来源暂无消息。|このソースからのニュースはありません。|이 출처에 소식이 없습니다.
+＋ Sumber RSS|＋ RSS source|＋ RSS来源|＋ RSSソース|＋ RSS 출처
+Tambah sumber RSS|Add RSS source|添加RSS来源|RSSソースを追加|RSS 출처 추가
+Nama (opsional)|Name (optional)|名称（可选）|名前（任意）|이름 (선택)
+Alamat RSS (https://…)|RSS address (https://…)|RSS地址 (https://…)|RSSアドレス (https://…)|RSS 주소 (https://…)
+Hanya alamat https yang diterima. Hapus sumber tambahan lewat Pengaturan.|Only https addresses are accepted. Remove extra sources in Settings.|仅接受https地址。可在设置中删除额外来源。|httpsアドレスのみ使用できます。追加ソースは設定で削除できます。|https 주소만 허용됩니다. 추가 출처는 설정에서 삭제하세요.
+Tambah|Add|添加|追加|추가
+Batal|Cancel|取消|キャンセル|취소
+Simpan|Save|保存|保存|저장
+Hapus|Delete|删除|削除|삭제
+Ubah|Edit|修改|編集|수정
+Tutup|Close|关闭|閉じる|닫기
+Buka|Open|打开|開く|열기
+Lanjut|Continue|继续|続行|계속
+Pilih|Select|选择|選択|선택
+Semua|All|全部|すべて|전체
+Terapkan|Apply|应用|適用|적용
+Impor|Import|导入|インポート|가져오기
+Ekspor|Export|导出|エクスポート|내보내기
+Lihat|View|查看|表示|보기
+Pakai|Use|使用|使用|사용
+Tempel|Paste|粘贴|貼り付け|붙여넣기
+Mulai|Start|开始|開始|시작
+Berhenti|Stop|停止|停止|중지
+Selesai|Done|完成|完了|완료
+Memuat…|Loading…|加载中…|読み込み中…|불러오는 중…
+Menghitung…|Calculating…|计算中…|計算中…|계산 중…
+Hari ini|Today|今天|今日|오늘
+Akan datang|Upcoming|即将到来|今後の予定|예정
+Sudah lewat|Past|已过期|過去|지난 일정
+Jenis|Type|类型|種類|유형
+JENIS|TYPE|类型|種類|유형
+Tanggal|Date|日期|日付|날짜
+Catatan|Notes|备注|メモ|메모
+Keterangan|Description|说明|説明|설명
+Lokasi|Location|位置|場所|위치
+Nama|Name|名称|名前|이름
+Status|Status|状态|ステータス|상태
+Kategori|Category|类别|カテゴリ|범주
+Jumlah|Amount|金额|金額|금액
+Total|Total|合计|合計|합계
+Sisa|Balance|余额|残額|잔액
+Kurang|Shortfall|不足|不足|부족
+Dana|Funds|资金|資金|자금
+Foto utama|Main photo|主照片|メイン写真|대표 사진
+★ Foto utama|★ Main photo|★ 主照片|★ メイン写真|★ 대표 사진
+Perbesar|Enlarge|放大|拡大|확대
+Jadikan utama|Make main|设为主图|メインにする|대표로 지정
+‹ Sebelumnya|‹ Previous|‹ 上一个|‹ 前へ|‹ 이전
+Berikutnya ›|Next ›|下一个 ›|次へ ›|다음 ›
+✕ Tutup|✕ Close|✕ 关闭|✕ 閉じる|✕ 닫기
+Tutup ✕|Close ✕|关闭 ✕|閉じる ✕|닫기 ✕
+Izin kamera ditolak. Pakai Galeri atau PDF.|Camera permission denied. Use Gallery or PDF.|相机权限被拒绝。请使用相册或PDF。|カメラの許可が拒否されました。ギャラリーまたはPDFを使用してください。|카메라 권한이 거부되었습니다. 갤러리 또는 PDF를 사용하세요.
+Izin kamera ditolak. Pakai Galeri untuk memilih foto bon.|Camera permission denied. Use Gallery to pick the receipt photo.|相机权限被拒绝。请从相册选择收据照片。|カメラの許可が拒否されました。ギャラリーから領収書の写真を選んでください。|카메라 권한이 거부되었습니다. 갤러리에서 영수증 사진을 선택하세요.
+Izin kamera ditolak. Pakai Galeri untuk memilih foto.|Camera permission denied. Use Gallery to pick a photo.|相机权限被拒绝。请从相册选择照片。|カメラの許可が拒否されました。ギャラリーから写真を選んでください。|카메라 권한이 거부되었습니다. 갤러리에서 사진을 선택하세요.
+Izin lokasi ditolak. Anda masih bisa menempel koordinat atau memilih di peta.|Location permission denied. You can still paste coordinates or pick on the map.|定位权限被拒绝。仍可粘贴坐标或在地图上选择。|位置情報の許可が拒否されました。座標の貼り付けや地図上での選択は可能です。|위치 권한이 거부되었습니다. 좌표를 붙여넣거나 지도에서 선택할 수 있습니다.
+Izin kamera diperlukan untuk memindai label aset.|Camera permission is required to scan asset labels.|扫描资产标签需要相机权限。|資産ラベルのスキャンにはカメラの許可が必要です。|자산 라벨을 스캔하려면 카메라 권한이 필요합니다.
+Izinkan kamera|Allow camera|允许使用相机|カメラを許可|카메라 허용
+Kamera|Camera|相机|カメラ|카메라
+Rekaman|Recording|录音|録音|녹음
+Pengaturan modul aset|Asset module settings|资产模块设置|資産モジュール設定|자산 모듈 설정
+Halo|Hello|你好|こんにちは|안녕하세요
+Auditor|Auditor|审计员|監査員|감사원
+Junior Auditor|Junior Auditor|初级审计员|ジュニア監査員|주니어 감사원
+Senior Auditor|Senior Auditor|高级审计员|シニア監査員|시니어 감사원
+Lead Auditor|Lead Auditor|首席审计员|リード監査員|리드 감사원
+Statistik perjalanan|Travel statistics|差旅统计|出張の統計|출장 통계
+Total jarak tempuh|Total distance traveled|总行程|総移動距離|총 이동 거리
+Total waktu dinas|Total trip time|总差旅时间|総出張期間|총 출장 기간
+Titik GPS terkunci|GPS points locked|已锁定GPS地点|固定したGPSポイント|고정된 GPS 지점
+Foto audit terkumpul|Audit photos collected|已收集审计照片|収集した監査写真|수집된 감사 사진
+Temuan dicatat|Findings recorded|已记录发现|記録した指摘|기록된 발견사항
+Aset teraudit|Assets audited|已审计资产|監査済み資産|감사 완료 자산
+Lencana prestasi|Achievement badges|成就徽章|実績バッジ|업적 배지
+Lencana terbuka otomatis dari data Anda; tidak ada data yang dikirim ke mana pun.|Badges unlock automatically from your data; nothing is sent anywhere.|徽章根据您的数据自动解锁；不会向任何地方发送数据。|バッジはデータから自動で解除されます。データはどこにも送信されません。|배지는 데이터에 따라 자동으로 열리며, 어디에도 전송되지 않습니다.
+Level tertinggi tercapai.|Highest level reached.|已达到最高等级。|最高レベルに到達しました。|최고 레벨에 도달했습니다.
+poin menuju|points to|分，距离|ポイントで次は|점, 다음 등급까지
+Identitas|Identity|身份信息|ID情報|신원 정보
+Nama lengkap|Full name|姓名|氏名|성명
+Jabatan|Job title|职位|役職|직책
+Dokumen|Documents|文件|書類|문서
+Dokumen baru|New document|新建文件|新しい書類|새 문서
+Ubah dokumen|Edit document|修改文件|書類を編集|문서 수정
+Hapus dokumen ini|Delete this document|删除此文件|この書類を削除|이 문서 삭제
+Hapus dokumen?|Delete document?|删除文件？|書類を削除しますか？|문서를 삭제할까요?
+Dokumen dan lampirannya dihapus permanen.|The document and its attachment will be permanently deleted.|文件及其附件将被永久删除。|書類と添付ファイルは完全に削除されます。|문서와 첨부파일이 영구 삭제됩니다.
+Simpan paspor, visa, tiket, voucher hotel, surat tugas, dan ID card di sini supaya mudah dibuka tanpa takut hilang. Semua lampiran dienkripsi di perangkat.|Keep passport, visa, tickets, hotel vouchers, assignment letters and ID cards here so they are easy to open and never lost. All attachments are encrypted on the device.|在此保存护照、签证、车票、酒店凭证、派遣函和工作证，方便查看且不会丢失。所有附件均在设备上加密。|パスポート、ビザ、チケット、ホテルバウチャー、出張命令書、社員証をここに保存すれば、紛失せずにすぐ開けます。添付ファイルはすべて端末上で暗号化されます。|여권, 비자, 티켓, 호텔 바우처, 출장명령서, 사원증을 여기에 보관하면 잃어버리지 않고 쉽게 열 수 있습니다. 모든 첨부파일은 기기에서 암호화됩니다.
+Paspor|Passport|护照|パスポート|여권
+Visa|Visa|签证|ビザ|비자
+Tiket Pesawat/Kereta|Flight/Train ticket|机票/火车票|航空券/鉄道チケット|항공/기차 티켓
+Voucher Hotel|Hotel voucher|酒店凭证|ホテルバウチャー|호텔 바우처
+Surat Tugas|Assignment letter|派遣函|出張命令書|출장명령서
+ID Card Perusahaan|Company ID card|公司工作证|社員証|사원증
+Lainnya|Other|其他|その他|기타
+Valid|Valid|有效|有効|유효
+Active|Active|生效中|有効（期限なし）|활성
+Kedaluwarsa|Expired|已过期|期限切れ|만료됨
+Segera habis|Expiring soon|即将到期|まもなく期限|곧 만료
+Berlaku sampai (kosongkan bila tidak ada)|Valid until (leave empty if none)|有效期至（无则留空）|有効期限（なければ空欄）|유효기간 (없으면 비워 두세요)
+Judul (mis. Surat Tugas Halmahera Okt 2026)|Title (e.g. Halmahera Assignment Letter Oct 2026)|标题（例：2026年10月哈马黑拉派遣函）|タイトル（例：2026年10月ハルマヘラ出張命令書）|제목 (예: 2026년 10월 할마헤라 출장명령서)
+Nomor / kode booking|Number / booking code|编号 / 预订代码|番号 / 予約コード|번호 / 예약 코드
+LAMPIRAN|ATTACHMENT|附件|添付|첨부
+Hapus lampiran|Remove attachment|删除附件|添付を削除|첨부 삭제
+Lampiran disimpan terenkripsi. Memilih lampiran baru mengganti yang lama.|Attachments are stored encrypted. Choosing a new one replaces the old one.|附件已加密保存。选择新附件将替换旧附件。|添付ファイルは暗号化して保存されます。新しいものを選ぶと置き換えられます。|첨부파일은 암호화되어 저장됩니다. 새로 선택하면 기존 파일이 교체됩니다.
+📄 Buka PDF|📄 Open PDF|📄 打开PDF|📄 PDFを開く|📄 PDF 열기
+Per lokasi/dinas|By location/trip|按地点/差旅|場所/出張別|위치/출장별
+Per tanggal|By date|按日期|日付別|날짜별
+Tanpa tanggal|No date|无日期|日付なし|날짜 없음
+Belum ada foto. Foto dari titik dan temuan akan muncul di sini lengkap dengan koordinat GPS dan waktu.|No photos yet. Photos from points and findings will appear here with GPS coordinates and time.|暂无照片。地点和发现的照片将与GPS坐标和时间一同显示在此。|写真はまだありません。ポイントや指摘の写真が、GPS座標と時刻付きでここに表示されます。|사진이 없습니다. 지점과 발견사항의 사진이 GPS 좌표와 시간과 함께 여기에 표시됩니다.
+Tanpa koordinat|No coordinates|无坐标|座標なし|좌표 없음
+Akurasi GPS tinggi|High GPS accuracy|高精度GPS|高精度GPS|높은 GPS 정확도
+Tinggi: GPS penuh tiap detik (area terpencil, lebih boros baterai). Normal: hemat baterai.|High: full GPS every second (remote areas, uses more battery). Normal: saves battery.|高：每秒完整GPS（适合偏远地区，更耗电）。普通：省电。|高：毎秒フルGPS（遠隔地向け、電池消費大）。通常：省電力。|높음: 매초 전체 GPS(외딴 지역용, 배터리 소모 큼). 보통: 배터리 절약.
+Bahasa & sinkronisasi|Language & sync|语言与同步|言語と同期|언어 및 동기화
+Bahasa|Language|语言|言語|언어
+Bahasa aplikasi|App language|应用语言|アプリの言語|앱 언어
+Efek suara|Sound effects|音效|効果音|효과음
+Nama|Name|名称|名前|이름
+Keamanan|Security|安全|セキュリティ|보안
+Kunci aplikasi (sidik jari / PIN)|App lock (fingerprint / PIN)|应用锁（指纹 / PIN）|アプリロック（指紋 / PIN）|앱 잠금 (지문 / PIN)
+Kunci otomatis setelah di latar belakang|Auto-lock after going to background|进入后台后自动锁定|バックグラウンド後に自動ロック|백그라운드 전환 후 자동 잠금
+Segera|Immediately|立即|すぐ|즉시
+30 dtk|30 sec|30秒|30秒|30초
+5 mnt|5 min|5分钟|5分|5분
+15 mnt|15 min|15分钟|15分|15분
+Blokir tangkapan layar selalu|Always block screenshots|始终禁止截屏|常にスクリーンショットを禁止|항상 화면 캡처 차단
+Tampilan “aplikasi terbaru” selalu disamarkan saat kunci aktif.|The “recent apps” view is always hidden while the lock is on.|锁定开启时，“最近应用”画面始终被遮蔽。|ロック有効中は「最近のアプリ」画面が常に隠されます。|잠금이 켜져 있으면 “최근 앱” 화면이 항상 가려집니다.
+Foto, PDF, dan database dienkripsi di perangkat. Kunci disimpan di Android Keystore.|Photos, PDFs and the database are encrypted on the device. The key is kept in Android Keystore.|照片、PDF和数据库均在设备上加密。密钥保存在Android Keystore中。|写真、PDF、データベースは端末上で暗号化されます。鍵はAndroid Keystoreに保存されます。|사진, PDF, 데이터베이스는 기기에서 암호화됩니다. 키는 Android Keystore에 저장됩니다.
+Atur kunci layar perangkat dulu (PIN/pola/sidik jari)|Set up a device screen lock first (PIN/pattern/fingerprint)|请先设置设备锁屏（PIN/图案/指纹）|先に端末の画面ロック（PIN/パターン/指紋）を設定してください|먼저 기기 화면 잠금(PIN/패턴/지문)을 설정하세요
+Kualitas simpan|Save quality|保存质量|保存品質|저장 품질
+Foto dikecilkan saat disimpan; lokasi asli (EXIF) tidak ikut tersimpan.|Photos are downsized when saved; original location (EXIF) is not kept.|保存时会缩小照片；原始位置信息（EXIF）不会保留。|写真は保存時に縮小され、元の位置情報（EXIF）は保存されません。|사진은 저장 시 축소되며 원본 위치(EXIF)는 저장되지 않습니다.
+Hemat|Economy|节省|節約|절약
+Standar|Standard|标准|標準|표준
+Tajam|Sharp|高清|高画質|고화질
+Citra satelit (Esri World Imagery)|Satellite imagery (Esri World Imagery)|卫星影像 (Esri World Imagery)|衛星画像 (Esri World Imagery)|위성 영상 (Esri World Imagery)
+Peta butuh internet untuk memuat petak; area yang sudah dilihat tersimpan sementara.|The map needs internet to load tiles; viewed areas are cached temporarily.|地图需要联网加载图块；已浏览区域会暂时缓存。|地図のタイル読み込みにはインターネットが必要です。表示済みの範囲は一時的に保存されます。|지도는 타일을 불러오려면 인터넷이 필요하며, 본 영역은 임시 저장됩니다.
+Belum ada sumber RSS tambahan. Tambahkan dari tab Wawasan.|No extra RSS sources yet. Add one from the Insights tab.|暂无额外RSS来源。请在“资讯”页添加。|追加のRSSソースはありません。インサイトタブから追加できます。|추가 RSS 출처가 없습니다. 인사이트 탭에서 추가하세요.
+Aplikasi saat ini berbahasa Indonesia. Pilihan bahasa Inggris dan sinkronisasi cloud belum tersedia; gunakan Cadangan di bawah untuk memindahkan data antar-perangkat.|Cloud sync is not available yet; use Backup below to move data between devices.|云同步暂不可用；请使用下方的备份在设备之间迁移数据。|クラウド同期はまだ利用できません。端末間のデータ移行には下のバックアップを使用してください。|클라우드 동기화는 아직 지원되지 않습니다. 기기 간 데이터 이동은 아래 백업을 사용하세요.
+Cadangan|Backup|备份|バックアップ|백업
+Buat cadangan|Create backup|创建备份|バックアップを作成|백업 만들기
+Pulihkan|Restore|恢复|復元|복원
+Pulihkan cadangan|Restore backup|恢复备份|バックアップを復元|백업 복원
+Cadangan memuat semua dinas beserta foto dan PDF. Beri kata sandi supaya berkas aman bila berpindah tangan.|The backup contains all trips with photos and PDFs. Set a password so the file stays safe if it changes hands.|备份包含所有差旅及照片和PDF。设置密码可在文件外传时保障安全。|バックアップには全ての出張と写真・PDFが含まれます。ファイルが他人の手に渡っても安全なようにパスワードを設定してください。|백업에는 모든 출장과 사진, PDF가 포함됩니다. 파일이 다른 사람에게 넘어가도 안전하도록 비밀번호를 설정하세요.
+Kata sandi cadangan|Backup password|备份密码|バックアップのパスワード|백업 비밀번호
+Kata sandi|Password|密码|パスワード|비밀번호
+Kosongkan untuk cadangan tanpa kata sandi (tidak disarankan).|Leave empty for a backup without a password (not recommended).|留空则备份不设密码（不推荐）。|空欄にするとパスワードなしのバックアップになります（非推奨）。|비워 두면 비밀번호 없는 백업이 됩니다(권장하지 않음).
+Isi kata sandi bila cadangan dilindungi. Dinas dengan ID sama akan ditimpa.|Enter the password if the backup is protected. Trips with the same ID will be overwritten.|如备份受保护，请输入密码。相同ID的差旅将被覆盖。|バックアップが保護されている場合はパスワードを入力してください。同じIDの出張は上書きされます。|백업이 보호되어 있으면 비밀번호를 입력하세요. 같은 ID의 출장은 덮어쓰입니다.
+Versi 1.0.0 · tanpa analitik, tanpa iklan, data tidak dikirim ke server.|Version 1.0.0 · no analytics, no ads, data is not sent to any server.|版本 1.0.0 · 无统计分析、无广告，数据不会发送到服务器。|バージョン 1.0.0 · 分析なし・広告なし・データはサーバーに送信されません。|버전 1.0.0 · 분석 없음, 광고 없음, 데이터는 서버로 전송되지 않습니다.
+Cadangan tersimpan (TANPA kata sandi)|Backup saved (WITHOUT password)|备份已保存（无密码）|バックアップを保存しました（パスワードなし）|백업이 저장되었습니다(비밀번호 없음)
+Cadangan terenkripsi tersimpan|Encrypted backup saved|加密备份已保存|暗号化バックアップを保存しました|암호화된 백업이 저장되었습니다
+Mode presentasi|Presentation mode|演示模式|プレゼンテーションモード|프레젠테이션 모드
+Export Excel|Export Excel|导出Excel|Excelにエクスポート|Excel 내보내기
+Ubah dinas|Edit trip|修改差旅|出張を編集|출장 수정
+Hapus dinas|Delete trip|删除差旅|出張を削除|출장 삭제
+Hapus dinas?|Delete trip?|删除差旅？|出張を削除しますか？|출장을 삭제할까요?
+Semua titik, temuan, foto, dan PDF di dinas ini dihapus permanen. Buat cadangan dulu bila perlu.|All points, findings, photos and PDFs in this trip will be permanently deleted. Make a backup first if needed.|此差旅中的所有地点、发现、照片和PDF将被永久删除。如有需要请先备份。|この出張の全てのポイント・指摘・写真・PDFが完全に削除されます。必要なら先にバックアップしてください。|이 출장의 모든 지점, 발견사항, 사진, PDF가 영구 삭제됩니다. 필요하면 먼저 백업하세요.
+Nama dinas|Trip name|差旅名称|出張名|출장 이름
+Mulai|Start|开始|開始|시작
+Selesai|End|结束|終了|종료
+Tanggal selesai tidak boleh sebelum tanggal mulai|End date cannot be before start date|结束日期不能早于开始日期|終了日は開始日より前にできません|종료일은 시작일보다 빠를 수 없습니다
+Belum ada dinas. Ketuk “Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan.|No trips yet. Tap “New trip” to start recording documentation points and findings.|暂无差旅。点按“新差旅”开始记录地点和发现。|出張はまだありません。「新しい出張」をタップしてポイントと指摘の記録を始めましょう。|출장이 없습니다. “새 출장”을 눌러 기록 지점과 발견사항을 기록하세요.
+Belum ada titik dokumentasi. Ketuk “+ Titik”, kunci GPS, lalu tambahkan foto.|No documentation points yet. Tap “+ Point”, lock GPS, then add photos.|暂无记录地点。点按“+ 地点”，锁定GPS后添加照片。|記録ポイントはまだありません。「+ ポイント」をタップし、GPSを固定して写真を追加しましょう。|기록 지점이 없습니다. “+ 지점”을 누르고 GPS를 고정한 뒤 사진을 추가하세요.
+Belum ada temuan laporan. Ketuk “+ Temuan”, atau pindahkan titik dari tab Peta.|No report findings yet. Tap “+ Finding”, or move a point from the Map tab.|暂无报告发现。点按“+ 发现”，或从“地图”页转移地点。|報告の指摘はまだありません。「+ 指摘」をタップするか、地図タブからポイントを移動してください。|보고 발견사항이 없습니다. “+ 발견사항”을 누르거나 지도 탭에서 지점을 옮기세요.
++ Temuan|+ Finding|+ 发现|+ 指摘|+ 발견사항
++ Titik|+ Point|+ 地点|+ ポイント|+ 지점
+Jadikan temuan|Make a finding|转为发现|指摘にする|발견사항으로 만들기
+Jadikan temuan laporan?|Make it a report finding?|转为报告发现？|報告の指摘にしますか？|보고 발견사항으로 만들까요?
+Titik ini dipindah ke tab Temuan beserta foto dan lokasinya, lalu dihapus dari daftar dokumentasi.|This point is moved to the Findings tab with its photos and location, then removed from the documentation list.|此地点将连同照片和位置移至“发现”页，并从记录列表中删除。|このポイントは写真と位置情報ごと指摘タブへ移動され、記録一覧から削除されます。|이 지점은 사진과 위치와 함께 발견사항 탭으로 이동하고 기록 목록에서 삭제됩니다.
+Pindahkan|Move|移动|移動|이동
+Naikkan|Move up|上移|上へ|위로
+Turunkan|Move down|下移|下へ|아래로
+Buka di Maps|Open in Maps|在地图应用中打开|マップで開く|지도 앱에서 열기
+Hapus titik?|Delete point?|删除地点？|ポイントを削除しますか？|지점을 삭제할까요?
+Titik beserta fotonya dihapus permanen.|The point and its photos will be permanently deleted.|该地点及其照片将被永久删除。|ポイントと写真は完全に削除されます。|지점과 사진이 영구 삭제됩니다.
+Hapus temuan?|Delete finding?|删除发现？|指摘を削除しますか？|발견사항을 삭제할까요?
+Temuan, foto, dan PDF lampirannya dihapus permanen.|The finding, photos and PDF attachments will be permanently deleted.|该发现及其照片、PDF附件将被永久删除。|指摘、写真、PDF添付は完全に削除されます。|발견사항, 사진, PDF 첨부가 영구 삭제됩니다.
+Titik berfoto|Points with photos|有照片的地点|写真付きポイント|사진 있는 지점
+Aset ditemukan|Assets found|已找到资产|見つかった資産|발견된 자산
+Jalan|Road|道路|道路|도로
+⛴ Lurus|⛴ Straight|⛴ 直线|⛴ 直線|⛴ 직선
+🚗 Jalan|🚗 Road|🚗 道路|🚗 道路|🚗 도로
+Garis lurus (laut/udara)|Straight line (sea/air)|直线（海上/空中）|直線（海上/空路）|직선(바다/항공)
+Mengambil rute jalan…|Fetching road route…|正在获取道路路线…|道路ルートを取得中…|도로 경로를 가져오는 중…
+Mengikuti jalan|Following roads|沿道路|道路に沿う|도로를 따라감
+Rute jalan tidak tersedia (offline?), memakai garis lurus|Road route unavailable (offline?), using straight lines|无法获取道路路线（离线？），改用直线|道路ルートを取得できません（オフライン？）。直線を使用します|도로 경로를 쓸 수 없어(오프라인?) 직선을 사용합니다
+Satelit|Satellite|卫星|衛星|위성
+Satelit+Label|Satellite+Labels|卫星+标注|衛星+ラベル|위성+라벨
+Topo|Topo|地形|地形|지형
+Judul titik (mis. Gerbang utama)|Point title (e.g. Main gate)|地点名称（例：大门）|ポイント名（例：正門）|지점 제목 (예: 정문)
+Judul temuan|Finding title|发现标题|指摘のタイトル|발견사항 제목
+Kode aset / lokasi (opsional)|Asset code / location (optional)|资产代码 / 位置（可选）|資産コード / 場所（任意）|자산 코드 / 위치 (선택)
+Penjelasan|Explanation|说明|説明|설명
+LENSA LAPORAN|REPORT LENSES|报告视角|報告レンズ|보고 관점
+Pilih lensa yang relevan. Lensa yang tidak dipilih tidak muncul di ringkasan dan Excel.|Choose the relevant lenses. Unselected lenses will not appear in the summary and Excel.|请选择相关视角。未选择的视角不会出现在摘要和Excel中。|該当するレンズを選択してください。未選択のレンズは概要とExcelに表示されません。|해당하는 관점을 선택하세요. 선택하지 않은 관점은 요약과 Excel에 나타나지 않습니다.
+Teknis Operasional|Technical Operations|技术运营|技術運用|기술 운영
+Administrasi|Administration|行政|管理|행정
+Simpan temuan|Save finding|保存发现|指摘を保存|발견사항 저장
+Simpan titik|Save point|保存地点|ポイントを保存|지점 저장
+Temuan laporan|Report finding|报告发现|報告の指摘|보고 발견사항
+LAMPIRAN PDF|PDF ATTACHMENTS|PDF附件|PDF添付|PDF 첨부
++ Lampirkan PDF|+ Attach PDF|+ 附加PDF|+ PDFを添付|+ PDF 첨부
+Buka|Open|打开|開く|열기
+Hapus lampiran?|Remove attachment?|删除附件？|添付を削除しますか？|첨부를 삭제할까요?
+PDF dihapus permanen dari aplikasi.|The PDF will be permanently removed from the app.|该PDF将从应用中永久删除。|PDFはアプリから完全に削除されます。|PDF가 앱에서 영구 삭제됩니다.
+Memuat PDF…|Loading PDF…|正在加载PDF…|PDFを読み込み中…|PDF를 불러오는 중…
+Halaman|Page|页|ページ|페이지
+Pilih lokasi di peta|Pick location on map|在地图上选择位置|地図上で場所を選択|지도에서 위치 선택
+Ambil GPS|Get GPS|获取GPS|GPSを取得|GPS 가져오기
+Kunci lokasi|Lock location|锁定位置|位置を固定|위치 고정
+Tempel koordinat|Paste coordinates|粘贴坐标|座標を貼り付け|좌표 붙여넣기
+Koordinat atau tautan|Coordinates or link|坐标或链接|座標またはリンク|좌표 또는 링크
+Hapus lokasi|Clear location|清除位置|位置を削除|위치 삭제
+Ketuk peta untuk memilih|Tap the map to choose|点按地图选择|地図をタップして選択|지도를 눌러 선택
+Pilih di Google Maps|Pick in Google Maps|在Google地图中选择|Googleマップで選択|구글 지도에서 선택
+Lokasi dari Google Maps|Location from Google Maps|来自Google地图的位置|Googleマップの場所|구글 지도의 위치
+Membaca tautan…|Reading link…|正在读取链接…|リンクを読み取り中…|링크를 읽는 중…
+Membaca tautan Google Maps…|Reading Google Maps link…|正在读取Google地图链接…|Googleマップのリンクを読み取り中…|구글 지도 링크를 읽는 중…
+Belum terbaca. Contoh: 1.234567, 127.800000|Not recognized. Example: 1.234567, 127.800000|无法识别。示例：1.234567, 127.800000|読み取れません。例：1.234567, 127.800000|인식되지 않았습니다. 예: 1.234567, 127.800000
+Register Aset|Asset Register|资产登记|資産台帳|자산 대장
+Audit & register aset|Audit & asset register|审计与资产登记|監査と資産台帳|감사 및 자산 대장
+Progres Audit|Audit Progress|审计进度|監査の進捗|감사 진행률
+teraudit|audited|已审计|監査済み|감사 완료
+Mulai Scan Audit|Start Audit Scan|开始审计扫描|監査スキャンを開始|감사 스캔 시작
+Total Aset|Total Assets|资产总数|資産合計|총 자산
+Ditemukan|Found|已找到|発見|발견됨
+Hilang / Rusak|Missing / Damaged|丢失 / 损坏|紛失 / 破損|분실 / 파손
+Belum Diaudit|Not yet audited|未审计|未監査|미감사
+Belum|Not yet|未完成|未|아직
+Tidak Ada|Missing|不存在|なし|없음
+Rusak|Damaged|损坏|破損|파손
+Per Kategori|By Category|按类别|カテゴリ別|범주별
+Per Departemen|By Department|按部门|部門別|부서별
+Status Barcode|Barcode Status|条码状态|バーコード状態|바코드 상태
+Per PT & Kepemilikan|By Company & Ownership|按公司与所有权|会社・所有別|회사 및 소유별
+Kualitas Data|Data Quality|数据质量|データ品質|데이터 품질
+Tanpa Foto|No Photo|无照片|写真なし|사진 없음
+Tanpa Kode|No Code|无编码|コードなし|코드 없음
+Tanpa Dept|No Dept|无部门|部門なし|부서 없음
+Tanpa PT|No Company|无公司|会社なし|회사 없음
+Kode Ganda|Duplicate Code|重复编码|コード重複|코드 중복
+Tanpa Nama|No Name|无名称|名前なし|이름 없음
+Tanpa Lokasi|No Location|无位置|場所なし|위치 없음
+Kode Tak Valid|Invalid Code|编码无效|無効なコード|유효하지 않은 코드
+Tanpa foto|No photo|无照片|写真なし|사진 없음
+Tanpa kode|No code|无编码|コードなし|코드 없음
+Kode ganda|Duplicate code|重复编码|コード重複|코드 중복
+Tagged|Tagged|已贴标|タグ付き|태그됨
+Untagged|Untagged|未贴标|タグなし|태그 없음
+Non Aset|Non-asset|非资产|資産外|비자산
+Milik|Owned|自有|自社所有|자가
+Sewa|Leased|租赁|リース|임차
+Milik Sendiri|Owned|自有|自社所有|자가
+Semua Dept|All Depts|全部部门|全部門|전체 부서
+Semua PT|All Companies|全部公司|全社|전체 회사
+Semua status|All statuses|全部状态|すべての状態|전체 상태
+Cari kode, nama, lokasi…|Search code, name, location…|搜索编码、名称、位置…|コード・名前・場所を検索…|코드, 이름, 위치 검색…
+Tampilkan lebih banyak|Show more|显示更多|さらに表示|더 보기
+Tidak ada aset yang cocok dengan filter.|No assets match the filter.|没有符合筛选条件的资产。|フィルターに一致する資産はありません。|필터에 맞는 자산이 없습니다.
+Belum ada aset. Buka tab Menu → Impor Excel / cadangan, atau ketuk tombol Scan untuk mulai.|No assets yet. Open the Menu tab → Import Excel / backup, or tap Scan to begin.|暂无资产。请打开“菜单”页→导入Excel/备份，或点按“扫描”开始。|資産はまだありません。メニュータブ→Excel/バックアップのインポート、またはスキャンをタップして開始します。|자산이 없습니다. 메뉴 탭 → 엑셀/백업 가져오기를 열거나 스캔을 눌러 시작하세요.
+Belum ada aset.|No assets yet.|暂无资产。|資産はまだありません。|자산이 없습니다.
+Tanpa Kode|No Code|无编码|コードなし|코드 없음
+Sesi Audit Baru|New Audit Session|新审计会话|新しい監査セッション|새 감사 세션
+Sesi audit baru?|Start a new audit session?|开始新的审计会话？|新しい監査セッションを開始しますか？|새 감사 세션을 시작할까요?
+Semua status audit dikembalikan ke “Belum”. Data aset dan foto tidak berubah.|All audit statuses are reset to “Not yet”. Asset data and photos are unchanged.|所有审计状态将重置为“未完成”。资产数据和照片不变。|全ての監査状態が「未」に戻ります。資産データと写真は変更されません。|모든 감사 상태가 “아직”으로 초기화됩니다. 자산 데이터와 사진은 변하지 않습니다.
+Sesi audit baru dimulai|New audit session started|已开始新的审计会话|新しい監査セッションを開始しました|새 감사 세션이 시작되었습니다
+Mode Audit aktif: aset yang di-scan ditandai Ditemukan|Audit mode on: scanned assets are marked Found|审计模式已开启：扫描的资产将标记为已找到|監査モード有効：スキャンした資産は「発見」になります|감사 모드 켜짐: 스캔한 자산은 발견됨으로 표시됩니다
+Mode Audit mati: scan hanya mencocokkan dan menambah foto|Audit mode off: scanning only matches and adds photos|审计模式已关闭：扫描仅匹配并添加照片|監査モード無効：スキャンは照合と写真追加のみ|감사 모드 꺼짐: 스캔은 일치 확인과 사진 추가만 합니다
+Pilih semua|Select all|全选|すべて選択|모두 선택
+Kosongkan|Clear|清空|クリア|비우기
+dipilih|selected|已选择|選択中|선택됨
+Edit Tabel|Table Edit|表格编辑|表編集|표 편집
+Edit Massal|Bulk Edit|批量编辑|一括編集|일괄 편집
+Foto Massal|Bulk Photos|批量照片|写真一括|사진 일괄
+Status|Status|状态|状態|상태
+Ekspor|Export|导出|エクスポート|내보내기
+Label QR|QR Label|二维码标签|QRラベル|QR 라벨
+Hapus aset?|Delete asset?|删除资产？|資産を削除しますか？|자산을 삭제할까요?
+Hapus aset|Delete asset|删除资产|資産を削除|자산 삭제
+Aset dan semua fotonya dihapus permanen dari register.|The asset and all its photos will be permanently deleted from the register.|该资产及其所有照片将从台账中永久删除。|資産と全ての写真は台帳から完全に削除されます。|자산과 모든 사진이 대장에서 영구 삭제됩니다.
+Aset terpilih dan semua fotonya dihapus permanen.|The selected assets and all their photos will be permanently deleted.|所选资产及其所有照片将被永久删除。|選択した資産と全ての写真は完全に削除されます。|선택한 자산과 모든 사진이 영구 삭제됩니다.
+Aset dihapus|Asset deleted|资产已删除|資産を削除しました|자산이 삭제되었습니다
+Aset baru|New asset|新资产|新しい資産|새 자산
+Aset tidak ditemukan|Asset not found|未找到资产|資産が見つかりません|자산을 찾을 수 없습니다
+Kode aset (mis. TUBOE250018)|Asset code (e.g. TUBOE250018)|资产编码（例：TUBOE250018）|資産コード（例：TUBOE250018）|자산 코드 (예: TUBOE250018)
+Nama / deskripsi|Name / description|名称 / 描述|名前 / 説明|이름 / 설명
+Klasifikasi (otomatis dari kode)|Classification (auto from code)|分类（根据编码自动）|分類（コードから自動）|분류 (코드에서 자동)
+Departemen|Department|部门|部門|부서
+Dept|Dept|部门|部門|부서
+PT pemilik|Owner company|所属公司|所有会社|소유 회사
+Kondisi|Condition|状况|状態|상태
+Kepemilikan|Ownership|所有权|所有区分|소유 형태
+Kepemilikan (own/lease)|Ownership (own/lease)|所有权（自有/租赁）|所有区分（自社/リース）|소유 형태 (자가/임차)
+Tgl pembelian|Purchase date|购置日期|購入日|구입일
+Tgl cek fisik|Physical check date|实物盘点日期|現物確認日|실사 일자
+Harga perolehan (IDR)|Acquisition cost (IDR)|取得成本 (IDR)|取得価額 (IDR)|취득원가 (IDR)
+Nilai buku (IDR)|Book value (IDR)|账面价值 (IDR)|帳簿価額 (IDR)|장부가액 (IDR)
+Masa manfaat (bulan)|Useful life (months)|使用寿命（月）|耐用年数（月）|내용연수(개월)
+Keterangan / remarks|Remarks|备注|備考|비고
+Simpan aset dulu untuk menambah foto.|Save the asset first to add photos.|请先保存资产再添加照片。|写真を追加するには先に資産を保存してください。|사진을 추가하려면 먼저 자산을 저장하세요.
+VIDEO & DOKUMEN|VIDEO & DOCUMENTS|视频与文件|動画と書類|동영상 및 문서
+VIDEO & SUARA|VIDEO & AUDIO|视频与音频|動画と音声|동영상 및 음성
+🎙 Rekam suara|🎙 Record audio|🎙 录音|🎙 音声を録音|🎙 음성 녹음
+🎬 Rekam video|🎬 Record video|🎬 录像|🎬 動画を撮影|🎬 동영상 녹화
+Merekam suara…|Recording audio…|正在录音…|録音中…|녹음 중…
+Pilih video|Pick video|选择视频|動画を選択|동영상 선택
+Pilih audio|Pick audio|选择音频|音声を選択|오디오 선택
+Video|Video|视频|動画|동영상
+Rekaman suara|Voice recording|录音|音声録音|음성 녹음
+📎 Lampirkan dokumen (PDF, Word, Excel, dll.)|📎 Attach document (PDF, Word, Excel, etc.)|📎 附加文件（PDF、Word、Excel等）|📎 書類を添付（PDF、Word、Excelなど）|📎 문서 첨부 (PDF, Word, Excel 등)
+Hapus berkas?|Delete file?|删除文件？|ファイルを削除しますか？|파일을 삭제할까요?
+Video atau dokumen ini dihapus permanen dari aset.|This video or document will be permanently removed from the asset.|此视频或文件将从资产中永久删除。|この動画または書類は資産から完全に削除されます。|이 동영상 또는 문서가 자산에서 영구 삭제됩니다.
+Video atau rekaman ini dihapus permanen dari aplikasi.|This video or recording will be permanently removed from the app.|此视频或录音将从应用中永久删除。|この動画または録音はアプリから完全に削除されます。|이 동영상 또는 녹음이 앱에서 영구 삭제됩니다.
+Hapus foto?|Delete photo?|删除照片？|写真を削除しますか？|사진을 삭제할까요?
+Foto dihapus permanen dari aplikasi.|The photo will be permanently removed from the app.|该照片将从应用中永久删除。|写真はアプリから完全に削除されます。|사진이 앱에서 영구 삭제됩니다.
+Tambah dari Galeri|Add from Gallery|从相册添加|ギャラリーから追加|갤러리에서 추가
+Pilih cara memprosesnya:|Choose how to process them:|请选择处理方式：|処理方法を選択してください：|처리 방법을 선택하세요:
+Otomatis (baca kode)|Automatic (read code)|自动（读取编码）|自動（コード読み取り）|자동(코드 읽기)
+Ke aset yang sudah ada|To an existing asset|添加到现有资产|既存の資産へ|기존 자산에
+Jadikan satu aset baru|Make one new asset|合并为一个新资产|1つの新しい資産にする|새 자산 하나로 만들기
+Satu aset per foto|One asset per photo|每张照片一个资产|写真ごとに1資産|사진당 자산 하나
+Pilih aset tujuan|Choose target asset|选择目标资产|対象の資産を選択|대상 자산 선택
+Cari kode atau nama|Search code or name|搜索编码或名称|コードまたは名前を検索|코드 또는 이름 검색
+Hasil dari galeri|Gallery results|相册结果|ギャラリーの結果|갤러리 결과
+Hasil scan|Scan results|扫描结果|スキャン結果|스캔 결과
+Hasil impor|Import results|导入结果|インポート結果|가져오기 결과
+Kode tidak terbaca|Code not readable|无法读取编码|コードを読み取れません|코드를 읽을 수 없음
+Kode tidak terbaca. Dekatkan label atau tambah cahaya.|Code not readable. Move closer to the label or add light.|无法读取编码。请靠近标签或增加光线。|コードを読み取れません。ラベルに近づくか明るくしてください。|코드를 읽을 수 없습니다. 라벨에 가까이 가거나 조명을 밝히세요.
+Multi|Multi|多张|複数|다중
+Live|Live|实时|ライブ|라이브
+Berhenti & simpan|Stop & save|停止并保存|停止して保存|중지 및 저장
+⏸ Jeda|⏸ Pause|⏸ 暂停|⏸ 一時停止|⏸ 일시정지
+▶ Putar|▶ Play|▶ 播放|▶ 再生|▶ 재생
+Putar|Play|播放|再生|재생
+Import aset|Import assets|导入资产|資産をインポート|자산 가져오기
+Muat register Excel (termasuk foto tertanam) atau cadangan AsetScan|Load an Excel register (including embedded photos) or an AsetScan backup|载入Excel台账（含内嵌照片）或AsetScan备份|Excel台帳（埋め込み写真含む）またはAsetScanバックアップを読み込む|엑셀 대장(내장 사진 포함) 또는 AsetScan 백업 불러오기
+Pilih foto dari galeri lalu cocokkan / buat aset|Pick photos from the gallery, then match / create assets|从相册选择照片，然后匹配/创建资产|ギャラリーから写真を選び、照合または資産を作成|갤러리에서 사진을 선택해 일치시키거나 자산 생성
+Ekspor laporan|Export report|导出报告|レポートをエクスポート|보고서 내보내기
+Cetak label QR|Print QR labels|打印二维码标签|QRラベルを印刷|QR 라벨 인쇄
+Keamanan & Info|Security & Info|安全与信息|セキュリティと情報|보안 및 정보
+Data Master|Master Data|主数据|マスターデータ|마스터 데이터
+Cakupan|Scope|范围|範囲|범위
+CAKUPAN LENSA|LENS SCOPE|视角范围|レンズ範囲|관점 범위
+Format|Format|格式|形式|형식
+Excel|Excel|Excel|Excel|Excel
+PDF|PDF|PDF|PDF|PDF
+HTML|HTML|HTML|HTML|HTML
+JSON|JSON|JSON|JSON|JSON
+Terfilter|Filtered|已筛选|フィルター済み|필터됨
+Terpilih|Selected|已选|選択済み|선택됨
+Semua|All|全部|すべて|전체
+Foto per aset|Photos per asset|每个资产的照片数|資産ごとの写真数|자산당 사진 수
+Pilih cakupan dan jumlah foto per aset|Choose scope and photos per asset|选择范围及每个资产的照片数|範囲と資産ごとの写真数を選択|범위와 자산당 사진 수 선택
+Excel tersimpan|Excel saved|Excel已保存|Excelを保存しました|엑셀이 저장되었습니다
+Tersimpan|Saved|已保存|保存しました|저장됨
+Tidak dapat membuka berkas|Cannot open the file|无法打开文件|ファイルを開けません|파일을 열 수 없습니다
+Tidak ada aplikasi untuk membuka berkas ini|No app can open this file|没有可打开此文件的应用|このファイルを開けるアプリがありません|이 파일을 열 수 있는 앱이 없습니다
+Berkas tidak dapat dibuka|The file cannot be opened|无法打开该文件|ファイルを開けません|파일을 열 수 없습니다
+PDF tidak dapat dibuka|The PDF cannot be opened|无法打开该PDF|PDFを開けません|PDF를 열 수 없습니다
+Data tidak valid|Invalid data|数据无效|無効なデータ|유효하지 않은 데이터
+Dihentikan.|Stopped.|已停止。|停止しました。|중지되었습니다.
+diperbarui|updated|已更新|更新済み|업데이트됨
+Pengajuan uang muka|Cash advance request|预支款申请|仮払金の申請|선지급금 신청
++ Pengajuan baru|+ New request|+ 新申请|+ 新しい申請|+ 새 신청
+Ubah pengajuan|Edit request|修改申请|申請を編集|신청 수정
+Keperluan / Judul|Purpose / Title|用途 / 标题|目的 / タイトル|용도 / 제목
+Keperluan / judul (mis. Dinas Halmahera)|Purpose / title (e.g. Halmahera trip)|用途 / 标题（例：哈马黑拉差旅）|目的 / タイトル（例：ハルマヘラ出張）|용도 / 제목 (예: 할마헤라 출장)
+Pemohon|Applicant|申请人|申請者|신청자
+No. pengajuan|Request no.|申请编号|申請番号|신청 번호
+No. Pengajuan|Request No.|申请编号|申請番号|신청 번호
+Tgl pengajuan|Request date|申请日期|申請日|신청일
+Tgl Pengajuan|Request Date|申请日期|申請日|신청일
+Tgl cair|Disbursed date|发放日期|支給日|지급일
+Tgl cair (kosong bila belum cair)|Disbursed date (empty if not yet)|发放日期（未发放则留空）|支給日（未支給なら空欄）|지급일 (미지급이면 비워 두세요)
+Jumlah diajukan (Rp)|Amount requested (Rp)|申请金额 (Rp)|申請額 (Rp)|신청 금액 (Rp)
+Jumlah dicairkan (Rp)|Amount disbursed (Rp)|发放金额 (Rp)|支給額 (Rp)|지급 금액 (Rp)
+Terkait dinas|Linked trip|关联差旅|関連する出張|연결된 출장
+Diajukan|Requested|已申请|申請済み|신청됨
+Sudah cair|Disbursed|已发放|支給済み|지급됨
+Dicairkan|Disbursed|已发放|支給済み|지급됨
+Belum selesai|Not finished|未完成|未完了|미완료
+Dana uang muka|Cash advance funds|预支款资金|仮払金|선지급금
+Total bon|Total receipts|收据合计|領収書合計|영수증 합계
+Total Bon (Rp)|Total Receipts (Rp)|收据合计 (Rp)|領収書合計 (Rp)|영수증 합계 (Rp)
+Sisa (harus dikembalikan)|Balance (to be returned)|余额（需退还）|残額（返金が必要）|잔액(반환 필요)
+Sisa (dikembalikan ke perusahaan)|Balance (returned to company)|余额（退还公司）|残額（会社へ返金）|잔액(회사로 반환)
+Kurang (ditagihkan)|Shortfall (to be claimed)|不足（需报销）|不足（請求）|부족(청구)
+Kurang (ditagihkan ke perusahaan)|Shortfall (claimed from company)|不足（向公司报销）|不足（会社へ請求）|부족(회사에 청구)
+Per kategori bon|By receipt category|按收据类别|領収書カテゴリ別|영수증 범주별
+Per kategori|By category|按类别|カテゴリ別|범주별
+Bon|Receipt|收据|領収書|영수증
+Bon realisasi|Realization receipt|实报收据|精算領収書|정산 영수증
++ Tambah bon|+ Add receipt|+ 添加收据|+ 領収書を追加|+ 영수증 추가
+Simpan bon|Save receipt|保存收据|領収書を保存|영수증 저장
+Hapus bon ini|Delete this receipt|删除此收据|この領収書を削除|이 영수증 삭제
+Hapus bon?|Delete receipt?|删除收据？|領収書を削除しますか？|영수증을 삭제할까요?
+Bon tersimpan|Receipt saved|收据已保存|領収書を保存しました|영수증이 저장되었습니다
+Bon dihapus|Receipt deleted|收据已删除|領収書を削除しました|영수증이 삭제되었습니다
+Tanggal bon|Receipt date|收据日期|領収書の日付|영수증 날짜
+Uraian|Description|摘要|内容|내용
+Uraian (mis. Taksi Tobelo–Ternate, Hotel 2 malam)|Description (e.g. Taxi Tobelo–Ternate, Hotel 2 nights)|摘要（例：托贝洛–特尔纳特出租车，酒店2晚）|内容（例：トベロ–テルナテのタクシー、ホテル2泊）|내용 (예: 토벨로–테르나테 택시, 호텔 2박)
+Jumlah (Rp)|Amount (Rp)|金额 (Rp)|金額 (Rp)|금액 (Rp)
+Foto bon|Receipt photo|收据照片|領収書の写真|영수증 사진
+FOTO BON|RECEIPT PHOTOS|收据照片|領収書の写真|영수증 사진
+Transportasi|Transport|交通|交通費|교통
+Hotel|Hotel|酒店|ホテル|호텔
+Makan Pagi|Breakfast|早餐|朝食|아침 식사
+Makan Siang|Lunch|午餐|昼食|점심 식사
+Makan Malam|Dinner|晚餐|夕食|저녁 식사
+Laundry|Laundry|洗衣|ランドリー|세탁
+Belum ada bon. Ketuk “+ Tambah bon”, pilih tag, isi jumlah, lalu foto bonnya.|No receipts yet. Tap “+ Add receipt”, choose a tag, enter the amount, then photograph the receipt.|暂无收据。点按“+ 添加收据”，选择标签、填写金额，然后拍摄收据。|領収書はまだありません。「+ 領収書を追加」をタップし、タグ・金額を入力して撮影してください。|영수증이 없습니다. “+ 영수증 추가”를 누르고 태그와 금액을 입력한 뒤 영수증을 촬영하세요.
+Belum ada pengajuan. Ketuk “+ Pengajuan baru” untuk mencatat uang muka, lalu tambahkan bon realisasinya lengkap dengan foto.|No requests yet. Tap “+ New request” to record a cash advance, then add receipts with photos.|暂无申请。点按“+ 新申请”记录预支款，然后添加带照片的收据。|申請はまだありません。「+ 新しい申請」で仮払金を記録し、写真付きの領収書を追加してください。|신청이 없습니다. “+ 새 신청”으로 선지급금을 기록한 뒤 사진이 있는 영수증을 추가하세요.
+Hapus pengajuan?|Delete request?|删除申请？|申請を削除しますか？|신청을 삭제할까요?
+Hapus pengajuan ini|Delete this request|删除此申请|この申請を削除|이 신청 삭제
+Pengajuan dihapus|Request deleted|申请已删除|申請を削除しました|신청이 삭제되었습니다
+Rekap Uang Muka & Realisasi|Cash Advance & Realization Recap|预支款与实报汇总|仮払金と精算の集計|선지급금 및 정산 요약
+Rekap|Recap|汇总|集計|요약
+Rekap Jadwal|Schedule Recap|日程汇总|スケジュール集計|일정 요약
+Excel: rekap + rincian bon dengan foto, bisa diimpor kembali. JSON: lengkap dengan foto, untuk tukar data antar-perangkat/PC.|Excel: recap + receipt details with photos, can be re-imported. JSON: complete with photos, for exchanging data between devices/PC.|Excel：汇总+带照片的收据明细，可重新导入。JSON：含照片的完整数据，用于设备/电脑间交换。|Excel：集計＋写真付き領収書の明細（再インポート可）。JSON：写真を含む完全版で、端末/PC間のデータ交換用。|Excel: 요약 + 사진 포함 영수증 상세(다시 가져오기 가능). JSON: 사진 포함 전체 데이터로 기기/PC 간 교환용.
+Agenda|Agenda|议程|予定|일정
+Agenda (mis. Audit aset site, Meeting bulanan)|Agenda (e.g. Site asset audit, Monthly meeting)|议程（例：现场资产审计、月度会议）|予定（例：現地資産監査、月次会議）|일정 (예: 현장 자산 감사, 월간 회의)
+Meeting|Meeting|会议|会議|회의
+Tenggat|Deadline|截止日期|締切|마감
++ Jadwal baru|+ New schedule|+ 新日程|+ 新しい予定|+ 새 일정
+Jadwal baru|New schedule|新日程|新しい予定|새 일정
+Ubah jadwal|Edit schedule|修改日程|予定を編集|일정 수정
+Jadwal tersimpan|Schedule saved|日程已保存|予定を保存しました|일정이 저장되었습니다
+Jadwal dihapus|Schedule deleted|日程已删除|予定を削除しました|일정이 삭제되었습니다
+Hapus jadwal|Delete schedule|删除日程|予定を削除|일정 삭제
+Hapus jadwal?|Delete schedule?|删除日程？|予定を削除しますか？|일정을 삭제할까요?
+Belum ada jadwal. Ketuk “+ Jadwal baru” untuk mencatat audit, meeting, tenggat laporan, dan lainnya.|No schedule yet. Tap “+ New schedule” to record audits, meetings, report deadlines and more.|暂无日程。点按“+ 新日程”记录审计、会议、报告截止日期等。|予定はまだありません。「+ 新しい予定」で監査・会議・報告の締切などを記録しましょう。|일정이 없습니다. “+ 새 일정”을 눌러 감사, 회의, 보고 마감 등을 기록하세요.
+Tidak ada jadwal untuk filter ini.|No schedule for this filter.|此筛选条件下没有日程。|このフィルターに該当する予定はありません。|이 필터에 해당하는 일정이 없습니다.
+Tandai selesai|Mark as done|标记为完成|完了にする|완료로 표시
+Tambah ke aplikasi Kalender|Add to Calendar app|添加到日历应用|カレンダーアプリに追加|캘린더 앱에 추가
+Tidak ada aplikasi kalender di perangkat ini|No calendar app on this device|此设备上没有日历应用|この端末にカレンダーアプリがありません|이 기기에 캘린더 앱이 없습니다
+Jam|Time|时间|時刻|시간
+Peserta|Participants|参与人|参加者|참석자
+Lokasi / tautan meeting|Location / meeting link|地点 / 会议链接|場所 / 会議リンク|장소 / 회의 링크
+Mengubah nama akan ikut mengubah semua aset yang memakainya.|Renaming also changes every asset that uses it.|重命名将同时更改所有使用它的资产。|名前を変更すると、それを使うすべての資産も変更されます。|이름을 바꾸면 이를 사용하는 모든 자산도 함께 바뀝니다.
+Hapus poin?|Delete item?|删除条目？|項目を削除しますか？|항목을 삭제할까요?
+Poin ini dihapus.|This item will be deleted.|此条目将被删除。|この項目は削除されます。|이 항목이 삭제됩니다.
+Poin baru|New item|新条目|新しい項目|새 항목
+Ubah poin|Edit item|修改条目|項目を編集|항목 수정
+Isi poin|Item text|条目内容|項目の内容|항목 내용
++ Poin|+ Item|+ 条目|+ 項目|+ 항목
+Perbaikan sistem|System improvements|系统改进|システム改善|시스템 개선
+Belum ada catatan perbaikan sistem.|No system improvement notes yet.|暂无系统改进记录。|システム改善のメモはまだありません。|시스템 개선 기록이 없습니다.
+Penanggung jawab|Person in charge|负责人|担当者|담당자
+Target|Target|目标日期|目標日|목표일
+PROGRES TINDAK LANJUT|FOLLOW-UP PROGRESS|跟进进度|フォローアップの進捗|후속 조치 진행률
+Proses|In progress|进行中|進行中|진행 중
+Selisih|Discrepancy|差异|差異|차이
+Belum ada temuan untuk dipresentasikan.|No findings to present yet.|暂无可演示的发现。|発表できる指摘はまだありません。|발표할 발견사항이 없습니다.
+Presentasi|Presentation|演示|プレゼン|프레젠테이션
+Mode Audit|Audit mode|审计模式|監査モード|감사 모드
+Memuat…|Loading…|加载中…|読み込み中…|불러오는 중…
+Menyiapkan (mendekripsi)…|Preparing (decrypting)…|准备中（解密）…|準備中（復号）…|준비 중(복호화)…
+~Temuan|Finding|发现|指摘|발견사항
+~Titik|Point|地点|ポイント|지점
+~Dinas|Trip|差旅|出張|출장
+~Aset|Asset|资产|資産|자산
+~Foto|Photo|照片|写真|사진
+~Halaman|Page|第|ページ|페이지
+~Bon|Receipt|收据|領収書|영수증
+~Selesai|Done|完成|完了|완료
+dari|of|共|/|중
+terpakai|used|已使用|使用済み|사용됨
+berjalan|in progress|进行中|進行中|진행 중
+pengajuan|requests|笔申请|件の申請|건 신청
+hari|days|天|日|일
+baris dibaca|rows read|行已读取|行を読み取り|행 읽음
+dipilih|selected|已选择|選択|선택됨
+disimpan terenkripsi|saved encrypted|已加密保存|暗号化して保存|암호화되어 저장됨
+ditambahkan|added|已添加|追加しました|추가됨
+diperbarui statusnya|had their status updated|状态已更新|の状態を更新しました|상태가 업데이트됨
+diperbarui|updated|已更新|更新しました|업데이트됨
+diubah|changed|已修改|変更しました|변경됨
+dihapus|deleted|已删除|削除しました|삭제됨
+dipulihkan|restored|已恢复|復元しました|복원됨
+aset baru|new assets|项新资产|件の新規資産|건의 새 자산
+aset cocok|assets matched|项资产已匹配|件の資産が一致|건 자산 일치
+tanpa kode dibuat|without code created|项无编码资产已创建|件のコードなし資産を作成|건 코드 없는 자산 생성됨
+tanpa kode terbaca|without readable code|张照片无法读取编码|枚はコードを読み取れません|장은 코드를 읽을 수 없음
+diabaikan|ignored|已忽略|無視しました|무시됨
+bukan kode aset|not asset codes|不是资产编码|資産コードではありません|자산 코드가 아님
+sudah ada dilewati|already existing skipped|已存在，已跳过|既存のためスキップ|이미 있어 건너뜀
+dikoreksi|corrected|已更正|修正済み|수정됨
+terdaftar|registered|已登记|登録済み|등록됨
+teraudit|audited|已审计|監査済み|감사 완료
+ditemukan|found|已找到|発見|발견됨
+agenda|events|项日程|件の予定|건의 일정
+aset|assets|项资产|件の資産|건의 자산
+foto|photos|张照片|枚の写真|장의 사진
+titik|points|个地点|か所|개 지점
+temuan|findings|项发现|件の指摘|건 발견사항
+pengajuan uang muka|cash advance requests|笔预支款申请|件の仮払金申請|건 선지급금 신청
+baru|new|新增|新規|신규
+dilengkapi|completed|已补全|補完|보완됨
+sama|same|相同|同一|동일
+ganda di file|duplicates in file|文件中重复|ファイル内で重複|파일 내 중복
+Impor selesai|Import finished|导入完成|インポート完了|가져오기 완료
+Import selesai|Import finished|导入完成|インポート完了|가져오기 완료
+Selesai.|Finished.|完成。|完了しました。|완료되었습니다.
+Gagal|Failed|失败|失敗|실패
+Gagal mengambil foto|Failed to take photo|拍照失败|写真の取得に失敗|사진 촬영 실패
+Gagal merekam|Recording failed|录制失败|録音に失敗|녹음 실패
+Foto dilewati|Photo skipped|已跳过照片|写真をスキップ|사진 건너뜀
+Dilewati|Skipped|已跳过|スキップ|건너뜀
+Membaca foto|Reading photo|正在读取照片|写真を読み取り中|사진 읽는 중
+Menyimpan foto|Saving photo|正在保存照片|写真を保存中|사진 저장 중
+ketuk Berhenti untuk membatalkan|tap Stop to cancel|点按“停止”可取消|停止をタップでキャンセル|중지를 눌러 취소
+Peserta:|Participants:|参与人：|参加者：|참석자:
+dari titik sebelumnya|from the previous point|距上一地点|前のポイントから|이전 지점에서
+Terbaca:|Recognized:|已识别：|読み取り：|인식됨:
+Terbaca di foto:|Read from photo:|照片中识别：|写真から読み取り：|사진에서 인식됨:
+Pakai lokasi dari foto|Use location from photo|使用照片中的位置|写真の位置情報を使用|사진의 위치 사용
+Terpakai|Used|已使用|使用済み|사용됨
+Tugas aktif|Active assignment|进行中任务|進行中の任務|진행 중 업무
+Alamat|Address|地址|住所|주소
+Hari|Days|天数|日数|일수
+Tidak ada|None|无|なし|없음
+Data|Data|数据|データ|데이터
+Cocok|Match|匹配|一致|일치
+Abaikan|Ignore|忽略|無視|무시
+Izin|Permission|权限|許可|권한
+Navigator|Navigator|领航员|ナビゲーター|내비게이터
+Teknisi|Technician|技术员|技術者|기술자
+Tim Audit|Audit Team|审计团队|監査チーム|감사팀
+User|User|用户|ユーザー|사용자
+Kendaraan|Vehicles|车辆|車両|차량
+Mesin & Peralatan|Machinery & Equipment|机械与设备|機械・設備|기계 및 장비
+Office Equipment|Office Equipment|办公设备|事務機器|사무 장비
+Bangunan|Buildings|建筑|建物|건물
+Cap waktu & lokasi di foto|Timestamp & location on photos|照片加盖时间和位置|写真に日時と場所を刻印|사진에 시간·위치 표시
+Mengikuti urutan|Following the order|按顺序|順番どおり|순서대로
+Ekspor ke Excel|Export to Excel|导出到Excel|Excelにエクスポート|엑셀로 내보내기
+Download|Download|下载|ダウンロード|다운로드
+Unduh kartu aset (PDF)|Download asset card (PDF)|下载资产卡（PDF）|資産カードをダウンロード (PDF)|자산 카드 다운로드 (PDF)
+Tidak ada aplikasi kalender|No calendar app|无日历应用|カレンダーアプリなし|캘린더 앱 없음
+Bahasa aplikasi|App language|应用语言|アプリの言語|앱 언어
+Menu, tombol, dan petunjuk diterjemahkan. Data yang Anda ketik (nama dinas, judul, catatan) dan format tanggal tetap seperti aslinya. Sinkronisasi cloud belum tersedia; gunakan Cadangan di bawah untuk memindahkan data antar-perangkat.|Menus, buttons and hints are translated. Text you type (trip names, titles, notes) and date formats stay as they are. Cloud sync is not available yet; use Backup below to move data between devices.|菜单、按钮和提示已翻译。您输入的内容（差旅名称、标题、备注）和日期格式保持原样。云同步暂不可用；请使用下方备份在设备间迁移数据。|メニュー・ボタン・ヒントは翻訳されます。入力した内容（出張名・タイトル・メモ）や日付形式はそのままです。クラウド同期は未対応です。端末間の移行には下のバックアップを使ってください。|메뉴, 버튼, 안내가 번역됩니다. 직접 입력한 내용(출장 이름, 제목, 메모)과 날짜 형식은 그대로입니다. 클라우드 동기화는 아직 지원되지 않으며, 기기 간 이동은 아래 백업을 사용하세요.
+Berita|News|新闻|ニュース|뉴스
+📰 Berita|📰 News|📰 新闻|📰 ニュース|📰 뉴스
+🎭 Hiburan|🎭 Entertainment|🎭 娱乐|🎭 エンタメ|🎭 엔터테인먼트
+Hiburan|Entertainment|娱乐|エンタメ|엔터테인먼트
+Novel Indonesia (domain publik)|Indonesian novels (public domain)|印尼小说（公有领域）|インドネシアの小説（パブリックドメイン）|인도네시아 소설(퍼블릭 도메인)
+Cari karya (mis. novel, hikayat, Balai Pustaka)|Search works (e.g. novel, hikayat, Balai Pustaka)|搜索作品（例：小说、传奇、Balai Pustaka）|作品を検索（例：novel、hikayat、Balai Pustaka）|작품 검색 (예: novel, hikayat, Balai Pustaka)
+Cari|Search|搜索|検索|검색
+Sumber: Wikisource bahasa Indonesia — karya yang hak ciptanya sudah habis atau berlisensi terbuka. Ketuk untuk membaca di situsnya.|Source: Indonesian Wikisource — works whose copyright has expired or that are openly licensed. Tap to read on the site.|来源：印尼语维基文库——版权已过期或采用开放许可的作品。点按即可在网站阅读。|出典：インドネシア語ウィキソース — 著作権が切れた、またはオープンライセンスの作品。タップしてサイトで読めます。|출처: 인도네시아어 위키문헌 — 저작권이 만료되었거나 오픈 라이선스인 작품. 눌러서 사이트에서 읽으세요.
+Tidak ada karya yang cocok. Coba kata lain.|No matching works. Try another keyword.|没有匹配的作品。请换个关键词。|一致する作品がありません。別のキーワードをお試しください。|일치하는 작품이 없습니다. 다른 검색어를 시도하세요.
+Baca ↗|Read ↗|阅读 ↗|読む ↗|읽기 ↗
+Jelajahi Wikisource ↗|Browse Wikisource ↗|浏览维基文库 ↗|ウィキソースを見る ↗|위키문헌 둘러보기 ↗
+Video (YouTube)|Videos (YouTube)|视频 (YouTube)|動画 (YouTube)|동영상 (YouTube)
+Simpan tautan video atau kanal YouTube favorit Anda di sini, lalu buka dengan satu ketukan.|Save your favorite YouTube video or channel links here and open them with one tap.|在此保存您喜欢的YouTube视频或频道链接，一键打开。|お気に入りのYouTube動画やチャンネルのリンクをここに保存して、ワンタップで開けます。|좋아하는 YouTube 동영상이나 채널 링크를 여기에 저장하고 한 번에 여세요.
+＋ Tambah tautan YouTube|＋ Add YouTube link|＋ 添加YouTube链接|＋ YouTubeリンクを追加|＋ YouTube 링크 추가
+Tambah tautan YouTube|Add YouTube link|添加YouTube链接|YouTubeリンクを追加|YouTube 링크 추가
+Judul|Title|标题|タイトル|제목
+Tautan (https://youtube.com/… atau https://youtu.be/…)|Link (https://youtube.com/… or https://youtu.be/…)|链接 (https://youtube.com/… 或 https://youtu.be/…)|リンク (https://youtube.com/… または https://youtu.be/…)|링크 (https://youtube.com/… 또는 https://youtu.be/…)
+Komik resmi (gratis dibaca)|Official comics (free to read)|官方漫画（免费阅读）|公式コミック（無料で読める）|공식 만화(무료 열람)
+Tautan ke layanan resmi penerbit. Aplikasi ini tidak menyediakan atau memindai komik dari situs tanpa izin penerbit.|Links to the publishers’ official services. This app does not provide or scrape comics from sites without publisher permission.|指向出版方官方服务的链接。本应用不提供也不抓取未经出版方授权网站上的漫画。|出版社の公式サービスへのリンクです。本アプリは、出版社の許可がないサイトの漫画を提供・取得しません。|출판사 공식 서비스로 연결되는 링크입니다. 이 앱은 출판사 허가가 없는 사이트의 만화를 제공하거나 가져오지 않습니다.
+Tidak bisa memuat Wikisource|Cannot load Wikisource|无法加载维基文库|ウィキソースを読み込めません|위키문헌을 불러올 수 없습니다
+Periksa internet lalu coba lagi.|Check your internet and try again.|请检查网络后重试。|インターネット接続を確認して再試行してください。|인터넷을 확인한 후 다시 시도하세요.
+Tidak bisa memuat|Cannot load|无法加载|読み込めません|불러올 수 없습니다
+Cuaca BMKG|BMKG Weather|BMKG天气|BMKG天気|BMKG 날씨
+Gempa BMKG|BMKG Earthquakes|BMKG地震|BMKG地震|BMKG 지진
+☁️ Cuaca BMKG|☁️ BMKG Weather|☁️ BMKG天气|☁️ BMKG天気|☁️ BMKG 날씨
+🌋 Gempa BMKG|🌋 BMKG Earthquakes|🌋 BMKG地震|🌋 BMKG地震|🌋 BMKG 지진

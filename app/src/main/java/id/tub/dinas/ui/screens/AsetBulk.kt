@@ -1,5 +1,6 @@
 package id.tub.dinas.ui.screens
 
+import id.tub.dinas.ui.components.Text
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts

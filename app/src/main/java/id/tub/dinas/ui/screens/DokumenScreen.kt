@@ -1,5 +1,6 @@
 package id.tub.dinas.ui.screens
 
+import id.tub.dinas.ui.components.Text
 import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.BackHandler

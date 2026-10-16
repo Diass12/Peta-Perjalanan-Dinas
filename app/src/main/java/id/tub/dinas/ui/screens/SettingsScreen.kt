@@ -1,5 +1,6 @@
 package id.tub.dinas.ui.screens
 
+import id.tub.dinas.ui.components.Text
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -117,8 +118,15 @@ fun SettingsScreen(vm: MainViewModel) {
                 }
             }
             Panel {
-                Text("Bahasa & sinkronisasi", style = MaterialTheme.typography.titleMedium)
-                Text("Aplikasi saat ini berbahasa Indonesia. Pilihan bahasa Inggris dan sinkronisasi cloud belum tersedia; gunakan Cadangan di bawah untuk memindahkan data antar-perangkat.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                Text("Bahasa aplikasi", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(6.dp))
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    id.tub.dinas.i18n.AppLang.entries.forEach { l ->
+                        Chip(l.nama, id.tub.dinas.i18n.Tr.lang == l) { id.tub.dinas.i18n.Tr.lang = l; s.lang = l.code }
+                    }
+                }
+                Text("Menu, tombol, dan petunjuk diterjemahkan. Data yang Anda ketik (nama dinas, judul, catatan) dan format tanggal tetap seperti aslinya. Sinkronisasi cloud belum tersedia; gunakan Cadangan di bawah untuk memindahkan data antar-perangkat.", color = C.Muted, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 8.dp))
             }
             Panel {
                 Text("Cadangan", style = MaterialTheme.typography.titleMedium)

@@ -52,7 +52,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun push(s: Screen) { stack.add(s) }
     fun pop(): Boolean { if (stack.size > 1) { stack.removeAt(stack.lastIndex); return true }; return false }
 
-    fun toast(msg: String) = Toast.makeText(getApplication(), msg, Toast.LENGTH_LONG).show()
+    fun toast(msg: String) = Toast.makeText(getApplication(), id.tub.dinas.i18n.Tr.t(msg), Toast.LENGTH_LONG).show()
 
     /** Menjalankan pekerjaan dan menampilkan galat dengan pesan yang jelas (tanpa data sensitif). */
     fun work(onDone: (() -> Unit)? = null, block: suspend () -> Unit) {

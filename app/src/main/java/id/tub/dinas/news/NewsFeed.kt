@@ -34,16 +34,18 @@ object NewsFeed {
     }
     fun host(u: String): String = runCatching { URL(u).host.removePrefix("www.") }.getOrDefault(u)
 
-    suspend fun ambil(s: Sumber): List<Berita> = withContext(Dispatchers.IO) {
-        require(s.url.startsWith("https://")) { "Hanya tautan https yang diizinkan" }
-        val c = URL(s.url).openConnection() as HttpURLConnection
+    suspend fun ambil(s: Sumber): List<Berita> = parse(unduh(s.url), s)
+
+    /** Mengunduh isi sebuah alamat https (maks 2 MB). */
+    suspend fun unduh(url: String): ByteArray = withContext(Dispatchers.IO) {
+        require(url.startsWith("https://")) { "Hanya tautan https yang diizinkan" }
+        val c = URL(url).openConnection() as HttpURLConnection
         try {
             c.connectTimeout = 10_000; c.readTimeout = 15_000
             c.setRequestProperty("User-Agent", "DokumentasiDinas/1.0 (pembaca RSS)")
-            c.setRequestProperty("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*")
+            c.setRequestProperty("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, application/json, */*")
             if (c.responseCode !in 200..299) throw java.io.IOException("Server membalas ${c.responseCode}")
-            val bytes = c.inputStream.use { it.readNBytesLimited(MAX_BYTES) }
-            parse(bytes, s)
+            c.inputStream.use { it.readNBytesLimited(MAX_BYTES) }
         } finally { c.disconnect() }
     }
 

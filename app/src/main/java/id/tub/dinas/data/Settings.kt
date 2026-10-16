@@ -59,6 +59,14 @@ class Settings(ctx: Context) {
     var jabatan: String
         get() = p.getString("jabatan", "Auditor") ?: "Auditor"
         set(v) { p.edit().putString("jabatan", v).apply() }
+    /** Kode bahasa aplikasi: id, en, zh, ja, ko. */
+    var lang: String
+        get() = p.getString("lang", "id") ?: "id"
+        set(v) { p.edit().putString("lang", v).apply() }
+    /** Tautan video pilihan pengguna, satu per baris "judul|url". */
+    var videoLinks: String
+        get() = p.getString("videoLinks", "") ?: ""
+        set(v) { p.edit().putString("videoLinks", v).apply() }
     var lastDinasId: String?
         get() = p.getString("lastDinas", null)
         set(v) { p.edit().putString("lastDinas", v).apply() }

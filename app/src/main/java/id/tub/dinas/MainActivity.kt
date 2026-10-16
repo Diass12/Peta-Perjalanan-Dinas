@@ -1,5 +1,6 @@
 package id.tub.dinas
 
+import id.tub.dinas.ui.components.Text
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.WindowManager
@@ -8,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -41,6 +41,8 @@ class MainActivity : FragmentActivity() {
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         applySecureFlag()
         handleShare(intent)
+        id.tub.dinas.i18n.Tr.init(this)
+        id.tub.dinas.i18n.Tr.lang = id.tub.dinas.i18n.AppLang.from(vm.settings.lang)
         setContent {
             DinasTheme {
                 Root(vm, onUnlock = { requestUnlock() })
