@@ -1,7 +1,6 @@
 package id.tub.dinas.ui.map
 
 import android.graphics.Color as AColor
-import id.tub.dinas.ui.theme.ThemeState
 import android.graphics.drawable.GradientDrawable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -41,7 +40,7 @@ val VEHICLES = listOf(
     VehicleSkin("kapal", id.tub.dinas.R.drawable.kend_kapal, true, false),
 )
 
-data class MapPin(val id: String, val geo: GeoPoint, val title: String, val kind: PinKind)
+data class MapPin(val id: String, val geo: GeoPoint, val title: String, val kind: PinKind, val label: String? = null)
 
 enum class MapStyle(val label: String) {
     JALAN("Jalan"), OSM("OSM"), SATELIT("Satelit"), HIBRIDA("Satelit+Label"), TOPO("Topo");
@@ -58,6 +57,22 @@ private val esri = esriSource("EsriWorldImagery", "World_Imagery", ".jpg", 19)
 private val esriStreet = esriSource("EsriWorldStreet", "World_Street_Map", ".jpg", 19)
 private val esriTopo = esriSource("EsriWorldTopo", "World_Topo_Map", ".jpg", 19)
 private val esriLabels = esriSource("EsriLabels", "Reference/World_Boundaries_and_Places", ".png", 19)
+
+/** Penanda bulat bernomor (gaya itinerary). */
+private fun badgeIcon(m: MapView, label: String, kind: PinKind): android.graphics.drawable.Drawable {
+    val d = m.resources.displayMetrics.density
+    val size = (30 * d).toInt()
+    val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+    val cv = android.graphics.Canvas(bmp)
+    val fill = when (kind) { PinKind.DOK -> 0xFF2563EB.toInt(); PinKind.LAP -> 0xFF15803D.toInt(); PinKind.PICK -> 0xFFDC2626.toInt() }
+    val p = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    p.color = AColor.WHITE; cv.drawCircle(size / 2f, size / 2f, size / 2f, p)
+    p.color = fill; cv.drawCircle(size / 2f, size / 2f, size / 2f - 2.5f * d, p)
+    p.color = AColor.WHITE; p.textAlign = android.graphics.Paint.Align.CENTER; p.isFakeBoldText = true
+    p.textSize = (if (label.length > 2) 10f else 13f) * d
+    cv.drawText(label, size / 2f, size / 2f - (p.descent() + p.ascent()) / 2f, p)
+    return android.graphics.drawable.BitmapDrawable(m.resources, bmp)
+}
 
 private fun pinIcon(m: MapView, res: Int, h: Int, glow: Int?): android.graphics.drawable.Drawable {
     val src = android.graphics.BitmapFactory.decodeResource(m.resources, res)
@@ -160,8 +175,8 @@ fun OsmMap(
             val pl = org.osmdroid.views.overlay.Polyline(m)
             pl.setPoints(route)
             pl.outlinePaint.apply {
-                color = 0xFF5CD6FF.toInt(); strokeWidth = m.resources.displayMetrics.density * 4f
-                pathEffect = android.graphics.DashPathEffect(floatArrayOf(28f, 18f), 0f); strokeCap = android.graphics.Paint.Cap.ROUND
+                color = 0xFF2563EB.toInt(); strokeWidth = m.resources.displayMetrics.density * 4f
+                strokeCap = android.graphics.Paint.Cap.ROUND
             }
             m.overlays.add(pl)
         }
@@ -170,8 +185,8 @@ fun OsmMap(
             val mk = Marker(m)
             mk.position = OsmPoint(pin.geo.lat, pin.geo.lng)
             mk.title = pin.title
-            mk.icon = pinIcon(m, pin.kind.res, h, if (ThemeState.fx) pin.kind.glow else null)
-            mk.setAnchor(Marker.ANCHOR_CENTER, if (ThemeState.fx) 0.794f else Marker.ANCHOR_BOTTOM)
+            if (pin.label != null) { mk.icon = badgeIcon(m, pin.label, pin.kind); mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER) }
+            else { mk.icon = pinIcon(m, pin.kind.res, h, null); mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM) }
             mk.setOnMarkerClickListener { marker, _ -> if (onPinClick != null) { onPinClick(pin.id); true } else { marker.showInfoWindow(); true } }
             m.overlays.add(mk)
         }

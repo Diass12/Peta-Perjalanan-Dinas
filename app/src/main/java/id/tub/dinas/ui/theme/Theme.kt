@@ -1,46 +1,44 @@
 package id.tub.dinas.ui.theme
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.foundation.background
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import id.tub.dinas.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.tub.dinas.domain.Lens
 
-/** Tema tampilan: Klasik (krem/gelap, paling terbaca di bawah matahari) atau Langit (kaca di atas langit biru). */
+/** Tema bersih & terang: satu aksen biru, kartu putih di atas latar abu sangat muda. */
 object ThemeState {
-    var sky by mutableStateOf(true)
-    var avatar by mutableStateOf(0)
-    var fx by mutableStateOf(true)
     var playerName by mutableStateOf("Dias")
 }
 
 object C {
-    /** Latar layar. Pada tema Langit transparan karena latar langit digambar di Root. */
-    val Bg: Color get() = if (ThemeState.sky) Color.Transparent else Color(0xFFF6F4EE)
-    /** Latar padat untuk dialog layar penuh (tidak boleh transparan). */
-    val Solid: Color get() = if (ThemeState.sky) Color(0xFFD9EAFB) else Color(0xFFF6F4EE)
-    val Card: Color get() = if (ThemeState.sky) Color(0xCCFFFFFF) else Color(0xFFFFFFFF)
-    val HeaderBg: Color get() = if (ThemeState.sky) Color.Transparent else Color(0xFF12202B)
-    val Ink = Color(0xFF12202B)
-    val Amber = Color(0xFFE9A23B)
-    val Line = Color(0xFFDDD8CC)
-    val Muted: Color get() = if (ThemeState.sky) Color(0xFF28425E) else Color(0xFF5B6B78)
-    val Danger = Color(0xFFB3261E)
+    val Bg = Color(0xFFF5F7FB)
+    /** Latar padat untuk dialog layar penuh. */
+    val Solid = Color(0xFFF5F7FB)
+    val Card = Color.White
+    val HeaderBg = Color.White
+    val Ink = Color(0xFF111827)
+    val Brand = Color(0xFF2563EB)
+    val BrandSoft = Color(0xFFE8F0FE)
+    val Amber = Color(0xFFD97706)
+    val Line = Color(0xFFE5E7EB)
+    val Muted = Color(0xFF6B7280)
+    val Danger = Color(0xFFDC2626)
+    val Ok = Color(0xFF15803D)
+    val OkSoft = Color(0xFFE3F5E9)
+    val Chip = Color(0xFFEEF1F6)
     val PinDok = Color(0xFFE9C23B)
     val PinLap = Color(0xFF14532D)
 
@@ -49,39 +47,31 @@ object C {
 }
 
 private val scheme = lightColorScheme(
-    primary = C.Ink, onPrimary = Color.White,
-    secondary = C.Amber, onSecondary = C.Ink,
-    background = Color(0xFFF6F4EE), onBackground = Color(0xFF12202B),
-    surface = Color.White, onSurface = Color(0xFF12202B),
-    outline = Color(0xFFDDD8CC), error = Color(0xFFB3261E),
-    surfaceContainerHigh = Color.White,
+    primary = C.Brand, onPrimary = Color.White,
+    secondary = C.Brand, onSecondary = Color.White,
+    background = C.Bg, onBackground = C.Ink,
+    surface = Color.White, onSurface = C.Ink,
+    surfaceVariant = C.Chip, onSurfaceVariant = C.Muted,
+    outline = C.Line, error = C.Danger,
+    surfaceContainerHigh = Color.White, surfaceContainerHighest = C.Chip, surfaceContainer = Color.White,
+    primaryContainer = C.BrandSoft, onPrimaryContainer = C.Brand,
 )
 
 private val type = Typography(
-    titleLarge = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-    titleMedium = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
-    bodyLarge = TextStyle(fontSize = 15.sp),
-    bodyMedium = TextStyle(fontSize = 14.sp),
-    labelSmall = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp),
+    titleLarge = TextStyle(fontSize = 22.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold),
+    titleMedium = TextStyle(fontSize = 17.sp, lineHeight = 23.sp, fontWeight = FontWeight.SemiBold),
+    bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 23.sp),
+    bodyMedium = TextStyle(fontSize = 15.sp, lineHeight = 21.sp),
+    labelSmall = TextStyle(fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.3.sp),
+)
+
+private val shapes = Shapes(
+    small = RoundedCornerShape(10.dp), medium = RoundedCornerShape(14.dp), large = RoundedCornerShape(20.dp), extraLarge = RoundedCornerShape(24.dp),
 )
 
 @Composable
-fun DinasTheme(content: @Composable () -> Unit) = MaterialTheme(colorScheme = scheme, typography = type, content = content)
+fun DinasTheme(content: @Composable () -> Unit) = MaterialTheme(colorScheme = scheme, typography = type, shapes = shapes, content = content)
 
-
-/** Latar layar: gambar langit pada tema Langit (dipotong memenuhi layar), krem pada tema Klasik. */
+/** Latar layar: abu sangat muda. */
 @Composable
-fun Modifier.screenBackground(): Modifier {
-    if (!ThemeState.sky) return this.background(Color(0xFFF6F4EE))
-    val img = ImageBitmap.imageResource(R.drawable.bg_langit)
-    return this.background(Color(0xFF7DC4F0)).drawBehind {
-        val s = maxOf(size.width / img.width, size.height / img.height)
-        val sw = minOf(img.width, (size.width / s).toInt()); val sh = minOf(img.height, (size.height / s).toInt())
-        drawImage(
-            img,
-            srcOffset = IntOffset((img.width - sw) / 2, 0),
-            srcSize = IntSize(sw, sh),
-            dstSize = IntSize(size.width.toInt(), size.height.toInt()),
-        )
-    }
-}
+fun Modifier.screenBackground(): Modifier = this.background(C.Bg)

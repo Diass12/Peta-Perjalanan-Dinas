@@ -18,57 +18,62 @@ import id.tub.dinas.domain.DinasModel
 import id.tub.dinas.ui.*
 import id.tub.dinas.ui.components.*
 import id.tub.dinas.ui.theme.C
+import id.tub.dinas.ui.theme.ThemeState
 
 @Composable
 fun HomeScreen(vm: MainViewModel) {
     val list by vm.dinasList.collectAsState()
-    var dialog by remember { mutableStateOf<DinasModel?>(null) }
     var creating by remember { mutableStateOf(false) }
+    val reg by vm.aset.register.collectAsState()
+    val um by vm.um.bundles.collectAsState()
+    val jd by vm.jadwal.daftar.collectAsState()
+    val hariIni = id.tub.dinas.um.todayIso()
+    val depan = jd.filter { !it.selesai && it.tanggal >= hariIni }
+    val next = depan.firstOrNull()
+    val ditemukan = reg.count { it.state == id.tub.dinas.domain.AuditState.FOUND }
+    val belumSelesai = um.count { it.um.status != id.tub.dinas.domain.UmStatus.SELESAI }
 
     Column(Modifier.fillMaxSize().background(C.Bg)) {
-        GameHeader(rememberPlayer(vm)) { Pic(id.tub.dinas.R.drawable.ic_setting, 30.dp, Modifier.clickable { vm.push(Screen.Settings) }) }
-        Box(Modifier.weight(1f)) {
-                        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                item {
-                    val reg by vm.aset.register.collectAsState()
-                    val ditemukan = reg.count { it.state == id.tub.dinas.domain.AuditState.FOUND }
-                    Panel(onClick = { vm.push(Screen.Aset) }) {
-                        Text("Aset & Scan", style = MaterialTheme.typography.titleMedium)
-                        Text(if (reg.isEmpty()) "Register aset, scan kode TUB, audit fisik, ekspor Memo FAT" else "${reg.size} aset · $ditemukan ditemukan dalam audit", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 14.dp, bottom = 8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Halo, ${ThemeState.playerName}", style = MaterialTheme.typography.titleLarge)
+                Text(java.text.SimpleDateFormat("EEEE, d MMMM yyyy", java.util.Locale("id", "ID")).format(java.util.Date()), color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+            }
+            RoundIcon("⚙️") { vm.push(Screen.Settings) }
+        }
+        LazyColumn(Modifier.weight(1f).fillMaxWidth(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        MenuTile("📦", Color(0xFF2563EB), "Aset & Scan", if (reg.isEmpty()) "Register, scan, audit" else "${reg.size} aset · $ditemukan ditemukan", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.Aset) }
+                        MenuTile("💵", Color(0xFF15803D), "Uang Muka", if (um.isEmpty()) "Pengajuan & bon" else "${um.size} pengajuan · $belumSelesai berjalan", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.UangMuka) }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        MenuTile("🗓️", Color(0xFF7C3AED), "Jadwal", if (jd.isEmpty()) "Audit, meeting, tenggat" else "${depan.size} akan datang", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.Jadwal) }
+                        MenuTile("➕", Color(0xFFD97706), "Dinas baru", "Titik & temuan lapangan", Modifier.weight(1f).fillMaxHeight()) { creating = true }
                     }
                 }
-                item {
-                    Panel(onClick = { creating = true }) {
-                        Text("+ Dinas baru", style = MaterialTheme.typography.titleMedium)
-                        Text("Catat titik dokumentasi dan temuan laporan perjalanan dinas", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                    }
+            }
+            if (next != null) item {
+                Panel(onClick = { vm.push(Screen.Jadwal) }) {
+                    Text("Jadwal terdekat", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                    Spacer(Modifier.height(4.dp))
+                    Text(next.judul, style = MaterialTheme.typography.titleMedium)
+                    Text(listOf(id.tub.dinas.um.fmtTgl(next.tanggal), next.jamMulai, next.lokasi).filter { it.isNotBlank() }.joinToString(" · "), color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                 }
-                item {
-                    val um by vm.um.bundles.collectAsState()
-                    Panel(onClick = { vm.push(Screen.UangMuka) }) {
-                        Text("Uang Muka & Realisasi", style = MaterialTheme.typography.titleMedium)
-                        val belum = um.count { it.um.status != id.tub.dinas.domain.UmStatus.SELESAI }
-                        Text(if (um.isEmpty()) "Catat pengajuan uang muka dan foto bon realisasi" else "${um.size} pengajuan · $belum belum selesai direalisasi", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-                item {
-                    val jd by vm.jadwal.daftar.collectAsState()
-                    val hariIni = id.tub.dinas.um.todayIso()
-                    val depan = jd.filter { !it.selesai && it.tanggal >= hariIni }
-                    Panel(onClick = { vm.push(Screen.Jadwal) }) {
-                        Text("Jadwal", style = MaterialTheme.typography.titleMedium)
-                        val next = depan.firstOrNull()
-                        Text(if (jd.isEmpty()) "Rekap jadwal audit, meeting, tenggat, dan agenda lainnya" else if (next == null) "${jd.size} agenda · tidak ada yang akan datang" else "${depan.size} akan datang · berikutnya: ${next.judul} (${id.tub.dinas.um.fmtTgl(next.tanggal)})", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-                items(list, key = { it.id }) { d ->
-                    val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)
-                    Panel(onClick = { vm.tab = DetailTab.PETA; vm.push(Screen.Detail(d.id)) }) {
-                        Text(d.name, style = MaterialTheme.typography.titleMedium)
-                        val period = listOf(fmtDate(d.startMs), fmtDate(d.endMs)).filter { it.isNotEmpty() }.joinToString(" – ")
-                        if (period.isNotEmpty()) Text(period, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                        Spacer(Modifier.height(6.dp))
-                        Text("${counts.first} titik dokumentasi · ${counts.second} temuan laporan", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+            }
+            item { SectionTitle("Dinas") }
+            if (list.isEmpty()) item { Empty("Belum ada dinas. Ketuk “Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan.") }
+            items(list, key = { it.id }) { d ->
+                val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)
+                Panel(onClick = { vm.tab = DetailTab.PETA; vm.push(Screen.Detail(d.id)) }) {
+                    Text(d.name, style = MaterialTheme.typography.titleMedium)
+                    val period = listOf(fmtDate(d.startMs), fmtDate(d.endMs)).filter { it.isNotEmpty() }.joinToString(" – ")
+                    if (period.isNotEmpty()) Text(period, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(10.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Chip("📍 ${counts.first} titik", false)
+                        Chip("📝 ${counts.second} temuan", false)
                     }
                 }
             }

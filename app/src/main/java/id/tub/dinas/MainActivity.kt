@@ -108,8 +108,7 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
     if (vm.locked) { LockScreen(onUnlock); return }
     val appCtx = androidx.compose.ui.platform.LocalContext.current.applicationContext
     LaunchedEffect(Unit) {
-        ThemeState.sky = vm.settings.skyTheme; ThemeState.avatar = vm.settings.avatar
-        ThemeState.fx = vm.settings.fx; ThemeState.playerName = vm.settings.playerName
+        ThemeState.playerName = vm.settings.playerName
         id.tub.dinas.ui.components.Sfx.init(appCtx); id.tub.dinas.ui.components.Sfx.enabled = vm.settings.sfx
     }
     SkyBackground {
@@ -134,7 +133,6 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
 @Composable
 private fun SkyBackground(content: @Composable () -> Unit) {
     Box(Modifier.fillMaxSize().screenBackground()) {
-        if (ThemeState.sky && ThemeState.fx) id.tub.dinas.ui.components.Sparkles(Modifier.fillMaxSize())
         content()
     }
 }

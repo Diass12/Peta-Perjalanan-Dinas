@@ -32,77 +32,69 @@ import androidx.compose.ui.graphics.Shadow
 
 @Composable
 fun Header(title: String, onBack: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
-    val sky = ThemeState.sky
-    Row(
-        Modifier.fillMaxWidth().background(C.HeaderBg).statusBarsPadding().padding(horizontal = 8.dp, vertical = if (sky) 10.dp else 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (onBack != null) TextButton(onClick = onBack) { Text("←", color = Color.White, fontSize = 24.sp) }
-        else Spacer(Modifier.width(10.dp))
-        Text(
-            title, color = Color.White, maxLines = 1, modifier = Modifier.weight(1f),
-            style = if (sky) MaterialTheme.typography.titleLarge.copy(shadow = Shadow(Color(0x99000F30), Offset(0f, 3f), 8f)) else MaterialTheme.typography.titleMedium,
-        )
-        actions()
+    Column(Modifier.fillMaxWidth().background(C.HeaderBg).statusBarsPadding()) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (onBack != null) Text("‹", color = C.Ink, fontSize = 32.sp, modifier = Modifier.clickable(onClick = onBack).padding(horizontal = 14.dp, vertical = 2.dp))
+            else Spacer(Modifier.width(14.dp))
+            Text(title, color = C.Ink, maxLines = 1, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
+            actions()
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(C.Line))
     }
 }
 
 @Composable
 fun HeaderAction(label: String, onClick: () -> Unit) =
-    TextButton(onClick = onClick) { Text(label, color = if (ThemeState.sky) Color.White else C.Amber, fontWeight = FontWeight.Bold) }
+    TextButton(onClick = onClick) { Text(label, color = C.Brand, fontWeight = FontWeight.SemiBold, fontSize = 15.sp) }
 
 @Composable
 fun PrimaryButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) =
-    Button({ Sfx.click(); onClick() }, modifier, enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Ink, contentColor = Color.White), shape = RoundedCornerShape(10.dp)) { Text(text) }
+    Button({ Sfx.click(); onClick() }, modifier.heightIn(min = 48.dp), enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Brand, contentColor = Color.White), shape = RoundedCornerShape(12.dp)) { Text(text, fontWeight = FontWeight.SemiBold) }
 
+/** Tombol utama (nama lama dipertahankan). */
 @Composable
 fun AmberButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) =
-    Button({ Sfx.menu(); onClick() }, modifier, enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Amber, contentColor = C.Ink), shape = RoundedCornerShape(10.dp)) { Text(text, fontWeight = FontWeight.Bold) }
+    Button({ Sfx.menu(); onClick() }, modifier.heightIn(min = 52.dp), enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Brand, contentColor = Color.White), shape = RoundedCornerShape(14.dp)) { Text(text, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
 
 @Composable
 fun SoftButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, danger: Boolean = false, onClick: () -> Unit) =
-    OutlinedButton(onClick, modifier, enabled = enabled, shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, if (danger) C.Danger else C.Line),
+    OutlinedButton(onClick, modifier.heightIn(min = 46.dp), enabled = enabled, shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, if (danger) C.Danger.copy(alpha = 0.5f) else C.Line),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = if (danger) C.Danger else C.Ink)) { Text(text) }
 
+/** Kartu putih bersudut 16 dp dengan garis tipis. */
 @Composable
 fun Panel(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
-    val shape = RoundedCornerShape(if (ThemeState.sky) 20.dp else 14.dp)
-    var m = modifier.fillMaxWidth()
-    m = if (ThemeState.sky) m
-        .background(Brush.verticalGradient(listOf(Color(0xCCFFFFFF), Color(0x99E6F2FF))), shape)
-        .border(1.5.dp, Brush.linearGradient(listOf(Color.White, Color(0xAA7FE3FF), Color.White)), shape)
-    else m.background(C.Card, shape)
-    Column((if (onClick != null) m.clickable(onClick = onClick) else m).padding(14.dp), content = content)
+    val shape = RoundedCornerShape(16.dp)
+    val m = modifier.fillMaxWidth().clip(shape).background(C.Card, shape).border(1.dp, C.Line, shape)
+    Column((if (onClick != null) m.clickable(onClick = onClick) else m).padding(16.dp), content = content)
 }
 
+/** Judul bagian di atas sekelompok kartu. */
 @Composable
-fun Label(text: String) = Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = C.Muted, modifier = Modifier.padding(top = 10.dp, bottom = 4.dp))
+fun SectionTitle(text: String, modifier: Modifier = Modifier) = Text(text, style = MaterialTheme.typography.titleMedium, color = C.Ink, modifier = modifier.padding(top = 8.dp, bottom = 2.dp))
+
+@Composable
+fun Label(text: String) = Text(text, style = MaterialTheme.typography.labelSmall, color = C.Muted, modifier = Modifier.padding(top = 10.dp, bottom = 4.dp))
 
 @Composable
 fun Field(value: String, onChange: (String) -> Unit, label: String, modifier: Modifier = Modifier, minLines: Int = 1, singleLine: Boolean = false) =
     OutlinedTextField(value, onChange, modifier.fillMaxWidth(), label = { Text(label) }, minLines = minLines, singleLine = singleLine,
-        shape = RoundedCornerShape(10.dp),
-        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = C.Ink, unfocusedBorderColor = C.Line, focusedLabelColor = C.Ink, cursorColor = C.Ink))
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = C.Brand, unfocusedBorderColor = C.Line, focusedLabelColor = C.Brand, cursorColor = C.Brand,
+            focusedContainerColor = Color.White, unfocusedContainerColor = Color.White))
 
 @Composable
-fun Chip(text: String, selected: Boolean, color: Color = C.Ink, bg: Color = Color.White, onClick: (() -> Unit)? = null) {
+fun Chip(text: String, selected: Boolean, color: Color = C.Brand, bg: Color = C.Chip, onClick: (() -> Unit)? = null) {
     val shape = RoundedCornerShape(20.dp)
-    val sky = ThemeState.sky
-    var m = Modifier.clip(shape)
-    m = when {
-        selected && sky -> m.background(Brush.verticalGradient(listOf(Color(0xFF4FB4FF), Color(0xFF1F6FE0))), shape).border(1.5.dp, Color(0xFFBFF0FF), shape)
-        selected -> m.background(color, shape)
-        sky -> m.background(Color(0xB3FFFFFF), shape).border(1.dp, Color(0xCCFFFFFF), shape)
-        else -> m.background(bg, shape).border(1.dp, C.Line, shape)
-    }
-    Text(text, color = if (selected) Color.White else if (sky) C.Ink else color, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-        modifier = (if (onClick != null) m.clickable(onClick = onClick) else m).padding(horizontal = 12.dp, vertical = 6.dp))
+    val m = Modifier.clip(shape).background(if (selected) color else bg, shape)
+    Text(text, color = if (selected) Color.White else C.Ink, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+        modifier = (if (onClick != null) m.clickable(onClick = onClick) else m).padding(horizontal = 14.dp, vertical = 8.dp))
 }
 
 @Composable
-fun LensTag(l: Lens) = Row(Modifier.background(C.lensBg(l), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+fun LensTag(l: Lens) = Row(Modifier.background(C.lensBg(l), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
     Pic(lensIcon(l), 16.dp); Spacer(Modifier.width(4.dp))
-    Text(l.label, color = C.lens(l), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+    Text(l.label, color = C.lens(l), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
 }
 
 /** Ikon bergambar. */
@@ -112,85 +104,45 @@ fun Pic(@DrawableRes id: Int, size: Dp = 24.dp, modifier: Modifier = Modifier) =
 fun lensIcon(l: Lens): Int = when (l) { Lens.ASET -> R.drawable.ic_lensa_aset; Lens.OPS -> R.drawable.ic_lensa_ops; Lens.ADM -> R.drawable.ic_lensa_adm }
 fun statusIcon(s: Status): Int = when (s) { Status.SELESAI -> R.drawable.ic_selesai; Status.PROSES -> R.drawable.ic_proses; Status.BELUM -> R.drawable.ic_belum; Status.SELISIH -> R.drawable.ic_belum }
 
-/** Tombol dengan ikon bergambar di kiri teks. */
+private fun emojiOf(@DrawableRes icon: Int): String = when (icon) { R.drawable.ic_kamera -> "📷"; R.drawable.ic_galeri -> "🖼️"; R.drawable.ic_gps -> "📍"; else -> "" }
+
+/** Tombol dengan ikon di kiri teks. */
 @Composable
 fun IconTextButton(@DrawableRes icon: Int, text: String, primary: Boolean = true, onClick: () -> Unit) {
-    val content: @Composable RowScope.() -> Unit = { Pic(icon, 22.dp); Spacer(Modifier.width(6.dp)); Text(text) }
+    val e = emojiOf(icon)
+    val content: @Composable RowScope.() -> Unit = { if (e.isNotEmpty()) { Text(e, fontSize = 16.sp); Spacer(Modifier.width(6.dp)) }; Text(text) }
     val click = { Sfx.click(); onClick() }
-    if (primary) Button(click, colors = ButtonDefaults.buttonColors(containerColor = C.Ink, contentColor = Color.White), shape = RoundedCornerShape(10.dp), content = content)
-    else OutlinedButton(click, shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, C.Line), colors = ButtonDefaults.outlinedButtonColors(contentColor = C.Ink), content = content)
+    if (primary) Button(click, Modifier.heightIn(min = 46.dp), colors = ButtonDefaults.buttonColors(containerColor = C.Brand, contentColor = Color.White), shape = RoundedCornerShape(12.dp), content = content)
+    else OutlinedButton(click, Modifier.heightIn(min = 46.dp), shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, C.Line), colors = ButtonDefaults.outlinedButtonColors(contentColor = C.Ink), content = content)
 }
 
 @Composable
 fun StatusPill(s: Status) {
-    if (ThemeState.sky) {
-        val c = when (s) { Status.SELESAI -> Color(0xFF34F5A5); Status.PROSES -> Color(0xFFFBBF24); Status.BELUM -> Color(0xFFCBD5E1); Status.SELISIH -> Color(0xFFFF4D4D) }
-        val shape = RoundedCornerShape(8.dp)
-        Row(Modifier.background(Color(0xE60B2545), shape).border(1.5.dp, c, shape).padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-            Pic(statusIcon(s), 16.dp); Spacer(Modifier.width(4.dp))
-            Text("[${s.tag}]", color = c, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
-        }
-        return
-    }
-    val (fg, bg) = when (s) { Status.SELESAI -> Color(0xFF0F766E) to Color(0xFFD8F0EC); Status.PROSES -> Color(0xFFB45309) to Color(0xFFFBEBD9); Status.BELUM -> C.Muted to Color(0xFFECE9E0); Status.SELISIH -> Color(0xFFB3261E) to Color(0xFFF8D7D4) }
-    Text(s.label, color = fg, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.background(bg, RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
+    val (fg, bg) = when (s) { Status.SELESAI -> C.Ok to C.OkSoft; Status.PROSES -> Color(0xFFB45309) to Color(0xFFFEF3C7); Status.BELUM -> C.Muted to C.Chip; Status.SELISIH -> C.Danger to Color(0xFFFDE8E8) }
+    Text(s.label, color = fg, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.background(bg, RoundedCornerShape(8.dp)).padding(horizontal = 10.dp, vertical = 4.dp))
 }
 
-/** Bar progres bersegmen ala game. */
+/** Bar progres tipis. */
 @Composable
 fun SegBar(fraction: Float, color: Color, modifier: Modifier = Modifier, segments: Int = 20) {
-    val filled = Math.round(fraction.coerceIn(0f, 1f) * segments)
-    Row(modifier.fillMaxWidth().background(Color(0xCC0B2545), RoundedCornerShape(8.dp)).padding(3.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-        for (i in 0 until segments) {
-            Box(Modifier.weight(1f).height(12.dp).background(if (i < filled) color else Color(0x33FFFFFF), RoundedCornerShape(3.dp)))
-        }
-    }
-}
-
-/** Navigasi bawah: ikon emoji + label, tab aktif menyala. */
-@Composable
-fun BottomNav(items: List<Pair<Int, String>>, selected: Int, onSelect: (Int) -> Unit) {
-    val sky = ThemeState.sky
-    val bar = if (sky) Modifier.background(Brush.verticalGradient(listOf(Color(0xF01B4F9C), Color(0xFF0B2545))))
-        .border(1.dp, Color(0x886FD8FF), RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-    else Modifier.background(Color.White)
-    Row(Modifier.fillMaxWidth().then(bar).navigationBarsPadding().padding(vertical = 6.dp)) {
-        items.forEachIndexed { i, (icon, label) ->
-            val on = i == selected
-            Column(Modifier.weight(1f).clickable { onSelect(i) }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(if (on && sky) Modifier.background(Brush.radialGradient(listOf(Color(0xAA60D8FF), Color.Transparent)), RoundedCornerShape(50)).padding(horizontal = 14.dp, vertical = 2.dp) else Modifier.padding(horizontal = 14.dp, vertical = 2.dp)) {
-                    Pic(icon, if (on) 38.dp else 30.dp, if (on) Modifier else Modifier.alpha(0.85f))
-                }
-                Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1,
-                    color = if (sky) (if (on) Color(0xFFFFD166) else Color.White) else (if (on) C.Ink else C.Muted))
-            }
-        }
+    Box(modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(C.Chip)) {
+        Box(Modifier.fillMaxHeight().fillMaxWidth(fraction.coerceIn(0f, 1f)).background(color, RoundedCornerShape(4.dp)))
     }
 }
 
 @Composable
 fun Confirm(title: String, text: String, confirmLabel: String = "Hapus", onConfirm: () -> Unit, onDismiss: () -> Unit) =
-    AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = { Text(text) },
+    AlertDialog(onDismissRequest = onDismiss, containerColor = Color.White, title = { Text(title) }, text = { Text(text) },
         confirmButton = { TextButton(onClick = { onConfirm(); onDismiss() }) { Text(confirmLabel, color = C.Danger, fontWeight = FontWeight.Bold) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } })
 
 @Composable
-fun Empty(text: String) = Text(text, color = if (ThemeState.sky) Color.White else C.Muted, modifier = Modifier.fillMaxWidth().padding(28.dp), fontSize = 14.sp)
-
-
-/** Bingkai slot item ala RPG: garis emas ganda dengan sudut membulat. */
-fun Modifier.itemFrame(radius: Dp = 10.dp): Modifier {
-    val outer = RoundedCornerShape(radius)
-    val gold = Brush.linearGradient(listOf(Color(0xFFFFE9A6), Color(0xFFD9A441), Color(0xFFFFF3C4), Color(0xFFB9852B)))
-    return this.clip(outer).border(2.5.dp, gold, outer).padding(2.5.dp).clip(RoundedCornerShape((radius - 2.dp).coerceAtLeast(2.dp)))
-        .border(1.dp, Color(0x99FFFFFF), RoundedCornerShape((radius - 2.dp).coerceAtLeast(2.dp)))
+fun Empty(text: String) = Column(Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 40.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Text(text, color = C.Muted, fontSize = 15.sp, lineHeight = 22.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 }
 
-/** Bar XP bersegmen emas, dengan teks level di atasnya. */
-@Composable
-fun XpBar(fraction: Float, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(8.dp)
-    Box(modifier.fillMaxWidth().height(14.dp).background(Color(0xCC0B2545), shape).border(1.dp, Color(0xAAFFD166), shape).padding(2.dp)) {
-        Box(Modifier.fillMaxHeight().fillMaxWidth(fraction.coerceIn(0.02f, 1f)).background(Brush.horizontalGradient(listOf(Color(0xFFFFD166), Color(0xFF5CD6FF))), RoundedCornerShape(6.dp)))
-    }
+/** Bingkai foto: sudut membulat dan garis tipis. */
+fun Modifier.itemFrame(radius: Dp = 10.dp): Modifier {
+    val shape = RoundedCornerShape(radius.coerceAtLeast(10.dp))
+    return this.clip(shape).border(1.dp, C.Line, shape)
 }

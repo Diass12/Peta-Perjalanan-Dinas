@@ -43,17 +43,11 @@ fun SettingsScreen(vm: MainViewModel) {
         Header("Pengaturan", onBack = { vm.pop() })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel {
-                Text("Karakter", style = MaterialTheme.typography.titleMedium)
+                Text("Profil", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
                 var nm by remember { mutableStateOf(ThemeState.playerName) }
                 Field(nm, { nm = it.take(24); ThemeState.playerName = nm; s.playerName = nm }, "Nama", singleLine = true)
                 Spacer(Modifier.height(8.dp))
-                AvatarPicker(ThemeState.avatar) { ThemeState.avatar = it; s.avatar = it }
-                Spacer(Modifier.height(10.dp))
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text("Efek visual (kilau, glow)", Modifier.weight(1f))
-                    Switch(ThemeState.fx, { ThemeState.fx = it; s.fx = it })
-                }
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     var snd by remember { mutableStateOf(s.sfx) }
                     Text("Efek suara", Modifier.weight(1f))
@@ -85,16 +79,6 @@ fun SettingsScreen(vm: MainViewModel) {
                     Switch(secure, { secure = it; s.secureAlways = it })
                 }
                 Text("Foto, PDF, dan database dienkripsi di perangkat. Kunci disimpan di Android Keystore.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-            }
-            Panel {
-                Text("Tampilan", style = MaterialTheme.typography.titleMedium)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("Tema Langit")
-                        Text("Kartu kaca di atas langit biru. Tema Klasik lebih terbaca di bawah matahari.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Switch(ThemeState.sky, { ThemeState.sky = it; s.skyTheme = it })
-                }
             }
             Panel {
                 Text("Foto", style = MaterialTheme.typography.titleMedium)
