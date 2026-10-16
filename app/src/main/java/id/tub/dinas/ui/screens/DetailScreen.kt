@@ -79,13 +79,17 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
     if (confirmDelete) Confirm("Hapus dinas?", "Semua titik, temuan, foto, dan PDF di dinas ini dihapus permanen. Buat cadangan dulu bila perlu.",
         onConfirm = { vm.work(onDone = { vm.pop() }) { vm.repo.deleteDinas(dinasId) } }, onDismiss = { confirmDelete = false })
 
-    val ed = vm.editor
-    if (ed != null && s != null) {
-        Dialog(onDismissRequest = { closeEditor(vm, s) }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
-            when (ed) {
-                is Editor.Titik -> TitikEditor(vm, s, ed.id, onClose = { closeEditor(vm, s) }, onSaved = { vm.editor = null })
-                is Editor.Temuan -> TemuanEditor(vm, s, ed.id, onClose = { closeEditor(vm, s) }, onSaved = { vm.editor = null })
-            }
+    if (vm.editor != null && s != null) EditorHost(vm, s)
+}
+
+/** Dialog layar penuh untuk editor titik/temuan; dipakai oleh Detail dan tab utama. */
+@Composable
+fun EditorHost(vm: MainViewModel, s: DinasSnapshot) {
+    val ed = vm.editor ?: return
+    Dialog(onDismissRequest = { closeEditor(vm, s) }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
+        when (ed) {
+            is Editor.Titik -> TitikEditor(vm, s, ed.id, onClose = { closeEditor(vm, s) }, onSaved = { vm.editor = null })
+            is Editor.Temuan -> TemuanEditor(vm, s, ed.id, onClose = { closeEditor(vm, s) }, onSaved = { vm.editor = null })
         }
     }
 }

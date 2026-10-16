@@ -39,7 +39,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private fun km(a: id.tub.dinas.domain.GeoPoint, b: id.tub.dinas.domain.GeoPoint): Double {
+internal fun km(a: id.tub.dinas.domain.GeoPoint, b: id.tub.dinas.domain.GeoPoint): Double {
     val r = 6371.0
     val dLat = Math.toRadians(b.lat - a.lat); val dLng = Math.toRadians(b.lng - a.lng)
     val h = Math.sin(dLat / 2).let { it * it } + Math.cos(Math.toRadians(a.lat)) * Math.cos(Math.toRadians(b.lat)) * Math.sin(dLng / 2).let { it * it }
@@ -133,7 +133,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
             }
         }
         Row(Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(12.dp)) {
-            AmberButton("+ Titik", Modifier.fillMaxWidth()) {
+            AmberButton("📍 Kunci titik GPS baru", Modifier.fillMaxWidth()) {
                 vm.work { val id = vm.repo.saveTitik(s.dinas.id, null, "", "", null); vm.editor = Editor.Titik(id) }
             }
         }

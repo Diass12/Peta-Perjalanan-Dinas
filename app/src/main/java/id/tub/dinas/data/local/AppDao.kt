@@ -149,6 +149,15 @@ interface AppDao {
     @Upsert suspend fun upsertJadwalAll(e: List<JadwalEntity>)
     @Query("DELETE FROM jadwal WHERE id = :id") suspend fun deleteJadwal(id: String)
 
+    // ---- dokumen
+    @Query("SELECT * FROM dokumen ORDER BY createdAt DESC") fun observeDokumen(): Flow<List<DokumenEntity>>
+    @Query("SELECT * FROM dokumen ORDER BY createdAt DESC") suspend fun dokumenAll(): List<DokumenEntity>
+    @Query("SELECT * FROM dokumen WHERE id = :id") suspend fun dokumenById(id: String): DokumenEntity?
+    @Upsert suspend fun upsertDokumen(e: DokumenEntity)
+    @Upsert suspend fun upsertDokumenAll(e: List<DokumenEntity>)
+    @Query("DELETE FROM dokumen WHERE id = :id") suspend fun deleteDokumen(id: String)
+    @Query("SELECT path FROM dokumen WHERE path != ''") suspend fun allDokumenPaths(): List<String>
+
     // ---- pembersihan berkas yatim
     @Query("SELECT path FROM foto") suspend fun allFotoPaths(): List<String>
     @Query("SELECT path FROM lampiran") suspend fun allLampiranPaths(): List<String>

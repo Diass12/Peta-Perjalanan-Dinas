@@ -246,3 +246,17 @@ data class JadwalEntity(
     val createdAt: Long,
     val updatedAt: Long,
 )
+
+@Entity(tableName = "dokumen")
+data class DokumenEntity(
+    @PrimaryKey val id: String,
+    val jenis: String,
+    val judul: String,
+    val nomor: String,
+    val berlakuSampai: String,
+    val catatan: String,
+    val path: String,
+    val tipe: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+)

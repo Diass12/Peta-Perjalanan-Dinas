@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 @Database(
-    entities = [DinasEntity::class, TitikEntity::class, TemuanEntity::class, FotoEntity::class, LampiranEntity::class, PoinEntity::class, MediaEntity::class, AsetEntity::class, AsetFotoEntity::class, AsetMediaEntity::class, UangMukaEntity::class, UmBonEntity::class, UmFotoEntity::class, JadwalEntity::class],
-    version = 5,
+    entities = [DinasEntity::class, TitikEntity::class, TemuanEntity::class, FotoEntity::class, LampiranEntity::class, PoinEntity::class, MediaEntity::class, AsetEntity::class, AsetFotoEntity::class, AsetMediaEntity::class, UangMukaEntity::class, UmBonEntity::class, UmFotoEntity::class, JadwalEntity::class, DokumenEntity::class],
+    version = 6,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -62,12 +62,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** SQL v6: dokumen & tiket perjalanan. */
+        const val SQL_DOKUMEN = "CREATE TABLE IF NOT EXISTS `dokumen` (`id` TEXT NOT NULL, `jenis` TEXT NOT NULL, `judul` TEXT NOT NULL, `nomor` TEXT NOT NULL, `berlakuSampai` TEXT NOT NULL, `catatan` TEXT NOT NULL, `path` TEXT NOT NULL, `tipe` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+
+        /** v5 -> v6: tabel dokumen. Data lama tidak disentuh. */
+        val MIGRATION_5_6 = object : androidx.room.migration.Migration(5, 6) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) { db.execSQL(SQL_DOKUMEN) }
+        }
+
         /** Database dienkripsi SQLCipher. Tidak ada fallbackToDestructiveMigration: data pengguna tidak boleh hilang diam-diam. */
         fun open(ctx: Context, key: ByteArray): AppDatabase {
             System.loadLibrary("sqlcipher")
             return Room.databaseBuilder(ctx.applicationContext, AppDatabase::class.java, "dinas.db")
                 .openHelperFactory(SupportOpenHelperFactory(key))
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .build()
         }
     }

@@ -9,6 +9,9 @@ sealed interface Screen {
     data object Aset : Screen
     data object UangMuka : Screen
     data object Jadwal : Screen
+    data object Profil : Screen
+    data object Galeri : Screen
+    data object Dokumen : Screen
     data class Present(val dinasId: String) : Screen
 }
 

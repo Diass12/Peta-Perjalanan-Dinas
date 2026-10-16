@@ -228,7 +228,7 @@ class Repository(
     suspend fun exportBackup(out: OutputStream, passphrase: CharArray?) = withContext(Dispatchers.IO) {
         val ids = dao.observeDinasOnce()
         val snaps = ids.mapNotNull { snapshot(it.id) }
-        BackupCodec.write(snaps, vault, out, passphrase, asetBundles(), umBundles(), jadwalList())
+        BackupCodec.write(snaps, vault, out, passphrase, asetBundles(), umBundles(), jadwalList(), dokumenList())
     }
 
     /** Mengembalikan jumlah dinas yang dipulihkan. Dinas ber-ID sama akan ditimpa. */
@@ -250,6 +250,7 @@ class Repository(
             dao.upsertAsetFotoAll(r.assets.flatMap { b -> b.fotos.map { it.toEntity() } })
             dao.upsertAsetMediaAll(r.assets.flatMap { b -> b.media.map { it.toEntity() } })
             dao.upsertJadwalAll(r.jadwal.map { it.toEntity() })
+            dao.upsertDokumenAll(r.dokumen.map { it.toEntity() })
             dao.upsertUmAll(r.um.map { it.um.toEntity() })
             dao.upsertBonAll(r.um.flatMap { u -> u.bons.map { it.bon.toEntity() } })
             dao.upsertBonFotoAll(r.um.flatMap { u -> u.bons.flatMap { b -> b.fotos.map { it.toEntity() } } })
@@ -259,7 +260,7 @@ class Repository(
 
     /** Menghapus berkas terenkripsi yang tidak dirujuk database (sisa proses yang terhenti). */
     suspend fun cleanOrphans(): Int = withContext(Dispatchers.IO) {
-        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths() + dao.allAsetFotoPaths() + dao.allAsetMediaPaths() + dao.allUmFotoPaths()).toSet()
+        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths() + dao.allAsetFotoPaths() + dao.allAsetMediaPaths() + dao.allUmFotoPaths() + dao.allDokumenPaths()).toSet()
         vault.deleteOrphans(used)
     }
 
@@ -419,6 +420,42 @@ class Repository(
     suspend fun deleteBonFoto(id: String) = withContext(Dispatchers.IO) {
         val f = dao.bonFotoById(id) ?: return@withContext
         dao.deleteBonFoto(id); vault.delete(f.path)
+    }
+
+    // ---------- dokumen & tiket ----------
+    fun observeDokumen(): Flow<List<DokumenModel>> = dao.observeDokumen().map { l -> l.map { it.toModel() } }
+    suspend fun dokumenList(): List<DokumenModel> = withContext(Dispatchers.IO) { dao.dokumenAll().map { it.toModel() } }
+
+    /** Id kosong = dokumen baru. Lampiran tidak diubah di sini. */
+    suspend fun saveDokumen(m: DokumenModel): String = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        val id = m.id.ifEmpty { uid() }
+        val old = dao.dokumenById(id)
+        dao.upsertDokumen(m.copy(id = id, path = old?.path ?: m.path, tipe = old?.tipe ?: m.tipe, createdAt = old?.createdAt ?: now, updatedAt = now).toEntity())
+        id
+    }
+
+    /** Mengganti lampiran (foto JPEG atau PDF) sebuah dokumen; berkas lama dihapus. */
+    suspend fun setDokumenFile(id: String, jpeg: ByteArray? = null, pdf: java.io.InputStream? = null) = withContext(Dispatchers.IO) {
+        val old = dao.dokumenById(id) ?: throw IllegalArgumentException("Dokumen tidak ditemukan")
+        val (path, tipe) = when {
+            jpeg != null -> vault.save(jpeg, "dok", "jpg") to "jpg"
+            pdf != null -> (try { vault.saveStream(pdf, "dok", "pdf", MAX_PDF).first } catch (e: java.io.IOException) { throw IllegalArgumentException("PDF lebih dari 50 MB tidak diterima") }) to "pdf"
+            else -> return@withContext
+        }
+        try { dao.upsertDokumen(old.copy(path = path, tipe = tipe, updatedAt = System.currentTimeMillis())) } catch (e: Exception) { vault.delete(path); throw e }
+        if (old.path.isNotEmpty()) vault.delete(old.path)
+    }
+
+    suspend fun hapusDokumenFile(id: String) = withContext(Dispatchers.IO) {
+        val old = dao.dokumenById(id) ?: return@withContext
+        dao.upsertDokumen(old.copy(path = "", tipe = "", updatedAt = System.currentTimeMillis()))
+        if (old.path.isNotEmpty()) vault.delete(old.path)
+    }
+
+    suspend fun deleteDokumen(id: String) = withContext(Dispatchers.IO) {
+        val old = dao.dokumenById(id) ?: return@withContext
+        dao.deleteDokumen(id); if (old.path.isNotEmpty()) vault.delete(old.path)
     }
 
     // ---------- jadwal ----------

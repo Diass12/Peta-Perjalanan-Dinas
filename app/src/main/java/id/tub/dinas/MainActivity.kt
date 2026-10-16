@@ -112,11 +112,11 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
         id.tub.dinas.ui.components.Sfx.init(appCtx); id.tub.dinas.ui.components.Sfx.enabled = vm.settings.sfx
     }
     SkyBackground {
-    BackHandler(enabled = vm.stack.size > 1 || vm.editor != null) {
-        if (vm.editor != null) vm.editor = null else vm.pop()
+    BackHandler(enabled = vm.stack.size > 1 || vm.editor != null || vm.mainTab != 0) {
+        if (vm.editor != null) vm.editor = null else if (!vm.pop()) vm.mainTab = 0
     }
     when (val s = vm.current) {
-        Screen.Home -> HomeScreen(vm)
+        Screen.Home -> ShellScreen(vm)
         is Screen.Detail -> DetailScreen(vm, s.dinasId)
         is Screen.Photo -> PhotoViewerScreen(vm, s)
         is Screen.Pdf -> PdfViewerScreen(vm, s)
@@ -124,6 +124,9 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
         Screen.Aset -> AsetScreen(vm)
         Screen.UangMuka -> UmScreen(vm)
         Screen.Jadwal -> JadwalScreen(vm)
+        Screen.Profil -> ProfilScreen(vm)
+        Screen.Galeri -> GaleriScreen(vm)
+        Screen.Dokumen -> DokumenScreen(vm)
         is Screen.Present -> PresentationScreen(vm, s.dinasId)
     }
     vm.sharedText?.let { id.tub.dinas.ui.components.SharedLocationDialog(vm, it) }

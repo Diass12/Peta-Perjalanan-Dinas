@@ -29,6 +29,8 @@ fun SettingsScreen(vm: MainViewModel) {
     var secure by remember { mutableStateOf(s.secureAlways) }
     var preset by remember { mutableStateOf(s.photoPreset) }
     var sat by remember { mutableStateOf(s.satellite) }
+    var gpsHigh by remember { mutableStateOf(s.gpsHigh) }
+    var extra by remember { mutableStateOf(s.newsExtra) }
     var pendingPass by remember { mutableStateOf("") }
     var askBackupPass by remember { mutableStateOf(false) }
     var restoreUri by remember { mutableStateOf<Uri?>(null) }
@@ -94,7 +96,29 @@ fun SettingsScreen(vm: MainViewModel) {
                     Text("Citra satelit (Esri World Imagery)", Modifier.weight(1f))
                     Switch(sat, { sat = it; s.satellite = it })
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Akurasi GPS tinggi")
+                        Text("Tinggi: GPS penuh tiap detik (area terpencil, lebih boros baterai). Normal: hemat baterai.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Switch(gpsHigh, { gpsHigh = it; s.gpsHigh = it })
+                }
                 Text("Peta butuh internet untuk memuat petak; area yang sudah dilihat tersimpan sementara.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+            }
+            Panel {
+                Text("Wawasan & Berita", style = MaterialTheme.typography.titleMedium)
+                val ex = id.tub.dinas.news.NewsFeed.parseExtra(extra)
+                if (ex.isEmpty()) Text("Belum ada sumber RSS tambahan. Tambahkan dari tab Wawasan.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                ex.forEach { x ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("${x.nama}\n${x.url}", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                        TextButton(onClick = { extra = extra.lines().filterNot { it.endsWith("|" + x.url) }.joinToString("\n"); s.newsExtra = extra }) { Text("Hapus", color = C.Danger) }
+                    }
+                }
+            }
+            Panel {
+                Text("Bahasa & sinkronisasi", style = MaterialTheme.typography.titleMedium)
+                Text("Aplikasi saat ini berbahasa Indonesia. Pilihan bahasa Inggris dan sinkronisasi cloud belum tersedia; gunakan Cadangan di bawah untuk memindahkan data antar-perangkat.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
             }
             Panel {
                 Text("Cadangan", style = MaterialTheme.typography.titleMedium)

@@ -24,21 +24,24 @@ object ThemeState {
 }
 
 object C {
-    val Bg = Color(0xFFF5F7FB)
+    /** Biru lembut untuk aksen sekunder. */
+    val Soft = Color(0xFF2F6FDB)
+    val Navy2 = Color(0xFF1E4278)
+    val Bg = Color(0xFFF3F5F9)
     /** Latar padat untuk dialog layar penuh. */
-    val Solid = Color(0xFFF5F7FB)
+    val Solid = Color(0xFFF3F5F9)
     val Card = Color.White
     val HeaderBg = Color.White
-    val Ink = Color(0xFF111827)
-    val Brand = Color(0xFF2563EB)
-    val BrandSoft = Color(0xFFE8F0FE)
+    val Ink = Color(0xFF0F172A)
+    val Brand = Color(0xFF15305A)
+    val BrandSoft = Color(0xFFE4EAF4)
     val Amber = Color(0xFFD97706)
-    val Line = Color(0xFFE5E7EB)
-    val Muted = Color(0xFF6B7280)
+    val Line = Color(0xFFE2E8F0)
+    val Muted = Color(0xFF64748B)
     val Danger = Color(0xFFDC2626)
-    val Ok = Color(0xFF15803D)
-    val OkSoft = Color(0xFFE3F5E9)
-    val Chip = Color(0xFFEEF1F6)
+    val Ok = Color(0xFF059669)
+    val OkSoft = Color(0xFFD1FAE5)
+    val Chip = Color(0xFFEDF1F7)
     val PinDok = Color(0xFFE9C23B)
     val PinLap = Color(0xFF14532D)
 

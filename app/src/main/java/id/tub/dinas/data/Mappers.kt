@@ -56,3 +56,6 @@ fun UmFotoEntity.toModel() = BonFotoModel(id, bonId, path, urutan)
 fun BonFotoModel.toEntity() = UmFotoEntity(id, bonId, path, order)
 fun JadwalEntity.toModel() = JadwalModel(id, judul, JadwalJenis.from(jenis), tanggal, jamMulai, jamSelesai, lokasi, peserta, catatan, selesai, createdAt, updatedAt)
 fun JadwalModel.toEntity() = JadwalEntity(id, judul, jenis.name, tanggal, jamMulai, jamSelesai, lokasi, peserta, catatan, selesai, createdAt, updatedAt)
+
+fun DokumenEntity.toModel() = DokumenModel(id, DokumenJenis.from(jenis), judul, nomor, berlakuSampai, catatan, path, tipe, createdAt, updatedAt)
+fun DokumenModel.toEntity() = DokumenEntity(id, jenis.name, judul, nomor, berlakuSampai, catatan, path, tipe, createdAt, updatedAt)

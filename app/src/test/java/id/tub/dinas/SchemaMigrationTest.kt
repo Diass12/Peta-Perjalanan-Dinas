@@ -7,16 +7,16 @@ import org.junit.Test
 import java.io.File
 
 /**
- * Migrasi ditulis tangan, jadi dicocokkan dengan skema yang Room hasilkan sendiri (schemas/.../5.json).
+ * Migrasi ditulis tangan, jadi dicocokkan dengan skema yang Room hasilkan sendiri (schemas/.../6.json).
  * Bila beda, Room akan menolak membuka database pengguna setelah pembaruan: tes ini mencegahnya.
  */
 class SchemaMigrationTest {
     private fun schemaFile(): File {
-        val rel = "schemas/id.tub.dinas.data.local.AppDatabase/5.json"
+        val rel = "schemas/id.tub.dinas.data.local.AppDatabase/6.json"
         val f = listOf(File(rel), File("app/$rel")).firstOrNull { it.isFile }
         // Saat KSP diambil dari cache Gradle, berkas skema tidak dihasilkan ulang. Itu aman: SQL migrasi berada di
         // sumber utama, jadi setiap perubahannya membuat KSP berjalan lagi dan tes ini kembali aktif.
-        org.junit.Assume.assumeTrue("Skema Room 5.json tidak ada (KSP dari cache); tes dilewati", f != null)
+        org.junit.Assume.assumeTrue("Skema Room 6.json tidak ada (KSP dari cache); tes dilewati", f != null)
         return f!!
     }
 
@@ -45,6 +45,7 @@ class SchemaMigrationTest {
         assertEquals(listOf(norm(AppDatabase.SQL_UM_BON_IDX)), idx("um_bon"))
         assertEquals(listOf(norm(AppDatabase.SQL_UM_FOTO_IDX)), idx("um_foto"))
         assertEquals(create("jadwal"), norm(AppDatabase.SQL_JADWAL))
-        assertTrue(entities.size == 14)
+        assertEquals(create("dokumen"), norm(AppDatabase.SQL_DOKUMEN))
+        assertTrue(entities.size == 15)
     }
 }

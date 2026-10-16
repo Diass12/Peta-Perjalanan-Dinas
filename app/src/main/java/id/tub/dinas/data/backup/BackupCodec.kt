@@ -24,13 +24,13 @@ object BackupCodec {
     private const val MAX_ENTRIES = 20000
     private val rnd = SecureRandom()
 
-    data class Restored(val snapshots: List<DinasSnapshot>, val mediaCount: Int, val assets: List<AsetBundle> = emptyList(), val um: List<UmBundle> = emptyList(), val jadwal: List<JadwalModel> = emptyList())
+    data class Restored(val snapshots: List<DinasSnapshot>, val mediaCount: Int, val assets: List<AsetBundle> = emptyList(), val um: List<UmBundle> = emptyList(), val jadwal: List<JadwalModel> = emptyList(), val dokumen: List<DokumenModel> = emptyList())
 
-    fun write(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, passphrase: CharArray?, assets: List<AsetBundle> = emptyList(), um: List<UmBundle> = emptyList(), jadwal: List<JadwalModel> = emptyList()) {
+    fun write(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, passphrase: CharArray?, assets: List<AsetBundle> = emptyList(), um: List<UmBundle> = emptyList(), jadwal: List<JadwalModel> = emptyList(), dokumen: List<DokumenModel> = emptyList()) {
         out.write(MAGIC)
         if (passphrase == null || passphrase.isEmpty()) {
             out.write(0)
-            zip(snaps, vault, out, assets, um, jadwal)
+            zip(snaps, vault, out, assets, um, jadwal, dokumen)
         } else {
             out.write(1)
             val salt = ByteArray(16).also { rnd.nextBytes(it) }
@@ -38,17 +38,17 @@ object BackupCodec {
             val key = ChunkedCrypto.deriveKey(passphrase, salt)
             val tmp = File.createTempFile("bak_", ".zip")
             try {
-                tmp.outputStream().use { zip(snaps, vault, it, assets, um, jadwal) }
+                tmp.outputStream().use { zip(snaps, vault, it, assets, um, jadwal, dokumen) }
                 tmp.inputStream().use { ChunkedCrypto.encrypt(key, it, out) }
             } finally { tmp.delete(); key.fill(0) }
         }
         out.flush()
     }
 
-    private fun zip(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, assets: List<AsetBundle>, um: List<UmBundle>, jadwal: List<JadwalModel>) {
+    private fun zip(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, assets: List<AsetBundle>, um: List<UmBundle>, jadwal: List<JadwalModel>, dokumen: List<DokumenModel>) {
         val zos = ZipOutputStream(BufferedOutputStream(out))
         zos.putNextEntry(ZipEntry("data.json"))
-        zos.write(MiniJson.write(toJson(snaps, assets, um, jadwal)).toByteArray(Charsets.UTF_8))
+        zos.write(MiniJson.write(toJson(snaps, assets, um, jadwal, dokumen)).toByteArray(Charsets.UTF_8))
         zos.closeEntry()
         zos.setLevel(java.util.zip.Deflater.BEST_SPEED)
         val seen = HashSet<String>()
@@ -85,6 +85,12 @@ object BackupCodec {
             if (!seen.add(f.path) || !vault.exists(f.path)) continue
             zos.putNextEntry(ZipEntry("media/${f.path}"))
             zos.write(vault.read(f.path))
+            zos.closeEntry()
+        }
+        for (d in dokumen) {
+            if (d.path.isEmpty() || !seen.add(d.path) || !vault.exists(d.path)) continue
+            zos.putNextEntry(ZipEntry("media/${d.path}"))
+            vault.readTo(d.path, zos)
             zos.closeEntry()
         }
         zos.finish()
@@ -145,7 +151,7 @@ object BackupCodec {
             }
             val j = json ?: throw IOException("data.json tidak ada di cadangan")
             val root = MiniJson.parse(j)
-            return Restored(fromJson(root), media, assetsFromJson(root), umFromJson(root), jadwalFromJson(root))
+            return Restored(fromJson(root), media, assetsFromJson(root), umFromJson(root), jadwalFromJson(root), dokumenFromJson(root))
         } catch (e: Exception) {
             written.forEach { vault.delete(it) }
             if (e is IOException) throw e
@@ -162,7 +168,8 @@ object BackupCodec {
     // ---------- JSON ----------
     private fun geo(g: GeoPoint?): Any? = g?.let { mapOf("lat" to it.lat, "lng" to it.lng, "acc" to it.accuracyM, "src" to it.source) }
 
-    fun toJson(snaps: List<DinasSnapshot>, assets: List<AsetBundle> = emptyList(), um: List<UmBundle> = emptyList(), jadwal: List<JadwalModel> = emptyList()): Map<String, Any?> = mapOf(
+    fun toJson(snaps: List<DinasSnapshot>, assets: List<AsetBundle> = emptyList(), um: List<UmBundle> = emptyList(), jadwal: List<JadwalModel> = emptyList(), dokumen: List<DokumenModel> = emptyList()): Map<String, Any?> = mapOf(
+        "dokumen" to dokumen.map { mapOf("id" to it.id, "jenis" to it.jenis.name, "judul" to it.judul, "nomor" to it.nomor, "sampai" to it.berlakuSampai, "catatan" to it.catatan, "path" to it.path, "tipe" to it.tipe, "created" to it.createdAt, "updated" to it.updatedAt) },
         "jadwal" to jadwal.map { mapOf("id" to it.id, "judul" to it.judul, "jenis" to it.jenis.name, "tgl" to it.tanggal, "mulai" to it.jamMulai, "selesaiJam" to it.jamSelesai, "lokasi" to it.lokasi, "peserta" to it.peserta, "catatan" to it.catatan, "done" to it.selesai, "created" to it.createdAt, "updated" to it.updatedAt) },
         "aset" to assets.map { asetJson(it) },
         "um" to um.map { umJson(it) },
@@ -227,6 +234,15 @@ object BackupCodec {
                     MediaModel(s(o["id"]), if (o["type"] == "TEMUAN") OwnerType.TEMUAN else OwnerType.TITIK, s(o["owner"]), MediaKind.from(sn(o["kind"])), safePath(s(o["path"])), s(o["name"]), n(o["size"]) ?: 0L, n(o["at"]) ?: 0L, i(o["order"])) },
             )
         }
+    }
+
+    /** Cadangan lama tanpa kunci "dokumen" menghasilkan daftar kosong. */
+    fun dokumenFromJson(root: Any?): List<DokumenModel> = l(m(root)["dokumen"]).map { x ->
+        val o = m(x)
+        val path = s(o["path"])
+        if (path.contains("..") || path.startsWith("/") || path.contains("\\")) throw IllegalArgumentException("path dokumen tidak aman")
+        DokumenModel(s(o["id"]).ifEmpty { throw IllegalArgumentException("id dokumen kosong") }, DokumenJenis.from(sn(o["jenis"])), s(o["judul"]), s(o["nomor"]), s(o["sampai"]), s(o["catatan"]),
+            path, s(o["tipe"]), n(o["created"]) ?: 0L, n(o["updated"]) ?: 0L)
     }
 
     /** Cadangan lama tanpa kunci "jadwal" menghasilkan daftar kosong. */

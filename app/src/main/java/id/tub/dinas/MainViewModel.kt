@@ -29,6 +29,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     val stack = mutableStateListOf<Screen>(Screen.Home)
     var tab by mutableStateOf(DetailTab.PETA)
+    /** Tab utama di bawah: 0 Beranda, 1 Peta & GPS, 2 Audit & Dokumen, 3 Wawasan. */
+    var mainTab by mutableStateOf(0)
+    /** Dinas yang sedang aktif untuk tab Peta & Audit. */
+    var aktifId by mutableStateOf(settings.lastDinasId)
     var editor by mutableStateOf<Editor?>(null)
     /** Teks yang dibagikan dari aplikasi lain (mis. tautan Google Maps). */
     var sharedText by mutableStateOf<String?>(null)

@@ -49,6 +49,7 @@ class GpsTracker(context: Context) {
         if (fusedCb != null || lmListener != null) return
         if (!hasPermission()) { _state.value = GpsState(false, null, "Izin lokasi belum diberikan"); return }
         _state.value = GpsState(true, null, "Mencari sinyal GPS…")
+        val high = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE).getBoolean("gpsHigh", true)
         val usePlay = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx) == ConnectionResult.SUCCESS
         if (usePlay) {
             val cb = object : LocationCallback() {
@@ -56,7 +57,7 @@ class GpsTracker(context: Context) {
             }
             fusedCb = cb
             LocationServices.getFusedLocationProviderClient(ctx)
-                .requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L).build(), cb, Looper.getMainLooper())
+                .requestLocationUpdates(LocationRequest.Builder(if (high) Priority.PRIORITY_HIGH_ACCURACY else Priority.PRIORITY_BALANCED_POWER_ACCURACY, if (high) 1000L else 4000L).build(), cb, Looper.getMainLooper())
                 .addOnFailureListener { _state.value = GpsState(false, null, "GPS tidak dapat dimulai") }
         } else {
             val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -69,7 +70,7 @@ class GpsTracker(context: Context) {
                 override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
             }
             lmListener = l
-            try { lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, l, Looper.getMainLooper()) }
+            try { lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, if (high) 1000L else 4000L, 0f, l, Looper.getMainLooper()) }
             catch (e: Exception) { _state.value = GpsState(false, null, "GPS tidak tersedia di perangkat ini") }
         }
     }

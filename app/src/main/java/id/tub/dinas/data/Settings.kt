@@ -49,6 +49,16 @@ class Settings(ctx: Context) {
     var skyTheme: Boolean
         get() = p.getBoolean("sky", true)
         set(v) { p.edit().putBoolean("sky", v).apply() }
+    /** true = akurasi tinggi (GPS penuh, 1 dtk); false = normal (hemat baterai). */
+    var gpsHigh: Boolean
+        get() = p.getBoolean("gpsHigh", true)
+        set(v) { p.edit().putBoolean("gpsHigh", v).apply() }
+    var newsExtra: String
+        get() = p.getString("newsExtra", "") ?: ""
+        set(v) { p.edit().putString("newsExtra", v).apply() }
+    var jabatan: String
+        get() = p.getString("jabatan", "Auditor") ?: "Auditor"
+        set(v) { p.edit().putString("jabatan", v).apply() }
     var lastDinasId: String?
         get() = p.getString("lastDinas", null)
         set(v) { p.edit().putString("lastDinas", v).apply() }

@@ -74,3 +74,36 @@ data class JadwalModel(
     val lokasi: String = "", val peserta: String = "", val catatan: String = "", val selesai: Boolean = false,
     val createdAt: Long = 0L, val updatedAt: Long = 0L,
 )
+
+enum class DokumenJenis(val label: String, val ikon: String) {
+    PASPOR("Paspor", "🛂"), VISA("Visa", "🪪"), TIKET("Tiket Pesawat/Kereta", "🎫"), VOUCHER("Voucher Hotel", "🏨"),
+    SURAT_TUGAS("Surat Tugas", "📄"), ID_CARD("ID Card Perusahaan", "💳"), LAINNYA("Lainnya", "📎");
+    companion object { fun from(s: String?) = entries.firstOrNull { it.name.equals(s, true) || it.label.equals(s, true) } ?: LAINNYA }
+}
+
+/** Dokumen perjalanan digital. [path] kosong bila belum ada lampiran; [tipe] "jpg" atau "pdf". berlakuSampai yyyy-MM-dd. */
+data class DokumenModel(
+    val id: String,
+    val jenis: DokumenJenis = DokumenJenis.LAINNYA,
+    val judul: String = "",
+    val nomor: String = "",
+    val berlakuSampai: String = "",
+    val catatan: String = "",
+    val path: String = "",
+    val tipe: String = "",
+    val createdAt: Long = 0L,
+    val updatedAt: Long = 0L,
+) {
+    /** Status validitas terhadap [hariIni] (yyyy-MM-dd). */
+    fun status(hariIni: String): String = when {
+        berlakuSampai.isBlank() -> "Active"
+        berlakuSampai < hariIni -> "Kedaluwarsa"
+        berlakuSampai <= tambahHari(hariIni, 30) -> "Segera habis"
+        else -> "Valid"
+    }
+    companion object {
+        fun tambahHari(iso: String, n: Int): String = runCatching {
+            java.time.LocalDate.parse(iso).plusDays(n.toLong()).toString()
+        }.getOrDefault(iso)
+    }
+}
