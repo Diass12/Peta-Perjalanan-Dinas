@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.tub.dinas.MainViewModel
+import id.tub.dinas.news.Gutenberg
 import id.tub.dinas.news.Karya
 import id.tub.dinas.news.NewsFeed
 import id.tub.dinas.news.Wikisource
@@ -40,6 +41,7 @@ private fun videoOk(u: String): Boolean {
 fun HiburanTab(vm: MainViewModel) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+    var inggris by remember { mutableStateOf(false) }
     var q by remember { mutableStateOf("novel") }
     var hasil by remember { mutableStateOf<List<Karya>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
@@ -65,20 +67,26 @@ fun HiburanTab(vm: MainViewModel) {
     fun cari() {
         scope.launch {
             loading = true; err = null
-            try { hasil = Wikisource.cari(q) } catch (e: Exception) { hasil = emptyList(); err = "Tidak bisa memuat Wikisource: ${e.message ?: e.javaClass.simpleName}. Periksa internet lalu coba lagi." }
+            try { hasil = if (inggris) Gutenberg.cari(q) else Wikisource.cari(q) } catch (e: Exception) { hasil = emptyList(); err = "Tidak bisa memuat ${if (inggris) "Project Gutenberg" else "Wikisource"}: ${e.message ?: e.javaClass.simpleName}. Periksa internet lalu coba lagi." }
             loading = false
         }
     }
     LaunchedEffect(Unit) { cari() }
 
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        item { SectionTitle("Novel Indonesia (domain publik)") }
+        item { SectionTitle("Novel (domain publik)") }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Chip("Bahasa Indonesia", !inggris) { if (inggris) { inggris = false; q = "novel"; cari() } }
+                Chip("English", inggris) { if (!inggris) { inggris = true; q = ""; cari() } }
+            }
+        }
         item {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Field(q, { q = it }, "Cari karya (mis. novel, hikayat, Balai Pustaka)", Modifier.weight(1f), singleLine = true)
+                Field(q, { q = it }, if (inggris) "Search books (e.g. Dickens, mystery)" else "Cari karya (mis. novel, hikayat, Balai Pustaka)", Modifier.weight(1f), singleLine = true)
                 PrimaryButton("Cari") { cari() }
             }
-            Text("Sumber: Wikisource bahasa Indonesia — karya yang hak ciptanya sudah habis atau berlisensi terbuka. Ketuk untuk membaca di situsnya.", color = C.Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+            Text(if (inggris) "Sumber: Project Gutenberg — buku bahasa Inggris domain publik. Ketuk untuk membaca atau mengunduh di situsnya." else "Sumber: Wikisource bahasa Indonesia — karya yang hak ciptanya sudah habis atau berlisensi terbuka. Ketuk untuk membaca di situsnya.", color = C.Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
         }
         if (loading) item { Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = C.Brand) } }
         err?.let { m -> item { Panel { Text(m, color = C.Danger) } } }
@@ -90,7 +98,7 @@ fun HiburanTab(vm: MainViewModel) {
                 Text("Baca ↗", color = C.Soft, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp))
             }
         }
-        item { SoftButton("Jelajahi Wikisource ↗", Modifier.fillMaxWidth()) { buka(Wikisource.BERANDA) } }
+        item { SoftButton(if (inggris) "Jelajahi Project Gutenberg ↗" else "Jelajahi Wikisource ↗", Modifier.fillMaxWidth()) { buka(if (inggris) Gutenberg.BERANDA else Wikisource.BERANDA) } }
 
         item { SectionTitle("Video (YouTube)") }
         if (videos.isEmpty()) item { Text("Simpan tautan video atau kanal YouTube favorit Anda di sini, lalu buka dengan satu ketukan.", color = C.Muted) }
