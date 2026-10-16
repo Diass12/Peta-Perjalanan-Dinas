@@ -22,6 +22,8 @@ import java.util.UUID
 class ScanLine(val kode: String, val asetId: String?, val nama: String, val fuzzy: Boolean, val baru: Boolean, val catatan: String)
 class ScanReport(val lines: List<ScanLine>, val diabaikan: Int, val jpeg: ByteArray?)
 
+class GaleriHasil(val lines: List<ScanLine>, val tanpaKode: Int, val dibuat: Int, val gagal: Int, val jpegTanpaKode: List<ByteArray>)
+
 class ImportState(val kind: String, val file: File, val report: ImportReport, val plan: AsetImport.XlsxPlan?)
 
 /** Status & operasi layar Aset: filter, scan, import, export. Dipegang MainViewModel supaya bertahan saat layar diputar. */
@@ -33,6 +35,8 @@ class AsetController(private val vm: MainViewModel) {
     val fotos: StateFlow<Map<String, List<AsetFotoModel>>> =
         repo.observeAsetFoto().map { l -> l.groupBy { it.asetId } }.stateIn(vm.viewModelScope, SharingStarted.Eagerly, emptyMap())
 
+    var scannerBuka by mutableStateOf(false)
+    var fotoTanpaKode by mutableStateOf<ByteArray?>(null)   // foto terakhir di scanner yang kodenya tak terbaca
     var tab by mutableStateOf(0)                       // halaman: 0 Home, 1 Aset, 2 Audit, 3 Menu
     var tampilScan by mutableStateOf(false)            // dialog pilih kamera/galeri
     var query by mutableStateOf("")
@@ -79,45 +83,131 @@ class AsetController(private val vm: MainViewModel) {
 
     // ---------------- scan ----------------
 
+    /** Satu foto: baca kode (barcode + OCR dalam), cocokkan/buat aset, simpan foto. Mengembalikan laporan tanpa menampilkannya. */
+    suspend fun scanFoto(uri: Uri): ScanReport {
+        val read = withContext(Dispatchers.IO) { CodeScanner.baca(app, uri) }
+        val photo = withContext(Dispatchers.IO) { PhotoPipeline.process(app, uri, vm.settings.photoPreset, null) }
+        var list = repo.asetList()
+        val audit = auditMode
+        val now = System.currentTimeMillis()
+        val extra = read.mentah.filter { r -> val n = KodeAset.norm(r); n.isNotEmpty() && list.any { it.code.isNotEmpty() && KodeAset.norm(it.code) == n } }
+        val codes = (read.kode + extra.map { KodeAset.norm(it) }).distinct()
+        val lines = ArrayList<ScanLine>()
+        for (kode in codes) {
+            val m = KodeAset.cocokkan(kode, list) { it.code }
+            val target = m.aset
+            if (target != null) {
+                var a = target.copy(pcodes = (target.pcodes + KodeAset.norm(target.code)).distinct())
+                if (audit) a = a.copy(state = AuditState.FOUND, auditedAt = now)
+                val (st, src) = KodeAset.hitungStatusBarcode(a.code, a.pcodes, true, a.barcode, a.barcodeSrc)
+                a = a.copy(barcode = st, barcodeSrc = src).addLog(if (audit) "scan audit" else "scan")
+                repo.saveAset(a)
+                repo.addAsetFoto(a.id, photo.jpeg, photo.takenAt ?: now)
+                list = list.map { if (it.id == a.id) a else it }
+                lines.add(ScanLine(a.code, a.id, a.name, m.fuzzy, false, if (audit) "Ditemukan" else "Cocok"))
+            } else {
+                val k = KodeAset.norm(kode)
+                val kelas = KodeAset.kelasDariKode(k)
+                val a = AsetModel(
+                    id = UUID.randomUUID().toString(), code = k, name = "", category = kelas?.kategori ?: KodeAset.tebakKategori(k),
+                    classif = kelas?.nama.orEmpty(), pcodes = listOf(k), barcode = StatusBarcode.TAGGED, barcodeSrc = SumberBarcode.OCR,
+                    state = if (audit) AuditState.FOUND else AuditState.PENDING, auditedAt = if (audit) now else null,
+                    sumber = "scan", createdAt = now,
+                ).addLog(if (audit) "dibuat dari scan audit" else "dibuat dari scan")
+                repo.saveAset(a)
+                repo.addAsetFoto(a.id, photo.jpeg, photo.takenAt ?: now)
+                list = list + a
+                lines.add(ScanLine(k, a.id, "", false, true, "Aset baru — lengkapi datanya"))
+            }
+        }
+        return ScanReport(lines, read.mentah.size - extra.size, if (lines.isEmpty()) photo.jpeg else null)
+    }
+
     fun scan(uri: Uri, tempFile: File? = null) = vm.work {
+        try { report = scanFoto(uri) } finally { tempFile?.delete() }
+    }
+
+    // ---------------- scan live ----------------
+
+    private val liveLast = HashMap<String, Long>()
+
+    /** Satu kode dari mode live. Null = kode yang sama baru saja diproses (anti-ulang 6 detik). Pair(teks, berhasilCocok). */
+    suspend fun prosesLive(kode: String): Pair<String, Boolean>? {
+        val k = KodeAset.norm(kode)
+        val now = System.currentTimeMillis()
+        if (now - (liveLast[k] ?: 0L) < 6000L) return null
+        liveLast[k] = now
+        val list = repo.asetList()
+        val t = KodeAset.cocokkan(k, list) { it.code }.aset ?: return ("? $k — tidak terdaftar (ambil foto untuk membuat aset)") to false
+        var a = t.copy(pcodes = (t.pcodes + KodeAset.norm(t.code)).distinct())
+        if (auditMode) a = a.copy(state = AuditState.FOUND, auditedAt = now)
+        val (st, src) = KodeAset.hitungStatusBarcode(a.code, a.pcodes, true, a.barcode, a.barcodeSrc)
+        repo.saveAset(a.copy(barcode = st, barcodeSrc = src).addLog(if (auditMode) "scan live audit" else "scan live"))
+        return "✔ ${a.code} — ${a.name.ifEmpty { "(tanpa nama)" }}" + (if (auditMode) " · Ditemukan" else "") to true
+    }
+
+    // ---------------- tambah dari galeri (4 cara) ----------------
+
+    var galeriUris by mutableStateOf<List<Uri>?>(null)          // foto terpilih, menunggu pilihan cara
+    var galeriHasil by mutableStateOf<GaleriHasil?>(null)
+    var pilihAsetUntuk by mutableStateOf<List<Uri>?>(null)      // dialog pilih aset tujuan
+
+    /** mode: auto | each | new | existing (target wajib). */
+    fun galeri(mode: String, uris: List<Uri>, target: String? = null) = vm.work {
+        galeriUris = null; pilihAsetUntuk = null
         try {
-            val read = withContext(Dispatchers.IO) { CodeScanner.baca(app, uri) }
-            val photo = withContext(Dispatchers.IO) { PhotoPipeline.process(app, uri, vm.settings.photoPreset, null) }
-            var list = repo.asetList()
-            val audit = auditMode
-            val now = System.currentTimeMillis()
-            val extra = read.mentah.filter { r -> val n = KodeAset.norm(r); n.isNotEmpty() && list.any { it.code.isNotEmpty() && KodeAset.norm(it.code) == n } }
-            val codes = (read.kode + extra.map { KodeAset.norm(it) }).distinct()
-            val lines = ArrayList<ScanLine>()
-            for (kode in codes) {
-                val m = KodeAset.cocokkan(kode, list) { it.code }
-                val target = m.aset
-                if (target != null) {
-                    var a = target.copy(pcodes = (target.pcodes + KodeAset.norm(target.code)).distinct())
-                    if (audit) a = a.copy(state = AuditState.FOUND, auditedAt = now)
-                    val (st, src) = KodeAset.hitungStatusBarcode(a.code, a.pcodes, true, a.barcode, a.barcodeSrc)
-                    a = a.copy(barcode = st, barcodeSrc = src).addLog(if (audit) "scan audit" else "scan")
+            when (mode) {
+                "existing" -> {
+                    val id = target ?: return@work
+                    var ok = 0
+                    for ((i, u) in uris.withIndex()) {
+                        sibuk = "Menyimpan foto ${i + 1}/${uris.size}…"
+                        runCatching { val p = withContext(Dispatchers.IO) { PhotoPipeline.process(app, u, vm.settings.photoPreset, null) }; repo.addAsetFoto(id, p.jpeg, p.takenAt ?: System.currentTimeMillis()); ok++ }
+                    }
+                    vm.toast("$ok foto ditambahkan")
+                }
+                "new" -> {
+                    val a = AsetModel(id = UUID.randomUUID().toString(), sumber = "galeri", barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis()).addLog("dibuat dari galeri")
                     repo.saveAset(a)
-                    repo.addAsetFoto(a.id, photo.jpeg, photo.takenAt ?: now)
-                    list = list.map { if (it.id == a.id) a else it }
-                    lines.add(ScanLine(a.code, a.id, a.name, m.fuzzy, false, if (audit) "Ditemukan" else "Cocok"))
-                } else {
-                    val k = KodeAset.norm(kode)
-                    val kelas = KodeAset.kelasDariKode(k)
-                    val a = AsetModel(
-                        id = UUID.randomUUID().toString(), code = k, name = "", category = kelas?.kategori ?: KodeAset.tebakKategori(k),
-                        classif = kelas?.nama.orEmpty(), pcodes = listOf(k), barcode = StatusBarcode.TAGGED, barcodeSrc = SumberBarcode.OCR,
-                        state = if (audit) AuditState.FOUND else AuditState.PENDING, auditedAt = if (audit) now else null,
-                        sumber = "scan", createdAt = now,
-                    ).addLog(if (audit) "dibuat dari scan audit" else "dibuat dari scan")
-                    repo.saveAset(a)
-                    repo.addAsetFoto(a.id, photo.jpeg, photo.takenAt ?: now)
-                    list = list + a
-                    lines.add(ScanLine(k, a.id, "", false, true, "Aset baru — lengkapi datanya"))
+                    var ok = 0
+                    for ((i, u) in uris.withIndex()) {
+                        sibuk = "Menyimpan foto ${i + 1}/${uris.size}…"
+                        runCatching { val p = withContext(Dispatchers.IO) { PhotoPipeline.process(app, u, vm.settings.photoPreset, null) }; repo.addAsetFoto(a.id, p.jpeg, p.takenAt ?: System.currentTimeMillis()); ok++ }
+                    }
+                    editing = a.id
+                    vm.toast("Aset baru dengan $ok foto")
+                }
+                else -> { // auto / each
+                    berhenti = false
+                    val lines = ArrayList<ScanLine>(); val tanpaKode = ArrayList<ByteArray>()
+                    var gagal = 0
+                    for ((i, u) in uris.withIndex()) {
+                        if (berhenti) break
+                        sibuk = "Membaca foto ${i + 1}/${uris.size}… (ketuk Berhenti untuk membatalkan)"
+                        val rep = try { scanFoto(u) } catch (e: Exception) { gagal++; continue }
+                        lines.addAll(rep.lines)
+                        if (rep.lines.isEmpty() && rep.jpeg != null) tanpaKode.add(rep.jpeg)
+                    }
+                    if (mode == "each" && tanpaKode.isNotEmpty()) {
+                        for (j in tanpaKode) {
+                            val a = AsetModel(id = UUID.randomUUID().toString(), sumber = "galeri", barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis()).addLog("dibuat dari galeri")
+                            repo.saveAset(a); repo.addAsetFoto(a.id, j, System.currentTimeMillis())
+                        }
+                        galeriHasil = GaleriHasil(lines, 0, tanpaKode.size, gagal, emptyList())
+                    } else galeriHasil = GaleriHasil(lines, tanpaKode.size, 0, gagal, tanpaKode)
                 }
             }
-            report = ScanReport(lines, read.mentah.size - extra.size, if (lines.isEmpty()) photo.jpeg else null)
-        } finally { tempFile?.delete() }
+        } finally { sibuk = null }
+    }
+
+    /** Buat aset tanpa kode (satu per foto) dari foto yang kodenya tidak terbaca. */
+    fun buatTanpaKode(jpegs: List<ByteArray>) = vm.work {
+        for (j in jpegs) {
+            val a = AsetModel(id = UUID.randomUUID().toString(), sumber = "galeri", barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis()).addLog("dibuat dari foto tanpa kode")
+            repo.saveAset(a); repo.addAsetFoto(a.id, j, System.currentTimeMillis())
+        }
+        galeriHasil = null
+        vm.toast("${jpegs.size} aset tanpa kode dibuat")
     }
 
     /** Aset baru tanpa kode dari foto yang kodenya tidak terbaca; langsung membuka formulirnya. */

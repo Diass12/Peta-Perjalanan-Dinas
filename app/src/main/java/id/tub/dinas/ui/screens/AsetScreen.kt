@@ -45,22 +45,7 @@ fun AsetScreen(vm: MainViewModel) {
     var exportDialog by remember { mutableStateOf(false) }
     var exportReq by remember { mutableStateOf<Pair<Int, List<AsetModel>>?>(null) }
     var resetAsk by remember { mutableStateOf(false) }
-    var camPath by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
-        val p = camPath; camPath = null
-        if (p != null) { val f = File(p); if (ok) c.scan(android.net.Uri.fromFile(f), f) else f.delete() }
-    }
-    fun launchCamera() {
-        val dir = File(ctx.cacheDir, "kamera").apply { mkdirs() }
-        val f = File(dir, "scan_${UUID.randomUUID()}.jpg")
-        camPath = f.absolutePath
-        camera.launch(FileProvider.getUriForFile(ctx, "${ctx.packageName}.files", f))
-    }
-    val camPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
-        if (ok) launchCamera() else vm.toast("Izin kamera ditolak. Pakai Galeri untuk memilih foto.")
-    }
-    val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> if (uri != null) c.scan(uri) }
+    val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris -> if (uris.isNotEmpty()) c.galeriUris = uris }
     val importPick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) c.siapkanImport(uri) }
     val create = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { uri ->
         val req = exportReq; exportReq = null
@@ -76,7 +61,7 @@ fun AsetScreen(vm: MainViewModel) {
     androidx.activity.compose.BackHandler(enabled = c.selMode) { c.selesaiPilih() }
 
     val goFilter: (id.tub.dinas.aset.AsetController.() -> Unit) -> Unit = { f -> c.resetFilter(); c.f(); c.tab = 1 }
-    val scanAudit = { c.auditMode = true; c.tampilScan = true }
+    val scanAudit = { c.auditMode = true; c.scannerBuka = true }
     val doGallery = { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
     val doImport = { importPick.launch(arrayOf("*/*")) }
     val doExport = { exportDialog = true }
@@ -92,7 +77,7 @@ fun AsetScreen(vm: MainViewModel) {
             }
         }
         if (c.selMode && c.tab == 1) ASelectionBar(vm, filtered) { aksi = it }
-        ANav(c.tab, { c.tab = it; if (it != 1) c.selMode = false }) { c.tampilScan = true }
+        ANav(c.tab, { c.tab = it; if (it != 1) c.selMode = false }) { c.scannerBuka = true }
     }
 
     if (masterOpen) MasterDialog(vm) { masterOpen = false }
@@ -111,28 +96,8 @@ fun AsetScreen(vm: MainViewModel) {
             confirmButton = { TextButton(onClick = { c.berhenti = true }) { Text("Berhenti") } })
     }
 
-    if (c.tampilScan) AlertDialog(
-        onDismissRequest = { c.tampilScan = false },
-        title = { Text("Scan kode aset") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Arahkan ke stiker atau label kode aset (QR, barcode, atau teks TUBxx######), lalu ambil foto. Satu foto boleh memuat beberapa label.")
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Switch(c.auditMode, { c.auditMode = it })
-                    Spacer(Modifier.width(10.dp))
-                    Text(if (c.auditMode) "Mode Audit: aset yang di-scan ditandai Ditemukan" else "Mode biasa: hanya mencocokkan dan menambah foto", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                c.tampilScan = false
-                if (androidx.core.content.ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) launchCamera()
-                else camPerm.launch(Manifest.permission.CAMERA)
-            }) { Text("Kamera") }
-        },
-        dismissButton = { TextButton(onClick = { c.tampilScan = false; gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) { Text("Galeri") } },
-    )
+    if (c.scannerBuka) AsetScanner(vm) { c.scannerBuka = false }
+    GaleriDialogs(vm, list)
 
     c.report?.let { rep -> ScanReportDialog(vm, rep) }
     c.importState?.let { st -> ImportDialog(vm, st) }
