@@ -30,6 +30,7 @@ import id.tub.dinas.news.Sumber
 import id.tub.dinas.ui.DetailTab
 import id.tub.dinas.ui.Editor
 import id.tub.dinas.ui.Screen
+import id.tub.dinas.ui.fmtDate
 import id.tub.dinas.ui.components.*
 import id.tub.dinas.ui.theme.C
 import id.tub.dinas.ui.theme.ThemeState

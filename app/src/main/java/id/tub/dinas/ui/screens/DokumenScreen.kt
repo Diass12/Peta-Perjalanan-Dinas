@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -79,11 +80,11 @@ fun DokumenScreen(vm: MainViewModel) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun DokumenEditor(vm: MainViewModel, id: String, onClose: () -> Unit) {
+private fun DokumenEditor(vm: MainViewModel, startId: String, onClose: () -> Unit) {
     val ctx = LocalContext.current
     val all by remember { vm.repo.observeDokumen() }.collectAsState(initial = emptyList())
-    val cur = all.firstOrNull { it.id == id }
-    var docId by remember { mutableStateOf(id) }
+    val cur = all.firstOrNull { it.id == startId }
+    var docId by remember { mutableStateOf(startId) }
     var jenis by remember { mutableStateOf(cur?.jenis ?: DokumenJenis.SURAT_TUGAS) }
     var judul by remember { mutableStateOf(cur?.judul ?: "") }
     var nomor by remember { mutableStateOf(cur?.nomor ?: "") }
@@ -128,7 +129,7 @@ private fun DokumenEditor(vm: MainViewModel, id: String, onClose: () -> Unit) {
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         BackHandler(onBack = onClose)
         Column(Modifier.fillMaxSize().background(C.Bg)) {
-            Header(if (id.isEmpty() && now == null) "Dokumen baru" else "Ubah dokumen", onBack = onClose) { HeaderAction("Simpan") { simpan(true) } }
+            Header(if (startId.isEmpty() && now == null) "Dokumen baru" else "Ubah dokumen", onBack = onClose) { HeaderAction("Simpan") { simpan(true) } }
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding().imePadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Panel {
                     Text("JENIS", style = MaterialTheme.typography.labelSmall, color = C.Muted)
