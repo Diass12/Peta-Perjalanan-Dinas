@@ -47,6 +47,20 @@ fun HiburanTab(vm: MainViewModel) {
     var raw by remember { mutableStateOf(vm.settings.videoLinks) }
     val videos = parseVideos(raw)
     var tambah by remember { mutableStateOf(false) }
+    var repoRaw by remember { mutableStateOf(vm.settings.repoLinks) }
+    val repos = NewsFeed.parseExtra(repoRaw)
+    var tambahRepo by remember { mutableStateOf(false) }
+    fun bukaMihon(url: String) {
+        // Mihon & turunannya menerima tautan add-repo; bila tidak terpasang, tautannya dibuka di peramban.
+        val enc = Uri.encode(url)
+        val coba = listOf("mihon://add-repo?url=$enc", "tachiyomi://add-repo?url=$enc", url)
+        for (u in coba) { if (runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(u)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess) return }
+        vm.toast("Tidak ada aplikasi yang bisa membuka tautan ini")
+    }
+    fun salin(url: String) {
+        val cm = ctx.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        cm.setPrimaryClip(android.content.ClipData.newPlainText("repositori", url)); vm.toast("Tautan disalin")
+    }
     fun buka(url: String) { runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }
     fun cari() {
         scope.launch {
@@ -95,6 +109,21 @@ fun HiburanTab(vm: MainViewModel) {
         }
         item { SoftButton("＋ Tambah tautan YouTube", Modifier.fillMaxWidth()) { tambah = true } }
 
+        item { SectionTitle("Repositori saya (diisi sendiri)") }
+        item { Text("Tempat menyimpan alamat repositori ekstensi (mis. untuk Mihon) atau tautan lain. Aplikasi ini tidak menyertakan repositori apa pun; isi dan tanggung jawab sumbernya ada pada Anda.", color = C.Muted, fontSize = 12.sp) }
+        items(repos, key = { it.url }) { r ->
+            Panel {
+                Text(r.nama, style = MaterialTheme.typography.titleMedium, maxLines = 2)
+                Text(r.url, color = C.Muted, fontSize = 12.sp, maxLines = 2)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {
+                    SoftButton("Buka di Mihon", Modifier.weight(1f)) { bukaMihon(r.url) }
+                    SoftButton("Salin", Modifier.weight(1f)) { salin(r.url) }
+                    SoftButton("Hapus", Modifier.weight(1f), danger = true) { repoRaw = repoRaw.lines().filterNot { it.endsWith("|" + r.url) }.joinToString("\n"); vm.settings.repoLinks = repoRaw }
+                }
+            }
+        }
+        item { SoftButton("＋ Tambah repositori / tautan", Modifier.fillMaxWidth()) { tambahRepo = true } }
+
         item { SectionTitle("Komik resmi (gratis dibaca)") }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -103,6 +132,18 @@ fun HiburanTab(vm: MainViewModel) {
             }
             Text("Tautan ke layanan resmi penerbit. Aplikasi ini tidak menyediakan atau memindai komik dari situs tanpa izin penerbit.", color = C.Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
         }
+    }
+    if (tambahRepo) {
+        var nama by remember { mutableStateOf("") }; var url by remember { mutableStateOf("") }
+        AlertDialog(onDismissRequest = { tambahRepo = false }, title = { Text("Tambah repositori / tautan") },
+            text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Field(nama, { nama = it }, "Nama", singleLine = true)
+                Field(url, { url = it.trim() }, "Alamat (https://…)", singleLine = true)
+            } },
+            confirmButton = { TextButton(enabled = url.startsWith("https://") && url.length > 12, onClick = {
+                repoRaw = (repoRaw.trim() + "\n" + nama.replace("|", " ").trim() + "|" + url).trim(); vm.settings.repoLinks = repoRaw; tambahRepo = false
+            }) { Text("Tambah") } },
+            dismissButton = { TextButton(onClick = { tambahRepo = false }) { Text("Batal") } })
     }
     if (tambah) {
         var judul by remember { mutableStateOf("") }; var url by remember { mutableStateOf("") }

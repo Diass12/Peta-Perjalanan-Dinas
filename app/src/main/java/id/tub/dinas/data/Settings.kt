@@ -67,6 +67,10 @@ class Settings(ctx: Context) {
     var videoLinks: String
         get() = p.getString("videoLinks", "") ?: ""
         set(v) { p.edit().putString("videoLinks", v).apply() }
+    /** Repositori/tautan yang diisi pengguna sendiri, satu per baris "nama|url". */
+    var repoLinks: String
+        get() = p.getString("repoLinks", "") ?: ""
+        set(v) { p.edit().putString("repoLinks", v).apply() }
     var lastDinasId: String?
         get() = p.getString("lastDinas", null)
         set(v) { p.edit().putString("lastDinas", v).apply() }
