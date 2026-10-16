@@ -455,11 +455,12 @@ class AsetController(private val vm: MainViewModel) {
                 when (format) {
                     "pdf" -> AsetReports.laporanPdf(daftar, fm, co, maxFoto, baca, it)
                     "html" -> AsetReports.laporanHtml(daftar, fm, co, maxFoto, baca, it)
+                    "json" -> AsetJson.tulis(daftar, fm.mapValues { e -> e.value.let { l -> if (maxFoto == 0) emptyList() else l } }, master, repo.asetList(), baca, it)
                     else -> AsetReports.labelPdf(daftar, co, it)
                 }
             }
         }
-        vm.toast(when (format) { "label" -> "Label QR tersimpan (${daftar.count { it.code.isNotBlank() }} label)"; "pdf" -> "PDF tersimpan (${daftar.size} aset)"; else -> "HTML tersimpan (${daftar.size} aset)" })
+        vm.toast(when (format) { "label" -> "Label QR tersimpan (${daftar.count { it.code.isNotBlank() }} label)"; "pdf" -> "PDF tersimpan (${daftar.size} aset)"; "json" -> "Cadangan JSON AsetScan tersimpan (${daftar.size} aset)"; else -> "HTML tersimpan (${daftar.size} aset)" })
     }
 
     fun exportKartu(uri: Uri, a: AsetModel) = vm.work {

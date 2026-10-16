@@ -54,6 +54,7 @@ fun AsetScreen(vm: MainViewModel) {
     }
     val createXlsx = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { jalankan(it) }
     val createPdf = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { jalankan(it) }
+    val createJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { jalankan(it) }
     val createHtml = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/html")) { jalankan(it) }
 
     val filtered = remember(list, c.query, c.kategori, c.barcode, c.auditFilter, c.peringatan, c.deptFilter, c.ownerFilter, fotos) { c.filtered(list) }
@@ -120,6 +121,7 @@ fun AsetScreen(vm: MainViewModel) {
                     "xlsx" -> createXlsx.launch("Physical Check $tgl.xlsx")
                     "pdf" -> createPdf.launch("Laporan Aset $tgl.pdf")
                     "html" -> createHtml.launch("Laporan Aset $tgl.html")
+                    "json" -> createJson.launch("asetscan-backup-$tgl.json")
                     else -> createPdf.launch("Label QR Aset $tgl.pdf")
                 }
             },
@@ -193,11 +195,13 @@ private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int
                     Chip("Excel", fmt == "xlsx", onClick = { fmt = "xlsx" })
                     Chip("PDF", fmt == "pdf", onClick = { fmt = "pdf" })
                     Chip("HTML", fmt == "html", onClick = { fmt = "html" })
+                    Chip("JSON", fmt == "json", onClick = { fmt = "json" })
                     Chip("Label QR", fmt == "label", onClick = { fmt = "label" })
                 }
                 Text(when (fmt) {
                     "xlsx" -> "Memo FAT: tiga sheet Tagged, Untagged, Belum Ada Kode Aset."
                     "pdf" -> "Daftar aset per baris dengan foto, siap cetak."
+                    "json" -> "Cadangan format AsetScan v2 lengkap dengan foto & keterangan; bisa diimpor ke Aset Scan PC dan sebaliknya. Pilih 0 foto untuk berkas kecil."
                     "html" -> "Satu berkas mandiri dengan pencarian dan zoom foto; bisa dibuka di browser mana pun."
                     else -> "PDF stiker label A4 (3 × 8) berisi QR kode aset. Hanya aset yang punya kode."
                 }, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
