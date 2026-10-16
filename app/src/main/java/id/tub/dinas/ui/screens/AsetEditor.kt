@@ -183,10 +183,10 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                     Label("Kondisi")
                     FlowChips(c.opsi(id.tub.dinas.aset.MasterField.KONDISI, list).map { it to it }, m.cond) { m = m.copy(cond = if (m.cond == it) "" else it) }
                     Spacer(Modifier.height(6.dp))
-                    Field(m.acq, { m = m.copy(acq = it) }, "Tgl pembelian (yyyy-mm-dd)", singleLine = true)
+                    DateField("Tgl pembelian", m.acq, { m = m.copy(acq = it) })
                     Spacer(Modifier.height(6.dp))
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.weight(1f)) { Field(m.checkDate, { m = m.copy(checkDate = it) }, "Tgl cek fisik (yyyy-mm-dd)", singleLine = true) }
+                        DateField("Tgl cek fisik", m.checkDate, { m = m.copy(checkDate = it) }, Modifier.weight(1f))
                         TextButton(onClick = { m = m.copy(checkDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())) }) { Text("Hari ini") }
                     }
                     Spacer(Modifier.height(6.dp))

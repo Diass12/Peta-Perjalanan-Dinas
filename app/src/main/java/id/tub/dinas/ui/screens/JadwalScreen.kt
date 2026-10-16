@@ -96,16 +96,15 @@ private fun JadwalDialog(vm: MainViewModel, ex: JadwalModel) {
     val c = vm.jadwal
     var judul by remember(ex.id) { mutableStateOf(ex.judul) }
     var jenis by remember(ex.id) { mutableStateOf(ex.jenis) }
-    var tgl by remember(ex.id) { mutableStateOf(isoToInput(ex.tanggal)) }
+    var tgl by remember(ex.id) { mutableStateOf(ex.tanggal) }
     var mulai by remember(ex.id) { mutableStateOf(ex.jamMulai) }
     var akhir by remember(ex.id) { mutableStateOf(ex.jamSelesai) }
     var lok by remember(ex.id) { mutableStateOf(ex.lokasi) }
     var pes by remember(ex.id) { mutableStateOf(ex.peserta) }
     var cat by remember(ex.id) { mutableStateOf(ex.catatan) }
     var hapus by remember { mutableStateOf(false) }
-    val iso = inputToIso(tgl)
-    val ok = iso != null && iso.isNotEmpty() && jamOk(mulai) && jamOk(akhir) && judul.isNotBlank()
-    fun model() = ex.copy(judul = judul.trim(), jenis = jenis, tanggal = iso.orEmpty(), jamMulai = normJam(mulai), jamSelesai = normJam(akhir), lokasi = lok.trim(), peserta = pes.trim(), catatan = cat.trim())
+    val ok = tgl.isNotEmpty() && judul.isNotBlank()
+    fun model() = ex.copy(judul = judul.trim(), jenis = jenis, tanggal = tgl, jamMulai = mulai, jamSelesai = akhir, lokasi = lok.trim(), peserta = pes.trim(), catatan = cat.trim())
     AlertDialog(
         onDismissRequest = { c.edit = null },
         title = { Text(if (ex.id.isEmpty()) "Jadwal baru" else "Ubah jadwal") },
@@ -115,13 +114,11 @@ private fun JadwalDialog(vm: MainViewModel, ex: JadwalModel) {
                     JadwalJenis.entries.forEach { j -> Chip(j.label, jenis == j, onClick = { jenis = j }) }
                 }
                 Field(judul, { judul = it }, "Agenda (mis. Audit aset site, Meeting bulanan)", singleLine = true)
-                Field(tgl, { tgl = it }, "Tanggal (dd/mm/yyyy)", singleLine = true)
-                if (iso == null || iso.isEmpty()) Text("Isi tanggal dengan format dd/mm/yyyy", color = C.Danger)
+                DateField("Tanggal", tgl, { tgl = it }, clearable = false)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(Modifier.weight(1f)) { Field(mulai, { mulai = it }, "Mulai (HH:mm)", singleLine = true) }
-                    Box(Modifier.weight(1f)) { Field(akhir, { akhir = it }, "Selesai (HH:mm)", singleLine = true) }
+                    TimeField("Mulai", mulai, { mulai = it }, Modifier.weight(1f))
+                    TimeField("Selesai", akhir, { akhir = it }, Modifier.weight(1f))
                 }
-                if (!jamOk(mulai) || !jamOk(akhir)) Text("Jam harus HH:mm, mis. 09:30", color = C.Danger)
                 Field(lok, { lok = it }, "Lokasi / tautan meeting", singleLine = true)
                 Field(pes, { pes = it }, "Peserta", singleLine = true)
                 Field(cat, { cat = it }, "Catatan", minLines = 2)

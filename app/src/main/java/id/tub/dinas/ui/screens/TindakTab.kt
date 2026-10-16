@@ -30,7 +30,7 @@ fun TindakTab(vm: MainViewModel, s: DinasSnapshot) {
                 Spacer(Modifier.height(6.dp))
                 R(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SaveField(t.id + "p", t.pic, "Penanggung jawab", Modifier.weight(1f)) { v -> save(vm, s, t.copy(pic = v)) }
-                    SaveField(t.id + "t", t.target, "Target", Modifier.weight(1f)) { v -> save(vm, s, t.copy(target = v)) }
+                    DateField("Target", id.tub.dinas.um.inputToIso(t.target)?.takeIf { it.isNotEmpty() } ?: "", { iso -> save(vm, s, t.copy(target = id.tub.dinas.um.isoToInput(iso))) }, Modifier.weight(1f), display = t.target)
                 }
                 R(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Status.values().forEach { st -> Chip(st.label, t.status == st) { save(vm, s, t.copy(status = st)) } }

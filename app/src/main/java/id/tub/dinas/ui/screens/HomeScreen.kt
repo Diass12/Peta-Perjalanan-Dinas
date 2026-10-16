@@ -82,25 +82,24 @@ fun HomeScreen(vm: MainViewModel) {
 @Composable
 fun DinasDialog(existing: DinasModel?, onDismiss: () -> Unit, onSave: (String, Long?, Long?, String) -> Unit) {
     var name by remember { mutableStateOf(existing?.name ?: "") }
-    var s by remember { mutableStateOf(fmtInput(existing?.startMs)) }
-    var e by remember { mutableStateOf(fmtInput(existing?.endMs)) }
+    var s by remember { mutableStateOf(msToIso(existing?.startMs)) }
+    var e by remember { mutableStateOf(msToIso(existing?.endMs)) }
     var note by remember { mutableStateOf(existing?.note ?: "") }
-    val sOk = s.isBlank() || parseInputDate(s) != null
-    val eOk = e.isBlank() || parseInputDate(e) != null
+    val sOk = true
+    val eOk = e.isBlank() || s.isBlank() || e >= s
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (existing == null) "Dinas baru" else "Ubah dinas") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Field(name, { name = it }, "Nama dinas", singleLine = true)
-                Field(s, { s = it }, "Mulai (dd/mm/yyyy)", singleLine = true)
-                if (!sOk) Text("Format tanggal belum benar", color = C.Danger)
-                Field(e, { e = it }, "Selesai (dd/mm/yyyy)", singleLine = true)
-                if (!eOk) Text("Format tanggal belum benar", color = C.Danger)
+                DateField("Mulai", s, { s = it })
+                DateField("Selesai", e, { e = it })
+                if (!eOk) Text("Tanggal selesai tidak boleh sebelum tanggal mulai", color = C.Danger)
                 Field(note, { note = it }, "Catatan", minLines = 2)
             }
         },
-        confirmButton = { TextButton(enabled = sOk && eOk && name.isNotBlank(), onClick = { onSave(name, parseInputDate(s), parseInputDate(e), note); onDismiss() }) { Text("Simpan") } },
+        confirmButton = { TextButton(enabled = sOk && eOk && name.isNotBlank(), onClick = { onSave(name, isoToMs(s), isoToMs(e), note); onDismiss() }) { Text("Simpan") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
     )
 }

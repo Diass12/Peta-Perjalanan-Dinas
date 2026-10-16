@@ -201,13 +201,12 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
     var nomor by remember(ex.id) { mutableStateOf(ex.nomor) }
     var judul by remember(ex.id) { mutableStateOf(ex.judul) }
     var pemohon by remember(ex.id) { mutableStateOf(ex.pemohon) }
-    var tgl by remember(ex.id) { mutableStateOf(isoToInput(ex.tglPengajuan)) }
+    var tgl by remember(ex.id) { mutableStateOf(ex.tglPengajuan) }
     var diaj by remember(ex.id) { mutableStateOf(if (ex.jumlahDiajukan == 0.0) "" else ex.jumlahDiajukan.toLong().toString()) }
-    var tglC by remember(ex.id) { mutableStateOf(isoToInput(ex.tglCair)) }
+    var tglC by remember(ex.id) { mutableStateOf(ex.tglCair) }
     var cair by remember(ex.id) { mutableStateOf(if (ex.jumlahCair == 0.0) "" else ex.jumlahCair.toLong().toString()) }
     var cat by remember(ex.id) { mutableStateOf(ex.catatan) }
     var dinasId by remember(ex.id) { mutableStateOf(ex.dinasId) }
-    val tglOk = inputToIso(tgl) != null; val tglCOk = inputToIso(tglC) != null
     AlertDialog(
         onDismissRequest = { c.editUm = null },
         title = { Text(if (ex.id.isEmpty()) "Pengajuan uang muka" else "Ubah pengajuan") },
@@ -216,11 +215,9 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
                 Field(judul, { judul = it }, "Keperluan / judul (mis. Dinas Halmahera)", singleLine = true)
                 Field(nomor, { nomor = it }, "No. pengajuan", singleLine = true)
                 Field(pemohon, { pemohon = it }, "Pemohon", singleLine = true)
-                Field(tgl, { tgl = it }, "Tgl pengajuan (dd/mm/yyyy)", singleLine = true)
-                if (!tglOk) Text("Format tanggal belum benar", color = C.Danger)
+                DateField("Tgl pengajuan", tgl, { tgl = it }, clearable = false)
                 Field(diaj, { diaj = it }, "Jumlah diajukan (Rp)", singleLine = true)
-                Field(tglC, { tglC = it }, "Tgl cair (dd/mm/yyyy, kosongkan bila belum)", singleLine = true)
-                if (!tglCOk) Text("Format tanggal belum benar", color = C.Danger)
+                DateField("Tgl cair (kosong bila belum cair)", tglC, { tglC = it })
                 Field(cair, { cair = it }, "Jumlah dicairkan (Rp)", singleLine = true)
                 Field(cat, { cat = it }, "Catatan", minLines = 2)
                 if (dinas.isNotEmpty()) {
@@ -233,12 +230,12 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
             }
         },
         confirmButton = {
-            TextButton(enabled = tglOk && tglCOk && judul.isNotBlank(), onClick = {
+            TextButton(enabled = judul.isNotBlank(), onClick = {
                 val dj = AsetImport.parseAngka(diaj) ?: 0.0; val cr = AsetImport.parseAngka(cair) ?: 0.0
                 var st = ex.status
                 if (cr > 0 && st == UmStatus.DIAJUKAN) st = UmStatus.CAIR
-                c.simpanUm(ex.copy(nomor = nomor.trim(), judul = judul.trim(), pemohon = pemohon.trim(), tglPengajuan = inputToIso(tgl) ?: "", jumlahDiajukan = dj,
-                    tglCair = inputToIso(tglC) ?: "", jumlahCair = cr, catatan = cat.trim(), dinasId = dinasId, status = st))
+                c.simpanUm(ex.copy(nomor = nomor.trim(), judul = judul.trim(), pemohon = pemohon.trim(), tglPengajuan = tgl, jumlahDiajukan = dj,
+                    tglCair = tglC, jumlahCair = cr, catatan = cat.trim(), dinasId = dinasId, status = st))
             }) { Text("Simpan") }
         },
         dismissButton = { TextButton(onClick = { c.editUm = null }) { Text("Batal") } },
@@ -255,11 +252,11 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
     if (bb == null) return
     val b = bb.bon
     var kat by remember(bonId) { mutableStateOf(b.kategori) }
-    var tgl by remember(bonId) { mutableStateOf(isoToInput(b.tanggal)) }
+    var tgl by remember(bonId) { mutableStateOf(b.tanggal) }
     var ur by remember(bonId) { mutableStateOf(b.uraian) }
     var jml by remember(bonId) { mutableStateOf(if (b.jumlah == 0.0) "" else b.jumlah.toLong().toString()) }
     var hapus by remember { mutableStateOf(false) }
-    val tglOk = inputToIso(tgl) != null
+    val tglOk = tgl.isNotEmpty()
 
     var camPath by rememberSaveable { mutableStateOf<String?>(null) }
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
@@ -276,7 +273,7 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(20)) { uris -> if (uris.isNotEmpty()) c.tambahFoto(bonId, uris) }
 
-    fun simpan() = c.simpanBon(b.copy(kategori = kat, tanggal = inputToIso(tgl) ?: b.tanggal, uraian = ur.trim(), jumlah = AsetImport.parseAngka(jml) ?: 0.0))
+    fun simpan() = c.simpanBon(b.copy(kategori = kat, tanggal = tgl.ifEmpty { b.tanggal }, uraian = ur.trim(), jumlah = AsetImport.parseAngka(jml) ?: 0.0))
 
     Dialog(onDismissRequest = { c.tutupBon(bonId) }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         BackHandler { c.tutupBon(bonId) }
@@ -290,8 +287,7 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
                         BonKategori.entries.forEach { k -> Chip(k.label, kat == k, onClick = { kat = k }) }
                     }
                 }
-                Field(tgl, { tgl = it }, "Tanggal bon (dd/mm/yyyy)", singleLine = true)
-                if (!tglOk) Text("Format tanggal belum benar", color = C.Danger)
+                DateField("Tanggal bon", tgl, { tgl = it }, clearable = false)
                 Field(jml, { jml = it }, "Jumlah (Rp)", singleLine = true)
                 Field(ur, { ur = it }, "Uraian (mis. Taksi Tobelo–Ternate, Hotel 2 malam)", minLines = 2)
                 Panel {

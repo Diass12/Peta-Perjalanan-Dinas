@@ -89,7 +89,7 @@ fun BulkEditDialog(vm: MainViewModel, ids: Set<String>, onClose: () -> Unit) {
     val list by c.register.collectAsState()
     val on = remember { mutableStateMapOf<String, Boolean>() }
     val v = remember { mutableStateMapOf<String, String>() }
-    val fields = MasterField.entries.map { it.key to it.label } + listOf("user" to "User / pengguna", "tenure" to "Kepemilikan (own/lease)", "check" to "Tgl cek fisik (yyyy-mm-dd)", "remarks" to "Keterangan")
+    val fields = MasterField.entries.map { it.key to it.label } + listOf("user" to "User / pengguna", "tenure" to "Kepemilikan (own/lease)", "check" to "Tgl cek fisik", "remarks" to "Keterangan")
     AlertDialog(
         onDismissRequest = onClose,
         title = { Text("Edit massal (${ids.size} aset)") },
@@ -102,6 +102,7 @@ fun BulkEditDialog(vm: MainViewModel, ids: Set<String>, onClose: () -> Unit) {
                         Box(Modifier.weight(1f)) {
                             val mf = MasterField.entries.firstOrNull { it.key == k }
                             if (mf != null) MasterPick(l, v[k].orEmpty(), c.opsi(mf, list)) { v[k] = it; on[k] = true }
+                            else if (k == "check") DateField(l, v[k].orEmpty(), { v[k] = it; on[k] = true })
                             else Field(v[k].orEmpty(), { v[k] = it; on[k] = true }, l, singleLine = true)
                         }
                     }
