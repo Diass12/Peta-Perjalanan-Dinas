@@ -35,7 +35,7 @@ jobs:
           CODE=${PIPESTATUS[0]}
           if [ "$CODE" != "0" ]; then
             # Ringkas error ke anotasi supaya terbaca tanpa membuka log penuh
-            MSG=$(grep -E "^e: |error:|What went wrong|FAILED|Caused by|Execution failed|Could not" build.log | head -60 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            MSG=$(grep -E "^e: |error:|What went wrong|FAILED|Caused by|Execution failed|Could not|AssertionError|expected:|Exception" build.log | head -60 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
             echo "::error title=Ringkasan error build::$MSG"
           fi
           exit $CODE

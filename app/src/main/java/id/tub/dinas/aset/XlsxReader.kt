@@ -234,7 +234,7 @@ object XlsxReader {
     private fun isDateFmt(id: Int, code: String?): Boolean {
         if (id in 14..22 || id in 27..36 || id in 45..47 || id in 50..58) return true
         if (code == null) return false
-        val c = code.replace(Regex("\"[^\"]*\""), "").replace(Regex("\\[[^]]*]"), "").lowercase()
+        val c = code.replace(Regex("\"[^\"]*\""), "").replace(Regex("\\[[^\\]]*\\]"), "").lowercase()
         return c != "general" && Regex("[dmyhs]").containsMatchIn(c)
     }
 }
