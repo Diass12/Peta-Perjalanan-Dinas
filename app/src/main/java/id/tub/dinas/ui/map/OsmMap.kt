@@ -92,6 +92,7 @@ fun OsmMap(
     val map = remember {
         MapView(ctx).apply {
             setMultiTouchControls(true)
+            zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
             isTilesScaledToDpi = true
             minZoomLevel = 3.0
             controller.setZoom(5.0)

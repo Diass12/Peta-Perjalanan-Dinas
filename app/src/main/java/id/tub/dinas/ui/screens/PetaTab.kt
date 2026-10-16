@@ -40,6 +40,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
     val ctx = LocalContext.current
     var mapStyle by remember { mutableStateOf(id.tub.dinas.ui.map.MapStyle.from(vm.settings.mapStyle)) }
     var illus by remember { mutableStateOf(false) }
+    var fullOpen by remember { mutableStateOf(false) }
     var vehicleKey by remember { mutableStateOf(vm.settings.vehicle) }
     val skin = VEHICLES.firstOrNull { it.key == vehicleKey } ?: VEHICLES[0]
     val wps = s.titik.sortedBy { it.order }.mapNotNull { t -> t.geo?.let { it.lat to it.lng } }
@@ -59,11 +60,13 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
     val pins = s.titik.mapNotNull { t -> t.geo?.let { MapPin("t:${t.id}", it, t.title, PinKind.DOK) } } +
         s.temuan.mapNotNull { t -> t.geo?.let { MapPin("m:${t.id}", it, t.title, PinKind.LAP) } }
 
-    Column(Modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(230.dp).clip(RoundedCornerShape(20.dp))) {
+    @Composable
+    fun MapBox(mod: Modifier, full: Boolean) {
+Box(mod) {
             if (illus) androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(id.tub.dinas.R.drawable.peta_halmahera), null,
                 Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
             else OsmMap(pins, false, Modifier.fillMaxSize(), style = mapStyle, onPinClick = { id ->
+                fullOpen = false
                 if (id.startsWith("t:")) vm.editor = Editor.Titik(id.removePrefix("t:")) else vm.editor = Editor.Temuan(id.removePrefix("m:"), false)
             }, route = route, vehicle = if (ThemeState.fx) skin else null)
             if (!illus) Column(Modifier.align(Alignment.BottomStart).padding(8.dp)) {
@@ -81,6 +84,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
                 }
             }
             Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Chip(if (full) "✕ Tutup" else "⤢ Penuh", true, C.Ink) { fullOpen = !full }
                 Chip("Ilustrasi", illus, C.Ink) { illus = !illus }
                 if (!illus) Chip(mapStyle.label, true, C.Ink) {
                     val all = id.tub.dinas.ui.map.MapStyle.values()
@@ -88,6 +92,16 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
                 }
             }
         }
+    }
+
+    if (fullOpen) androidx.compose.ui.window.Dialog(onDismissRequest = { fullOpen = false },
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(Modifier.fillMaxSize().background(Color(0xFF0B2545)).statusBarsPadding().navigationBarsPadding()) {
+            MapBox(Modifier.fillMaxSize(), true)
+        }
+    }
+    Column(Modifier.fillMaxSize()) {
+        MapBox(Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(230.dp).clip(RoundedCornerShape(20.dp)), false)
         Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp).background(Color(0xCCFFFFFF), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             Text("● Dokumentasi", color = Color(0xFFB88A00), style = MaterialTheme.typography.bodyMedium)
             Text("● Laporan", color = C.PinLap, style = MaterialTheme.typography.bodyMedium)
