@@ -169,3 +169,19 @@ data class AsetFotoEntity(
     val urutan: Int,
     val takenAt: Long?,
 )
+
+@Entity(
+    tableName = "aset_media",
+    foreignKeys = [ForeignKey(AsetEntity::class, ["id"], ["asetId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("asetId")],
+)
+data class AsetMediaEntity(
+    @PrimaryKey val id: String,
+    val asetId: String,
+    val kind: String,          // VIDEO | DOC
+    val path: String,
+    val name: String,
+    val sizeBytes: Long,
+    val createdAt: Long,
+    val urutan: Int,
+)

@@ -44,3 +44,6 @@ fun AsetModel.toEntity() = AsetEntity(
 )
 fun AsetFotoEntity.toModel() = AsetFotoModel(id, asetId, path, urutan, takenAt)
 fun AsetFotoModel.toEntity() = AsetFotoEntity(id, asetId, path, order, takenAt)
+
+fun AsetMediaEntity.toModel() = AsetMediaModel(id, asetId, kind, path, name, sizeBytes, createdAt, urutan)
+fun AsetMediaModel.toEntity() = AsetMediaEntity(id, asetId, kind, path, name, sizeBytes, createdAt, order)

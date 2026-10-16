@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 @Database(
-    entities = [DinasEntity::class, TitikEntity::class, TemuanEntity::class, FotoEntity::class, LampiranEntity::class, PoinEntity::class, MediaEntity::class, AsetEntity::class, AsetFotoEntity::class],
-    version = 3,
+    entities = [DinasEntity::class, TitikEntity::class, TemuanEntity::class, FotoEntity::class, LampiranEntity::class, PoinEntity::class, MediaEntity::class, AsetEntity::class, AsetFotoEntity::class, AsetMediaEntity::class],
+    version = 4,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,12 +37,21 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** SQL v4: video & dokumen per aset. */
+        const val SQL_ASET_MEDIA = "CREATE TABLE IF NOT EXISTS `aset_media` (`id` TEXT NOT NULL, `asetId` TEXT NOT NULL, `kind` TEXT NOT NULL, `path` TEXT NOT NULL, `name` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `urutan` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`asetId`) REFERENCES `aset`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+        const val SQL_ASET_MEDIA_IDX = "CREATE INDEX IF NOT EXISTS `index_aset_media_asetId` ON `aset_media` (`asetId`)"
+
+        /** v3 -> v4: tabel aset_media. Data lama tidak disentuh. */
+        val MIGRATION_3_4 = object : androidx.room.migration.Migration(3, 4) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) { db.execSQL(SQL_ASET_MEDIA); db.execSQL(SQL_ASET_MEDIA_IDX) }
+        }
+
         /** Database dienkripsi SQLCipher. Tidak ada fallbackToDestructiveMigration: data pengguna tidak boleh hilang diam-diam. */
         fun open(ctx: Context, key: ByteArray): AppDatabase {
             System.loadLibrary("sqlcipher")
             return Room.databaseBuilder(ctx.applicationContext, AppDatabase::class.java, "dinas.db")
                 .openHelperFactory(SupportOpenHelperFactory(key))
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
         }
     }

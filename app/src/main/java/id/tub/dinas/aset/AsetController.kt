@@ -37,6 +37,9 @@ class AsetController(private val vm: MainViewModel) {
 
     var scannerBuka by mutableStateOf(false)
     var fotoTanpaKode by mutableStateOf<ByteArray?>(null)   // foto terakhir di scanner yang kodenya tak terbaca
+    val media: StateFlow<Map<String, List<AsetMediaModel>>> =
+        repo.observeAsetMedia().map { l -> l.groupBy { it.asetId } }.stateIn(vm.viewModelScope, SharingStarted.Eagerly, emptyMap())
+
     var tab by mutableStateOf(0)                       // halaman: 0 Home, 1 Aset, 2 Audit, 3 Menu
     var tampilScan by mutableStateOf(false)            // dialog pilih kamera/galeri
     var query by mutableStateOf("")
@@ -253,6 +256,29 @@ class AsetController(private val vm: MainViewModel) {
             if (ok > 0) vm.toast("$ok foto disimpan terenkripsi")
         } finally { temp?.delete() }
     }
+
+    /** kind: VIDEO | DOC. Nama dan ekstensi diambil dari berkas yang dipilih. */
+    fun tambahMedia(asetId: String, kind: String, uris: List<Uri>) = vm.work {
+        val cr = app.contentResolver
+        var ok = 0
+        for (u in uris) {
+            try {
+                val name = cr.query(u, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
+                    ?: if (kind == "VIDEO") "video.mp4" else "dokumen"
+                val ext = name.substringAfterLast('.', "").lowercase().filter { it.isLetterOrDigit() }.take(5).ifEmpty { if (kind == "VIDEO") "mp4" else "bin" }
+                val ins = cr.openInputStream(u) ?: throw IllegalArgumentException("Berkas tidak dapat dibuka")
+                ins.use { repo.addAsetMedia(asetId, kind, name, ext, it) }
+                ok++
+            } catch (e: Exception) { vm.toast("Dilewati: ${e.message ?: "tidak dapat dibaca"}") }
+        }
+        if (ok > 0) vm.toast("$ok berkas disimpan terenkripsi")
+    }
+
+    fun tambahMediaFile(asetId: String, kind: String, file: File, name: String, ext: String) = vm.work {
+        try { file.inputStream().use { repo.addAsetMedia(asetId, kind, name, ext, it) }; vm.toast("Video disimpan terenkripsi") } finally { file.delete() }
+    }
+
+    fun hapusMedia(id: String) = vm.work { repo.deleteAsetMedia(id) }
 
     fun hapusFoto(id: String) = vm.work { repo.deleteAsetFoto(id) }
     fun jadikanUtama(asetId: String, fotoId: String) = vm.work { repo.setAsetCover(asetId, fotoId) }

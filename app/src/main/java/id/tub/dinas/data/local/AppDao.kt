@@ -108,6 +108,15 @@ interface AppDao {
     @Query("DELETE FROM aset_foto WHERE id = :id") suspend fun deleteAsetFoto(id: String)
     @Query("SELECT path FROM aset_foto") suspend fun allAsetFotoPaths(): List<String>
 
+    @Query("SELECT * FROM aset_media ORDER BY asetId, urutan") fun observeAsetMedia(): Flow<List<AsetMediaEntity>>
+    @Query("SELECT * FROM aset_media ORDER BY asetId, urutan") suspend fun asetMediaAll(): List<AsetMediaEntity>
+    @Query("SELECT * FROM aset_media WHERE asetId = :asetId ORDER BY urutan") suspend fun asetMediaOf(asetId: String): List<AsetMediaEntity>
+    @Query("SELECT * FROM aset_media WHERE id = :id") suspend fun asetMediaById(id: String): AsetMediaEntity?
+    @Upsert suspend fun upsertAsetMedia(e: AsetMediaEntity)
+    @Upsert suspend fun upsertAsetMediaAll(e: List<AsetMediaEntity>)
+    @Query("DELETE FROM aset_media WHERE id = :id") suspend fun deleteAsetMedia(id: String)
+    @Query("SELECT path FROM aset_media") suspend fun allAsetMediaPaths(): List<String>
+
     // ---- pembersihan berkas yatim
     @Query("SELECT path FROM foto") suspend fun allFotoPaths(): List<String>
     @Query("SELECT path FROM lampiran") suspend fun allLampiranPaths(): List<String>

@@ -40,7 +40,10 @@ data class AsetModel(
 
 data class AsetFotoModel(val id: String, val asetId: String, val path: String, val order: Int, val takenAt: Long?)
 
-class AsetBundle(val aset: AsetModel, val fotos: List<AsetFotoModel>)
+/** Video atau dokumen (PDF, Word, Excel, dll.) yang melekat pada aset; berkas terenkripsi. kind: VIDEO | DOC. */
+data class AsetMediaModel(val id: String, val asetId: String, val kind: String, val path: String, val name: String, val sizeBytes: Long, val createdAt: Long, val order: Int)
+
+class AsetBundle(val aset: AsetModel, val fotos: List<AsetFotoModel>, val media: List<AsetMediaModel> = emptyList())
 
 fun AsetModel.addLog(msg: String, now: Long = System.currentTimeMillis()): AsetModel =
     copy(log = (listOf("$now|${msg.replace('\n', ' ')}") + log).take(30), updatedAt = now)

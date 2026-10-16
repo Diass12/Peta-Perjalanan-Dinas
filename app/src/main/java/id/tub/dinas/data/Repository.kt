@@ -31,6 +31,7 @@ class Repository(
         const val MAX_PDF = 50L * 1024 * 1024
         const val MAX_VIDEO = 500L * 1024 * 1024
         const val MAX_AUDIO = 100L * 1024 * 1024
+        const val MAX_DOC = 50L * 1024 * 1024
     }
 
     // ---------- dinas ----------
@@ -247,13 +248,14 @@ class Repository(
             }
             dao.upsertAsetAll(r.assets.map { it.aset.toEntity() })
             dao.upsertAsetFotoAll(r.assets.flatMap { b -> b.fotos.map { it.toEntity() } })
+            dao.upsertAsetMediaAll(r.assets.flatMap { b -> b.media.map { it.toEntity() } })
         }
         r.snapshots.size
     }
 
     /** Menghapus berkas terenkripsi yang tidak dirujuk database (sisa proses yang terhenti). */
     suspend fun cleanOrphans(): Int = withContext(Dispatchers.IO) {
-        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths() + dao.allAsetFotoPaths()).toSet()
+        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths() + dao.allAsetFotoPaths() + dao.allAsetMediaPaths()).toSet()
         vault.deleteOrphans(used)
     }
 
@@ -264,9 +266,31 @@ class Repository(
     suspend fun asetById(id: String): AsetModel? = withContext(Dispatchers.IO) { dao.asetById(id)?.toModel() }
     suspend fun asetFotoOf(asetId: String): List<AsetFotoModel> = withContext(Dispatchers.IO) { dao.asetFotoOf(asetId).map { it.toModel() } }
 
+    fun observeAsetMedia(): Flow<List<AsetMediaModel>> = dao.observeAsetMedia().map { l -> l.map { it.toModel() } }
+
     suspend fun asetBundles(): List<AsetBundle> = withContext(Dispatchers.IO) {
         val fotos = dao.asetFotoAll().map { it.toModel() }.groupBy { it.asetId }
-        dao.asetList().map { AsetBundle(it.toModel(), fotos[it.id].orEmpty()) }
+        val media = dao.asetMediaAll().map { it.toModel() }.groupBy { it.asetId }
+        dao.asetList().map { AsetBundle(it.toModel(), fotos[it.id].orEmpty(), media[it.id].orEmpty()) }
+    }
+
+    /** Video atau dokumen untuk aset. Disimpan terenkripsi; batas ukuran per jenis. */
+    suspend fun addAsetMedia(asetId: String, kind: String, name: String, ext: String, input: InputStream): String = withContext(Dispatchers.IO) {
+        val max = if (kind == "VIDEO") MAX_VIDEO else MAX_DOC
+        val (path, size) = try { vault.saveStream(input, "media", ext, max) } catch (e: java.io.IOException) {
+            throw IllegalArgumentException("Berkas lebih dari ${max / 1024 / 1024} MB tidak diterima")
+        }
+        try {
+            val id = uid()
+            val order = (dao.asetMediaOf(asetId).maxOfOrNull { it.urutan } ?: -1) + 1
+            dao.upsertAsetMedia(AsetMediaEntity(id, asetId, kind, path, sanitizeName(name), size, System.currentTimeMillis(), order))
+            id
+        } catch (e: Exception) { vault.delete(path); throw e }
+    }
+
+    suspend fun deleteAsetMedia(id: String) = withContext(Dispatchers.IO) {
+        val m = dao.asetMediaById(id) ?: return@withContext
+        dao.deleteAsetMedia(id); vault.delete(m.path)
     }
 
     /** Aset baru bila id belum ada; pada aset baru `order` diisi urutan berikutnya. */
@@ -280,7 +304,7 @@ class Repository(
     }
 
     suspend fun deleteAset(id: String) = withContext(Dispatchers.IO) {
-        val paths = dao.asetFotoOf(id).map { it.path }
+        val paths = dao.asetFotoOf(id).map { it.path } + dao.asetMediaOf(id).map { it.path }
         dao.deleteAset(id)
         paths.forEach { vault.delete(it) }
     }

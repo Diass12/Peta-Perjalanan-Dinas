@@ -67,11 +67,19 @@ object BackupCodec {
                 zos.closeEntry()
             }
         }
-        for (b in assets) for (f in b.fotos) {
-            if (!seen.add(f.path) || !vault.exists(f.path)) continue
-            zos.putNextEntry(ZipEntry("media/${f.path}"))
-            zos.write(vault.read(f.path))
-            zos.closeEntry()
+        for (b in assets) {
+            for (f in b.fotos) {
+                if (!seen.add(f.path) || !vault.exists(f.path)) continue
+                zos.putNextEntry(ZipEntry("media/${f.path}"))
+                zos.write(vault.read(f.path))
+                zos.closeEntry()
+            }
+            for (mm in b.media) {
+                if (!seen.add(mm.path) || !vault.exists(mm.path)) continue
+                zos.putNextEntry(ZipEntry("media/${mm.path}"))
+                vault.readTo(mm.path, zos)
+                zos.closeEntry()
+            }
         }
         zos.finish()
         zos.flush()
@@ -223,6 +231,7 @@ object BackupCodec {
             "barcode" to a.barcode?.name, "bsrc" to a.barcodeSrc.name, "pcodes" to a.pcodes, "state" to a.state.name,
             "audited" to a.auditedAt, "log" to a.log, "created" to a.createdAt, "updated" to a.updatedAt, "temuan" to a.temuanId,
             "foto" to b.fotos.map { mapOf("id" to it.id, "path" to it.path, "order" to it.order, "taken" to it.takenAt) },
+            "media" to b.media.map { mapOf("id" to it.id, "kind" to it.kind, "path" to it.path, "name" to it.name, "size" to it.sizeBytes, "at" to it.createdAt, "order" to it.order) },
         )
     }
 
@@ -239,6 +248,7 @@ object BackupCodec {
             AuditState.from(sn(o["state"])), n(o["audited"]), l(o["log"]).mapNotNull { it as? String },
             n(o["created"]) ?: 0L, n(o["updated"]) ?: 0L, sn(o["temuan"]),
         )
-        AsetBundle(a, l(o["foto"]).map { fx -> val f = m(fx); AsetFotoModel(s(f["id"]), id, safePath(s(f["path"])), i(f["order"]), n(f["taken"])) })
+        AsetBundle(a, l(o["foto"]).map { fx -> val f = m(fx); AsetFotoModel(s(f["id"]), id, safePath(s(f["path"])), i(f["order"]), n(f["taken"])) },
+            l(o["media"]).map { mx -> val q = m(mx); AsetMediaModel(s(q["id"]), id, s(q["kind"]).ifEmpty { "DOC" }, safePath(s(q["path"])), s(q["name"]), n(q["size"]) ?: 0L, n(q["at"]) ?: 0L, i(q["order"])) })
     }
 }

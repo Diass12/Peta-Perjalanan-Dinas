@@ -70,6 +70,26 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
     val camPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
         if (ok) launchCamera() else vm.toast("Izin kamera ditolak. Pakai Galeri untuk memilih foto.")
     }
+    val mediaAll by c.media.collectAsState()
+    val medias = mediaAll[asetId].orEmpty()
+    var vidPath by rememberSaveable { mutableStateOf<String?>(null) }
+    var playing by remember { mutableStateOf<AsetMediaModel?>(null) }
+    var delMedia by remember { mutableStateOf<String?>(null) }
+    val vidPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(5)) { uris -> if (uris.isNotEmpty()) c.tambahMedia(asetId, "VIDEO", uris) }
+    val docPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> if (uris.isNotEmpty()) c.tambahMedia(asetId, "DOC", uris) }
+    val videoCam = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo()) { ok ->
+        val p = vidPath; vidPath = null
+        if (p != null) { val f = File(p); if (ok && f.length() > 0) c.tambahMediaFile(asetId, "VIDEO", f, "Video ${SimpleDateFormat("d MMM HH.mm", Locale("id", "ID")).format(Date())}.mp4", "mp4") else f.delete() }
+    }
+    fun launchVideo() {
+        val dir = File(ctx.cacheDir, "media").apply { mkdirs() }
+        val f = File(dir, "vid_${UUID.randomUUID()}.mp4")
+        vidPath = f.absolutePath
+        videoCam.launch(FileProvider.getUriForFile(ctx, "${ctx.packageName}.files", f))
+    }
+    val vidPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        if (ok) launchVideo() else vm.toast("Izin kamera ditolak. Pakai \"Pilih video\".")
+    }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(10)) { uris -> if (uris.isNotEmpty()) c.tambahFoto(asetId, uris) }
 
     Dialog(onDismissRequest = { close() }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
@@ -105,6 +125,34 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+
+                // video & dokumen
+                if (isSaved) Panel {
+                    Text("VIDEO & DOKUMEN (${medias.size})", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PrimaryButton("🎬 Rekam video") {
+                            if (androidx.core.content.ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) launchVideo()
+                            else vidPerm.launch(Manifest.permission.CAMERA)
+                        }
+                        SoftButton("Pilih video") { vidPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)) }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    SoftButton("📎 Lampirkan dokumen (PDF, Word, Excel, dll.)") { docPicker.launch(arrayOf("*/*")) }
+                    medias.forEach { m ->
+                        Spacer(Modifier.height(8.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(if (m.kind == "VIDEO") "🎬" else "📄", style = MaterialTheme.typography.titleLarge)
+                            Spacer(Modifier.width(8.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(m.name, maxLines = 1, style = MaterialTheme.typography.bodyMedium)
+                                Text((if (m.kind == "VIDEO") "Video" else "Dokumen") + " · " + (if (m.sizeBytes >= 1048576) String.format(Locale.US, "%.1f MB", m.sizeBytes / 1048576.0) else "${m.sizeBytes / 1024} KB"), color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                            }
+                            TextButton({ playing = m }) { Text(if (m.kind == "VIDEO") "Putar" else "Buka") }
+                            TextButton({ delMedia = m.id }) { Text("Hapus", color = C.Danger) }
                         }
                     }
                 }
@@ -200,6 +248,8 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
         }
     }
 
+    playing?.let { AsetMediaViewer(vm, it) { playing = null } }
+    delMedia?.let { id -> Confirm("Hapus berkas?", "Video atau dokumen ini dihapus permanen dari aset.", onConfirm = { c.hapusMedia(id) }, onDismiss = { delMedia = null }) }
     if (delAsk) Confirm("Hapus aset?", "Aset dan semua fotonya dihapus permanen dari register.", onConfirm = { c.hapus(asetId); close() }, onDismiss = { delAsk = false })
     if (temuanDlg) {
         val dinas by vm.dinasList.collectAsState()
@@ -229,3 +279,53 @@ private fun FlowChips(options: List<Pair<String, String>>, selected: String, onP
 
 private fun fmtNum(d: Double): String = if (d == Math.floor(d) && Math.abs(d) < 1e15) d.toLong().toString() else d.toString()
 private fun parseNum(s: String): Double? = id.tub.dinas.aset.AsetImport.parseAngka(s)
+
+/** Memutar video di dialog; dokumen didekripsi ke berkas sementara lalu dibuka dengan aplikasi lain. */
+@Composable
+private fun AsetMediaViewer(vm: MainViewModel, m: AsetMediaModel, onClose: () -> Unit) {
+    val ctx = LocalContext.current
+    var file by remember { mutableStateOf<File?>(null) }
+    var err by remember { mutableStateOf<String?>(null) }
+    val ext = m.path.removeSuffix(".enc").substringAfterLast('.', "bin")
+    LaunchedEffect(m.id) {
+        try {
+            val f = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { vm.repo.mediaTempFile(m.path, ".$ext") }
+            if (m.kind == "VIDEO") file = f
+            else {
+                val uri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.files", f)
+                val mime = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.lowercase()) ?: "*/*"
+                val it = android.content.Intent(android.content.Intent.ACTION_VIEW).setDataAndType(uri, mime).addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                try { ctx.startActivity(android.content.Intent.createChooser(it, m.name)) } catch (e: Exception) { vm.toast("Tidak ada aplikasi untuk membuka berkas ini") }
+                onClose()
+            }
+        } catch (e: Exception) { err = "Tidak dapat dibuka: ${e.message ?: "berkas rusak"}" }
+    }
+    DisposableEffect(m.id) { onDispose { if (m.kind == "VIDEO") file?.delete() } }
+    if (m.kind != "VIDEO" && err == null) return
+    Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxWidth().padding(12.dp), shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp), color = androidx.compose.ui.graphics.Color(0xFF0B2545)) {
+            Column(Modifier.padding(14.dp)) {
+                Text(m.name, color = androidx.compose.ui.graphics.Color.White, maxLines = 2)
+                Spacer(Modifier.height(8.dp))
+                val f = file
+                when {
+                    err != null -> Text(err!!, color = androidx.compose.ui.graphics.Color(0xFFFFB4AB))
+                    f == null -> Text("Menyiapkan (mendekripsi)…", color = androidx.compose.ui.graphics.Color.White)
+                    else -> androidx.compose.ui.viewinterop.AndroidView(
+                        factory = { c ->
+                            android.widget.VideoView(c).apply {
+                                setVideoPath(f.path)
+                                setMediaController(android.widget.MediaController(c).also { it.setAnchorView(this) })
+                                setOnPreparedListener { start() }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().height(320.dp),
+                        onRelease = { it.stopPlayback() },
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                TextButton(onClose, Modifier.align(Alignment.End)) { Text("Tutup") }
+            }
+        }
+    }
+}
