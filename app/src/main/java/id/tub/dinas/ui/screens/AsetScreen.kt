@@ -35,7 +35,7 @@ import java.util.Locale
 import java.util.UUID
 
 @Composable
-fun AsetScreen(vm: MainViewModel) {
+fun AsetScreen(vm: MainViewModel, embedded: Boolean = false) {
     val c = vm.aset
     val list by c.register.collectAsState()
     val fotos by c.fotos.collectAsState()
@@ -69,20 +69,26 @@ fun AsetScreen(vm: MainViewModel) {
     val filtered = remember(list, c.query, c.kategori, c.barcode, c.auditFilter, c.peringatan, fotos) { c.filtered(list) }
 
     Column(Modifier.fillMaxSize().background(C.Bg)) {
-        Header("Aset", onBack = { vm.pop() }, actions = {
+        if (!embedded) Header("Aset", onBack = { vm.pop() }, actions = {
             HeaderAction("Impor") { importPick.launch(arrayOf("*/*")) }
             HeaderAction("Ekspor") { exportDialog = true }
             HeaderAction("+ Baru") { c.baru() }
         })
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Chip("Daftar (${list.size})", c.tab == 0, onClick = { c.tab = 0 })
             Chip("Audit", c.tab == 1, onClick = { c.tab = 1 })
+            if (embedded) {
+                Spacer(Modifier.weight(1f))
+                Chip("Impor", false, onClick = { importPick.launch(arrayOf("*/*")) })
+                Chip("Ekspor", false, onClick = { exportDialog = true })
+                Chip("+ Baru", true, onClick = { c.baru() })
+            }
         }
         Box(Modifier.weight(1f)) {
             if (c.tab == 0) DaftarTab(vm, list, filtered, fotos)
             else AuditTab(vm, list, fotos) { resetAsk = true }
         }
-        Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.fillMaxWidth().then(if (embedded) Modifier else Modifier.navigationBarsPadding()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             val found = list.count { it.state == AuditState.FOUND }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(c.auditMode, { c.auditMode = it })

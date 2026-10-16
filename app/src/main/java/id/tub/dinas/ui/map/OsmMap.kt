@@ -92,6 +92,8 @@ fun OsmMap(
     val map = remember {
         MapView(ctx).apply {
             setMultiTouchControls(true)
+            // peta di dalam daftar yang bisa digulir: sentuhan di peta tidak boleh dicuri oleh daftar
+            setOnTouchListener { v, e -> if (e.actionMasked == android.view.MotionEvent.ACTION_DOWN) v.parent?.requestDisallowInterceptTouchEvent(true); false }
             zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
             isTilesScaledToDpi = true
             minZoomLevel = 3.0

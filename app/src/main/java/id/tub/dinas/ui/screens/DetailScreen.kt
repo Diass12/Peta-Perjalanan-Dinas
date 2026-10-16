@@ -11,6 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import id.tub.dinas.ui.fmtDate
+import id.tub.dinas.ui.theme.ThemeState
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import id.tub.dinas.MainViewModel
@@ -34,34 +41,53 @@ fun DetailScreen(vm: MainViewModel, dinasId: String) {
     }
     val s = snap
     Column(Modifier.fillMaxSize()) {
-        Header(s?.dinas?.name ?: "Dinas", onBack = { vm.pop() }, actions = {
+        val player = rememberPlayer(vm)
+        GameHeader(player) {
             Box {
-                HeaderAction("Menu") { menu = true }
+                Text("⋮", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { menu = true }.padding(horizontal = 14.dp, vertical = 6.dp))
                 DropdownMenu(menu, { menu = false }) {
                     DropdownMenuItem({ Text("Ubah dinas") }, { menu = false; editDinas = true })
+                    DropdownMenuItem({ Text("Tindak lanjut") }, { menu = false; vm.tab = DetailTab.TINDAK })
                     DropdownMenuItem({ Text("Export Excel") }, {
                         menu = false
                         val n = (s?.dinas?.name ?: "Dinas").replace(Regex("[^A-Za-z0-9 _-]"), "").trim().replace(' ', '-').ifEmpty { "Dinas" }
                         xlsx.launch("Laporan-$n.xlsx")
                     })
                     DropdownMenuItem({ Text("Mode presentasi") }, { menu = false; vm.push(Screen.Present(dinasId)) })
+                    DropdownMenuItem({ Text("Pengaturan") }, { menu = false; vm.push(Screen.Settings) })
                     DropdownMenuItem({ Text("Hapus dinas", color = C.Danger) }, { menu = false; confirmDelete = true })
                 }
             }
-        })
+        }
+        if (vm.tab != DetailTab.ASET) {
+            val ink = if (ThemeState.sky) Color.White else C.Ink
+            val period = s?.dinas?.let { listOf(fmtDate(it.startMs), fmtDate(it.endMs)).filter { x -> x.isNotEmpty() }.joinToString(" – ") }.orEmpty()
+            Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp, top = 10.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("‹", color = ink, fontSize = 34.sp, modifier = Modifier.clickable { vm.pop() }.padding(horizontal = 12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(s?.dinas?.name ?: "Dinas", color = ink, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+                    Text(if (vm.tab == DetailTab.PETA) "Rute & titik dokumentasi" else vm.tab.label, color = ink.copy(alpha = 0.8f), fontSize = 12.sp)
+                }
+                val chip = period.ifEmpty { s?.let { "${it.titik.size} titik" }.orEmpty() }
+                if (chip.isNotEmpty()) Text(chip, color = Color(0xFF1D4ED8), fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 1,
+                    modifier = Modifier.background(Color.White, RoundedCornerShape(20.dp)).padding(horizontal = 12.dp, vertical = 6.dp))
+            }
+        }
         if (s == null) Empty("Memuat…")
         else Box(Modifier.weight(1f)) {
             when (vm.tab) {
                 DetailTab.PETA -> PetaTab(vm, s)
                 DetailTab.TEMUAN -> TemuanTab(vm, s)
+                DetailTab.ASET -> AsetScreen(vm, embedded = true)
                 DetailTab.RINGKASAN -> RingkasanTab(s)
                 DetailTab.TINDAK -> TindakTab(vm, s)
             }
         }
-        BottomNav(
-            listOf(id.tub.dinas.R.drawable.ic_peta to "Peta", id.tub.dinas.R.drawable.ic_temuan to "Temuan", id.tub.dinas.R.drawable.ic_ringkasan to "Ringkasan", id.tub.dinas.R.drawable.ic_lencana to "Tindak Lanjut"),
-            vm.tab.ordinal,
-        ) { vm.tab = DetailTab.values()[it] }
+        val order = listOf(DetailTab.PETA, DetailTab.TEMUAN, DetailTab.ASET, DetailTab.RINGKASAN)
+        WhiteNav(
+            listOf(id.tub.dinas.R.drawable.ic_peta to "Peta", id.tub.dinas.R.drawable.ic_temuan to "Temuan", id.tub.dinas.R.drawable.ic_lensa_aset to "Aset", id.tub.dinas.R.drawable.ic_ringkasan to "Ringkasan"),
+            order.indexOf(vm.tab),
+        ) { vm.tab = order[it] }
     }
     if (editDinas && s != null) DinasDialog(s.dinas, { editDinas = false }) { n, a, b, note -> vm.work { vm.repo.updateDinas(s.dinas.copy(name = n, startMs = a, endMs = b, note = note)) } }
     if (confirmDelete) Confirm("Hapus dinas?", "Semua titik, temuan, foto, dan PDF di dinas ini dihapus permanen. Buat cadangan dulu bila perlu.",

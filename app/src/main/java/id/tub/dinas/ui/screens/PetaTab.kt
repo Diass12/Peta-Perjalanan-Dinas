@@ -55,6 +55,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
         if (r != null) { route = r.map { org.osmdroid.util.GeoPoint(it.first, it.second) }; routeNote = "Mengikuti jalan (OpenStreetMap)" }
         else routeNote = "Rute jalan tidak tersedia (offline?), memakai garis lurus"
     }
+    val lastGeo = s.titik.sortedBy { it.order }.lastOrNull { it.geo != null }?.geo
     var delId by remember { mutableStateOf<String?>(null) }
     var toTemuan by remember { mutableStateOf<String?>(null) }
     val pins = s.titik.mapNotNull { t -> t.geo?.let { MapPin("t:${t.id}", it, t.title, PinKind.DOK) } } +
@@ -69,19 +70,12 @@ Box(mod) {
                 fullOpen = false
                 if (id.startsWith("t:")) vm.editor = Editor.Titik(id.removePrefix("t:")) else vm.editor = Editor.Temuan(id.removePrefix("m:"), false)
             }, route = route, vehicle = if (ThemeState.fx) skin else null)
-            if (!illus) Column(Modifier.align(Alignment.BottomStart).padding(8.dp)) {
+            if (!illus) Column(Modifier.align(Alignment.BottomStart).padding(10.dp)) {
                 if (routeNote.isNotEmpty()) Text(routeNote, color = Color.White, fontSize = 11.sp,
                     modifier = Modifier.background(Color(0xAA0B2545), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 2.dp))
                 Spacer(Modifier.height(4.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    VEHICLES.forEach { v ->
-                        val on = v.key == skin.key
-                        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(v.res), v.key,
-                            Modifier.size(if (on) 44.dp else 36.dp)
-                                .background(Color(if (on) 0xCCFFD166 else 0x880B2545), RoundedCornerShape(10.dp)).padding(3.dp)
-                                .clickable { vehicleKey = v.key; vm.settings.vehicle = v.key })
-                    }
-                }
+                lastGeo?.let { g -> Text("📍 " + CoordParser.format(g), color = Color.White, fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    modifier = Modifier.background(Color(0xE6111827), RoundedCornerShape(14.dp)).padding(horizontal = 10.dp, vertical = 5.dp)) }
             }
             Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Chip(if (full) "✕ Tutup" else "⤢ Penuh", true, C.Ink) { fullOpen = !full }
@@ -101,14 +95,45 @@ Box(mod) {
         }
     }
     Column(Modifier.fillMaxSize()) {
-        MapBox(Modifier.fillMaxWidth().padding(horizontal = 12.dp).height(230.dp).clip(RoundedCornerShape(20.dp)), false)
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp).background(Color(0xCCFFFFFF), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text("● Dokumentasi", color = Color(0xFFB88A00), style = MaterialTheme.typography.bodyMedium)
-            Text("● Laporan", color = C.PinLap, style = MaterialTheme.typography.bodyMedium)
-        }
         Box(Modifier.weight(1f)) {
-            if (s.titik.isEmpty()) Empty("Belum ada titik dokumentasi. Ketuk “+ Titik” lalu kunci GPS dan tambahkan foto.")
-            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 80.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 90.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                item {
+                    Box(Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(32.dp)).padding(6.dp)) {
+                        MapBox(Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(27.dp)), false)
+                    }
+                }
+                item {
+                    Column {
+                        Text("PILIH KENDARAAN PERJALANAN:", color = if (ThemeState.sky) Color.White else C.Muted, fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            VEHICLES.forEach { v ->
+                                val on = v.key == skin.key
+                                Column(Modifier.weight(1f).background(if (on) Color(0xFF2563EB) else Color.White, RoundedCornerShape(18.dp))
+                                    .clickable { vehicleKey = v.key; vm.settings.vehicle = v.key }.padding(vertical = 8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally) {
+                                    androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(v.res), v.key, Modifier.size(34.dp))
+                                    Text(v.key.replaceFirstChar { it.uppercase() }, fontSize = 10.sp, maxLines = 1, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = if (on) Color.White else Color(0xFF64748B))
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    val reg by vm.aset.register.collectAsState()
+                    val withPhoto = s.titik.count { s.fotoOf(OwnerType.TITIK, it.id).isNotEmpty() }
+                    val found = reg.count { it.state == id.tub.dinas.domain.AuditState.FOUND }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        StatCard("PROGRES / DOKUMENTASI", withPhoto, s.titik.size, false, Modifier.weight(1f))
+                        StatCard("AKURASI / AUDIT ASET", found, reg.size, true, Modifier.weight(1f))
+                    }
+                }
+                item {
+                    Row(Modifier.background(Color(0xCCFFFFFF), RoundedCornerShape(10.dp)).padding(horizontal = 10.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Text("● Dokumentasi", color = Color(0xFFB88A00), style = MaterialTheme.typography.bodyMedium)
+                        Text("● Laporan", color = C.PinLap, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                if (s.titik.isEmpty()) item { Empty("Belum ada titik dokumentasi. Ketuk “+ Titik” lalu kunci GPS dan tambahkan foto.") }
                 items(s.titik, key = { it.id }) { t ->
                     val fotos = s.fotoOf(OwnerType.TITIK, t.id)
                     Panel(onClick = { vm.editor = Editor.Titik(t.id) }) {
