@@ -27,3 +27,20 @@ fun DinasModel.toEntity(createdAt: Long) = DinasEntity(id, name, startMs, endMs,
 
 fun MediaEntity.toModel() = MediaModel(id, if (ownerType == "TEMUAN") OwnerType.TEMUAN else OwnerType.TITIK, ownerId, MediaKind.from(kind), path, name, sizeBytes, createdAt, urutan)
 fun MediaModel.toEntity(dinasId: String) = MediaEntity(id, dinasId, ownerType.name, ownerId, kind.name, path, name, sizeBytes, createdAt, order)
+
+fun AsetEntity.toModel() = AsetModel(
+    id, ord, code, name, category, classif, owner, tenure, dept, location, pengguna, cond, acq, checkDate, remarks,
+    nbv, harga, masa, tglTercatat, nbvKet, catatan, sumber, srcStatus,
+    StatusBarcode.from(barcode), SumberBarcode.from(barcodeSrc),
+    if (pcodes.isEmpty()) emptyList() else pcodes.split('|').filter { it.isNotEmpty() },
+    AuditState.from(state), auditedAt, if (log.isEmpty()) emptyList() else log.split('\n').filter { it.isNotEmpty() },
+    createdAt, updatedAt, temuanId,
+)
+fun AsetModel.toEntity() = AsetEntity(
+    id, order, code, name, category, classif, owner, tenure, dept, location, user, cond, acq, checkDate, remarks,
+    nbv, harga, masa, tglTercatat, nbvKet, catatan, sumber, srcStatus,
+    barcode?.name ?: "", barcodeSrc.name, pcodes.joinToString("|"),
+    state.name, auditedAt, log.joinToString("\n"), createdAt, updatedAt, temuanId,
+)
+fun AsetFotoEntity.toModel() = AsetFotoModel(id, asetId, path, urutan, takenAt)
+fun AsetFotoModel.toEntity() = AsetFotoEntity(id, asetId, path, order, takenAt)

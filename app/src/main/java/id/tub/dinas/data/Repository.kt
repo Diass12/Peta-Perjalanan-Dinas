@@ -227,7 +227,7 @@ class Repository(
     suspend fun exportBackup(out: OutputStream, passphrase: CharArray?) = withContext(Dispatchers.IO) {
         val ids = dao.observeDinasOnce()
         val snaps = ids.mapNotNull { snapshot(it.id) }
-        BackupCodec.write(snaps, vault, out, passphrase)
+        BackupCodec.write(snaps, vault, out, passphrase, asetBundles())
     }
 
     /** Mengembalikan jumlah dinas yang dipulihkan. Dinas ber-ID sama akan ditimpa. */
@@ -245,13 +245,95 @@ class Repository(
                 dao.upsertPoinAll(s.poin.map { it.toEntity(id) })
                 dao.upsertMediaAll(s.media.map { it.toEntity(id) })
             }
+            dao.upsertAsetAll(r.assets.map { it.aset.toEntity() })
+            dao.upsertAsetFotoAll(r.assets.flatMap { b -> b.fotos.map { it.toEntity() } })
         }
         r.snapshots.size
     }
 
     /** Menghapus berkas terenkripsi yang tidak dirujuk database (sisa proses yang terhenti). */
     suspend fun cleanOrphans(): Int = withContext(Dispatchers.IO) {
-        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths()).toSet()
+        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths() + dao.allAsetFotoPaths()).toSet()
         vault.deleteOrphans(used)
+    }
+
+    // ---------- register aset ----------
+    fun observeAset(): Flow<List<AsetModel>> = dao.observeAset().map { l -> l.map { it.toModel() } }
+    fun observeAsetFoto(): Flow<List<AsetFotoModel>> = dao.observeAsetFoto().map { l -> l.map { it.toModel() } }
+    suspend fun asetList(): List<AsetModel> = withContext(Dispatchers.IO) { dao.asetList().map { it.toModel() } }
+    suspend fun asetById(id: String): AsetModel? = withContext(Dispatchers.IO) { dao.asetById(id)?.toModel() }
+    suspend fun asetFotoOf(asetId: String): List<AsetFotoModel> = withContext(Dispatchers.IO) { dao.asetFotoOf(asetId).map { it.toModel() } }
+
+    suspend fun asetBundles(): List<AsetBundle> = withContext(Dispatchers.IO) {
+        val fotos = dao.asetFotoAll().map { it.toModel() }.groupBy { it.asetId }
+        dao.asetList().map { AsetBundle(it.toModel(), fotos[it.id].orEmpty()) }
+    }
+
+    /** Aset baru bila id belum ada; pada aset baru `order` diisi urutan berikutnya. */
+    suspend fun saveAset(m: AsetModel): String = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        val old = dao.asetById(m.id)
+        val order = old?.ord ?: if (m.order > 0) m.order else dao.maxAsetOrd() + 1
+        val clean = m.copy(code = KodeAset.norm(m.code).ifEmpty { "" }, order = order, createdAt = old?.createdAt ?: m.createdAt.takeIf { it > 0 } ?: now, updatedAt = now)
+        dao.upsertAset(clean.toEntity())
+        clean.id
+    }
+
+    suspend fun deleteAset(id: String) = withContext(Dispatchers.IO) {
+        val paths = dao.asetFotoOf(id).map { it.path }
+        dao.deleteAset(id)
+        paths.forEach { vault.delete(it) }
+    }
+
+    suspend fun addAsetFoto(asetId: String, jpeg: ByteArray, takenAt: Long?): String = withContext(Dispatchers.IO) {
+        val path = vault.save(jpeg, "aset", "jpg")
+        try {
+            val id = uid()
+            val order = (dao.asetFotoOf(asetId).maxOfOrNull { it.urutan } ?: -1) + 1
+            dao.upsertAsetFoto(AsetFotoEntity(id, asetId, path, order, takenAt))
+            id
+        } catch (e: Exception) { vault.delete(path); throw e }
+    }
+
+    suspend fun deleteAsetFoto(id: String) = withContext(Dispatchers.IO) {
+        val f = dao.asetFotoById(id) ?: return@withContext
+        dao.deleteAsetFoto(id); vault.delete(f.path)
+    }
+
+    /** Menjadikan foto sebagai foto utama (urutan pertama). */
+    suspend fun setAsetCover(asetId: String, fotoId: String) = withContext(Dispatchers.IO) {
+        val l = dao.asetFotoOf(asetId)
+        val ordered = listOfNotNull(l.firstOrNull { it.id == fotoId }) + l.filter { it.id != fotoId }
+        dao.upsertAsetFotoAll(ordered.mapIndexed { i, f -> f.copy(urutan = i) })
+    }
+
+    suspend fun resetAudit() = withContext(Dispatchers.IO) { dao.resetAudit() }
+
+    suspend fun asetFotoBytes(path: String): ByteArray? = withContext(Dispatchers.IO) { runCatching { vault.read(path) }.getOrNull() }
+
+    /** Membuat temuan lensa Aset di dinas tertentu dari sebuah aset; foto utama disalin. Mengembalikan id temuan. */
+    suspend fun asetToTemuan(asetId: String, dinasId: String, geo: GeoPoint?): String? = withContext(Dispatchers.IO) {
+        val a = dao.asetById(asetId)?.toModel() ?: return@withContext null
+        val id = uid()
+        val order = (dao.temuanList(dinasId).maxOfOrNull { it.urutan } ?: -1) + 1
+        val ket = buildString {
+            append("Aset ${a.code.ifEmpty { "(tanpa kode)" }} — ${a.name}")
+            if (a.cond.isNotEmpty()) append("\nKondisi: ${a.cond}")
+            if (a.location.isNotEmpty() || a.dept.isNotEmpty()) append("\nLokasi/Dept: ${listOf(a.location, a.dept).filter { it.isNotEmpty() }.joinToString(" / ")}")
+            append("\nStatus audit: ${a.state.label}")
+        }
+        db.withTransaction {
+            dao.upsertTemuan(TemuanEntity(id, dinasId, a.name.ifEmpty { a.code }.take(80), a.code, "", ket, null, null, "", "", "", Status.BELUM.name, geo?.lat, geo?.lng, geo?.accuracyM, geo?.source ?: "", order))
+            dao.upsertAset(a.copy(temuanId = id).addLog("temuan dibuat").toEntity())
+        }
+        dao.asetFotoOf(asetId).firstOrNull()?.let { f ->
+            runCatching {
+                val bytes = vault.read(f.path)
+                val bo = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bo)
+                addFoto(dinasId, OwnerType.TEMUAN, id, bytes, bo.outWidth, bo.outHeight, f.takenAt)
+            }
+        }
+        id
     }
 }

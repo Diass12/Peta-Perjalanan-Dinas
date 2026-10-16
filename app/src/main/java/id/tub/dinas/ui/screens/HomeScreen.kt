@@ -58,6 +58,14 @@ fun HomeScreen(vm: MainViewModel) {
                         }
                     }
                 }
+                item {
+                    val reg by vm.aset.register.collectAsState()
+                    val ditemukan = reg.count { it.state == id.tub.dinas.domain.AuditState.FOUND }
+                    Panel(onClick = { vm.push(Screen.Aset) }) {
+                        Text("Aset & Scan", style = MaterialTheme.typography.titleMedium)
+                        Text(if (reg.isEmpty()) "Register aset, scan kode TUB, audit fisik, ekspor Memo FAT" else "${reg.size} aset · $ditemukan ditemukan dalam audit", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
                 items(list, key = { it.id }) { d ->
                     val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)
                     Panel(onClick = { vm.tab = DetailTab.PETA; vm.push(Screen.Detail(d.id)) }) {

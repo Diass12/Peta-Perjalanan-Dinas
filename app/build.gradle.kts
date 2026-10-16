@@ -80,5 +80,7 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.exifinterface)
     implementation(libs.coroutines.android)
+    implementation(libs.mlkit.barcode)
+    implementation(libs.mlkit.text)
     testImplementation(libs.junit)
 }

@@ -90,6 +90,24 @@ interface AppDao {
     @Upsert suspend fun upsertPoinAll(e: List<PoinEntity>)
     @Query("DELETE FROM poin WHERE id = :id") suspend fun deletePoin(id: String)
 
+    // ---- aset (register)
+    @Query("SELECT * FROM aset ORDER BY ord, name") fun observeAset(): Flow<List<AsetEntity>>
+    @Query("SELECT * FROM aset ORDER BY ord, name") suspend fun asetList(): List<AsetEntity>
+    @Query("SELECT * FROM aset WHERE id = :id") suspend fun asetById(id: String): AsetEntity?
+    @Upsert suspend fun upsertAset(e: AsetEntity)
+    @Upsert suspend fun upsertAsetAll(e: List<AsetEntity>)
+    @Query("DELETE FROM aset WHERE id = :id") suspend fun deleteAset(id: String)
+    @Query("SELECT COALESCE(MAX(ord), 0) FROM aset") suspend fun maxAsetOrd(): Int
+    @Query("UPDATE aset SET state = 'PENDING', auditedAt = NULL") suspend fun resetAudit()
+    @Query("SELECT * FROM aset_foto ORDER BY asetId, urutan") fun observeAsetFoto(): Flow<List<AsetFotoEntity>>
+    @Query("SELECT * FROM aset_foto ORDER BY asetId, urutan") suspend fun asetFotoAll(): List<AsetFotoEntity>
+    @Query("SELECT * FROM aset_foto WHERE asetId = :asetId ORDER BY urutan") suspend fun asetFotoOf(asetId: String): List<AsetFotoEntity>
+    @Query("SELECT * FROM aset_foto WHERE id = :id") suspend fun asetFotoById(id: String): AsetFotoEntity?
+    @Upsert suspend fun upsertAsetFoto(e: AsetFotoEntity)
+    @Upsert suspend fun upsertAsetFotoAll(e: List<AsetFotoEntity>)
+    @Query("DELETE FROM aset_foto WHERE id = :id") suspend fun deleteAsetFoto(id: String)
+    @Query("SELECT path FROM aset_foto") suspend fun allAsetFotoPaths(): List<String>
+
     // ---- pembersihan berkas yatim
     @Query("SELECT path FROM foto") suspend fun allFotoPaths(): List<String>
     @Query("SELECT path FROM lampiran") suspend fun allLampiranPaths(): List<String>

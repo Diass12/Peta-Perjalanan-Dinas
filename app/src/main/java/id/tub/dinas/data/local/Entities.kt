@@ -120,3 +120,52 @@ data class MediaEntity(
     val createdAt: Long,
     val urutan: Int,
 )
+
+@Entity(tableName = "aset", indices = [Index("code")])
+data class AsetEntity(
+    @PrimaryKey val id: String,
+    val ord: Int,
+    val code: String,
+    val name: String,
+    val category: String,
+    val classif: String,
+    val owner: String,
+    val tenure: String,
+    val dept: String,
+    val location: String,
+    val pengguna: String,
+    val cond: String,
+    val acq: String,
+    val checkDate: String,
+    val remarks: String,
+    val nbv: Double?,
+    val harga: Double?,
+    val masa: Int?,
+    val tglTercatat: String,
+    val nbvKet: String,
+    val catatan: String,
+    val sumber: String,
+    val srcStatus: String,
+    val barcode: String,
+    val barcodeSrc: String,
+    val pcodes: String,
+    val state: String,
+    val auditedAt: Long?,
+    val log: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val temuanId: String?,
+)
+
+@Entity(
+    tableName = "aset_foto",
+    foreignKeys = [ForeignKey(AsetEntity::class, ["id"], ["asetId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("asetId")],
+)
+data class AsetFotoEntity(
+    @PrimaryKey val id: String,
+    val asetId: String,
+    val path: String,
+    val urutan: Int,
+    val takenAt: Long?,
+)

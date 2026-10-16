@@ -24,13 +24,13 @@ object BackupCodec {
     private const val MAX_ENTRIES = 20000
     private val rnd = SecureRandom()
 
-    data class Restored(val snapshots: List<DinasSnapshot>, val mediaCount: Int)
+    data class Restored(val snapshots: List<DinasSnapshot>, val mediaCount: Int, val assets: List<AsetBundle> = emptyList())
 
-    fun write(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, passphrase: CharArray?) {
+    fun write(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, passphrase: CharArray?, assets: List<AsetBundle> = emptyList()) {
         out.write(MAGIC)
         if (passphrase == null || passphrase.isEmpty()) {
             out.write(0)
-            zip(snaps, vault, out)
+            zip(snaps, vault, out, assets)
         } else {
             out.write(1)
             val salt = ByteArray(16).also { rnd.nextBytes(it) }
@@ -38,17 +38,17 @@ object BackupCodec {
             val key = ChunkedCrypto.deriveKey(passphrase, salt)
             val tmp = File.createTempFile("bak_", ".zip")
             try {
-                tmp.outputStream().use { zip(snaps, vault, it) }
+                tmp.outputStream().use { zip(snaps, vault, it, assets) }
                 tmp.inputStream().use { ChunkedCrypto.encrypt(key, it, out) }
             } finally { tmp.delete(); key.fill(0) }
         }
         out.flush()
     }
 
-    private fun zip(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream) {
+    private fun zip(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, assets: List<AsetBundle>) {
         val zos = ZipOutputStream(BufferedOutputStream(out))
         zos.putNextEntry(ZipEntry("data.json"))
-        zos.write(MiniJson.write(toJson(snaps)).toByteArray(Charsets.UTF_8))
+        zos.write(MiniJson.write(toJson(snaps, assets)).toByteArray(Charsets.UTF_8))
         zos.closeEntry()
         zos.setLevel(java.util.zip.Deflater.BEST_SPEED)
         val seen = HashSet<String>()
@@ -66,6 +66,12 @@ object BackupCodec {
                 vault.readTo(mm.path, zos)
                 zos.closeEntry()
             }
+        }
+        for (b in assets) for (f in b.fotos) {
+            if (!seen.add(f.path) || !vault.exists(f.path)) continue
+            zos.putNextEntry(ZipEntry("media/${f.path}"))
+            zos.write(vault.read(f.path))
+            zos.closeEntry()
         }
         zos.finish()
         zos.flush()
@@ -124,8 +130,8 @@ object BackupCodec {
                 }
             }
             val j = json ?: throw IOException("data.json tidak ada di cadangan")
-            val snaps = fromJson(MiniJson.parse(j))
-            return Restored(snaps, media)
+            val root = MiniJson.parse(j)
+            return Restored(fromJson(root), media, assetsFromJson(root))
         } catch (e: Exception) {
             written.forEach { vault.delete(it) }
             if (e is IOException) throw e
@@ -142,7 +148,8 @@ object BackupCodec {
     // ---------- JSON ----------
     private fun geo(g: GeoPoint?): Any? = g?.let { mapOf("lat" to it.lat, "lng" to it.lng, "acc" to it.accuracyM, "src" to it.source) }
 
-    fun toJson(snaps: List<DinasSnapshot>): Map<String, Any?> = mapOf(
+    fun toJson(snaps: List<DinasSnapshot>, assets: List<AsetBundle> = emptyList()): Map<String, Any?> = mapOf(
+        "aset" to assets.map { asetJson(it) },
         "format" to "dinas-backup", "version" to 1,
         "dinas" to snaps.map { s ->
             mapOf(
@@ -204,5 +211,34 @@ object BackupCodec {
                     MediaModel(s(o["id"]), if (o["type"] == "TEMUAN") OwnerType.TEMUAN else OwnerType.TITIK, s(o["owner"]), MediaKind.from(sn(o["kind"])), safePath(s(o["path"])), s(o["name"]), n(o["size"]) ?: 0L, n(o["at"]) ?: 0L, i(o["order"])) },
             )
         }
+    }
+
+    private fun asetJson(b: AsetBundle): Map<String, Any?> {
+        val a = b.aset
+        return mapOf(
+            "id" to a.id, "ord" to a.order, "code" to a.code, "name" to a.name, "cat" to a.category, "classif" to a.classif,
+            "owner" to a.owner, "tenure" to a.tenure, "dept" to a.dept, "loc" to a.location, "user" to a.user, "cond" to a.cond,
+            "acq" to a.acq, "check" to a.checkDate, "remarks" to a.remarks, "nbv" to a.nbv, "harga" to a.harga, "masa" to a.masa,
+            "tgl" to a.tglTercatat, "nbvKet" to a.nbvKet, "catatan" to a.catatan, "sumber" to a.sumber, "src" to a.srcStatus,
+            "barcode" to a.barcode?.name, "bsrc" to a.barcodeSrc.name, "pcodes" to a.pcodes, "state" to a.state.name,
+            "audited" to a.auditedAt, "log" to a.log, "created" to a.createdAt, "updated" to a.updatedAt, "temuan" to a.temuanId,
+            "foto" to b.fotos.map { mapOf("id" to it.id, "path" to it.path, "order" to it.order, "taken" to it.takenAt) },
+        )
+    }
+
+    /** Cadangan lama tanpa kunci "aset" menghasilkan daftar kosong. */
+    fun assetsFromJson(root: Any?): List<AsetBundle> = l(m(root)["aset"]).map { x ->
+        val o = m(x)
+        val id = s(o["id"]).ifEmpty { throw IllegalArgumentException("id aset kosong") }
+        val a = AsetModel(
+            id, i(o["ord"]), s(o["code"]), s(o["name"]), s(o["cat"]).ifEmpty { "other" }, s(o["classif"]), s(o["owner"]), s(o["tenure"]).ifEmpty { "own" },
+            s(o["dept"]), s(o["loc"]), s(o["user"]), s(o["cond"]), s(o["acq"]), s(o["check"]), s(o["remarks"]),
+            (o["nbv"] as? Number)?.toDouble(), (o["harga"] as? Number)?.toDouble(), (o["masa"] as? Number)?.toInt(),
+            s(o["tgl"]), s(o["nbvKet"]), s(o["catatan"]), s(o["sumber"]), s(o["src"]),
+            StatusBarcode.from(sn(o["barcode"])), SumberBarcode.from(sn(o["bsrc"])), l(o["pcodes"]).mapNotNull { it as? String },
+            AuditState.from(sn(o["state"])), n(o["audited"]), l(o["log"]).mapNotNull { it as? String },
+            n(o["created"]) ?: 0L, n(o["updated"]) ?: 0L, sn(o["temuan"]),
+        )
+        AsetBundle(a, l(o["foto"]).map { fx -> val f = m(fx); AsetFotoModel(s(f["id"]), id, safePath(s(f["path"])), i(f["order"]), n(f["taken"])) })
     }
 }
