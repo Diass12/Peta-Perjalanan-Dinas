@@ -185,3 +185,64 @@ data class AsetMediaEntity(
     val createdAt: Long,
     val urutan: Int,
 )
+
+@Entity(tableName = "uang_muka")
+data class UangMukaEntity(
+    @PrimaryKey val id: String,
+    val nomor: String,
+    val judul: String,
+    val dinasId: String?,
+    val pemohon: String,
+    val tglPengajuan: String,
+    val jumlahDiajukan: Double,
+    val tglCair: String,
+    val jumlahCair: Double,
+    val catatan: String,
+    val status: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+)
+
+@Entity(
+    tableName = "um_bon",
+    foreignKeys = [ForeignKey(UangMukaEntity::class, ["id"], ["umId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("umId")],
+)
+data class UmBonEntity(
+    @PrimaryKey val id: String,
+    val umId: String,
+    val tanggal: String,
+    val kategori: String,
+    val uraian: String,
+    val jumlah: Double,
+    val urutan: Int,
+    val createdAt: Long,
+)
+
+@Entity(
+    tableName = "um_foto",
+    foreignKeys = [ForeignKey(UmBonEntity::class, ["id"], ["bonId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("bonId")],
+)
+data class UmFotoEntity(
+    @PrimaryKey val id: String,
+    val bonId: String,
+    val path: String,
+    val urutan: Int,
+)
+
+@Entity(tableName = "jadwal")
+data class JadwalEntity(
+    @PrimaryKey val id: String,
+    val judul: String,
+    val jenis: String,
+    val tanggal: String,
+    val jamMulai: String,
+    val jamSelesai: String,
+    val lokasi: String,
+    val peserta: String,
+    val catatan: String,
+    val selesai: Boolean,
+    val createdAt: Long,
+    val updatedAt: Long,
+)

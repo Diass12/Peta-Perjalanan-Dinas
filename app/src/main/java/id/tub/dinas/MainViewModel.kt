@@ -37,6 +37,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var lockTimeoutSec by mutableStateOf(settings.lockTimeoutSec)
 
     val aset by lazy { id.tub.dinas.aset.AsetController(this) }
+    val um by lazy { id.tub.dinas.um.UmController(this) }
+    val jadwal by lazy { id.tub.dinas.um.JadwalController(this) }
 
     val dinasList = repo.observeDinas().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 

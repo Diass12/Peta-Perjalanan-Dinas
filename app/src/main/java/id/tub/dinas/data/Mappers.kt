@@ -47,3 +47,12 @@ fun AsetFotoModel.toEntity() = AsetFotoEntity(id, asetId, path, order, takenAt)
 
 fun AsetMediaEntity.toModel() = AsetMediaModel(id, asetId, kind, path, name, sizeBytes, createdAt, urutan)
 fun AsetMediaModel.toEntity() = AsetMediaEntity(id, asetId, kind, path, name, sizeBytes, createdAt, order)
+
+fun UangMukaEntity.toModel() = UangMukaModel(id, nomor, judul, dinasId, pemohon, tglPengajuan, jumlahDiajukan, tglCair, jumlahCair, catatan, UmStatus.from(status), createdAt, updatedAt)
+fun UangMukaModel.toEntity() = UangMukaEntity(id, nomor, judul, dinasId, pemohon, tglPengajuan, jumlahDiajukan, tglCair, jumlahCair, catatan, status.name, createdAt, updatedAt)
+fun UmBonEntity.toModel() = BonModel(id, umId, tanggal, BonKategori.from(kategori), uraian, jumlah, urutan, createdAt)
+fun BonModel.toEntity() = UmBonEntity(id, umId, tanggal, kategori.name, uraian, jumlah, order, createdAt)
+fun UmFotoEntity.toModel() = BonFotoModel(id, bonId, path, urutan)
+fun BonFotoModel.toEntity() = UmFotoEntity(id, bonId, path, order)
+fun JadwalEntity.toModel() = JadwalModel(id, judul, JadwalJenis.from(jenis), tanggal, jamMulai, jamSelesai, lokasi, peserta, catatan, selesai, createdAt, updatedAt)
+fun JadwalModel.toEntity() = JadwalEntity(id, judul, jenis.name, tanggal, jamMulai, jamSelesai, lokasi, peserta, catatan, selesai, createdAt, updatedAt)

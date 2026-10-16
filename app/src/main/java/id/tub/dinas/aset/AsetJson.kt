@@ -19,7 +19,7 @@ object AsetJson {
         val w = JsonWriter(java.io.OutputStreamWriter(java.io.BufferedOutputStream(out, 64 * 1024), Charsets.UTF_8))
         w.setIndent("")
         w.beginObject()
-        w.name("app").value("asetscan"); w.name("v").value(2); w.name("at").value(Instant.now().toString())
+        w.name("app").value("asetscan"); w.name("v").value(2L); w.name("at").value(Instant.now().toString())
         w.name("master").beginObject()
         w.name("company").value(daftar.map { it.owner }.filter { it.isNotBlank() }.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key ?: "PT TRI USAHA BARU")
         w.name("classes").beginArray()

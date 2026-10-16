@@ -24,13 +24,13 @@ object BackupCodec {
     private const val MAX_ENTRIES = 20000
     private val rnd = SecureRandom()
 
-    data class Restored(val snapshots: List<DinasSnapshot>, val mediaCount: Int, val assets: List<AsetBundle> = emptyList())
+    data class Restored(val snapshots: List<DinasSnapshot>, val mediaCount: Int, val assets: List<AsetBundle> = emptyList(), val um: List<UmBundle> = emptyList(), val jadwal: List<JadwalModel> = emptyList())
 
-    fun write(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, passphrase: CharArray?, assets: List<AsetBundle> = emptyList()) {
+    fun write(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, passphrase: CharArray?, assets: List<AsetBundle> = emptyList(), um: List<UmBundle> = emptyList(), jadwal: List<JadwalModel> = emptyList()) {
         out.write(MAGIC)
         if (passphrase == null || passphrase.isEmpty()) {
             out.write(0)
-            zip(snaps, vault, out, assets)
+            zip(snaps, vault, out, assets, um, jadwal)
         } else {
             out.write(1)
             val salt = ByteArray(16).also { rnd.nextBytes(it) }
@@ -38,17 +38,17 @@ object BackupCodec {
             val key = ChunkedCrypto.deriveKey(passphrase, salt)
             val tmp = File.createTempFile("bak_", ".zip")
             try {
-                tmp.outputStream().use { zip(snaps, vault, it, assets) }
+                tmp.outputStream().use { zip(snaps, vault, it, assets, um, jadwal) }
                 tmp.inputStream().use { ChunkedCrypto.encrypt(key, it, out) }
             } finally { tmp.delete(); key.fill(0) }
         }
         out.flush()
     }
 
-    private fun zip(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, assets: List<AsetBundle>) {
+    private fun zip(snaps: List<DinasSnapshot>, vault: MediaVault, out: OutputStream, assets: List<AsetBundle>, um: List<UmBundle>, jadwal: List<JadwalModel>) {
         val zos = ZipOutputStream(BufferedOutputStream(out))
         zos.putNextEntry(ZipEntry("data.json"))
-        zos.write(MiniJson.write(toJson(snaps, assets)).toByteArray(Charsets.UTF_8))
+        zos.write(MiniJson.write(toJson(snaps, assets, um, jadwal)).toByteArray(Charsets.UTF_8))
         zos.closeEntry()
         zos.setLevel(java.util.zip.Deflater.BEST_SPEED)
         val seen = HashSet<String>()
@@ -80,6 +80,12 @@ object BackupCodec {
                 vault.readTo(mm.path, zos)
                 zos.closeEntry()
             }
+        }
+        for (u in um) for (b in u.bons) for (f in b.fotos) {
+            if (!seen.add(f.path) || !vault.exists(f.path)) continue
+            zos.putNextEntry(ZipEntry("media/${f.path}"))
+            zos.write(vault.read(f.path))
+            zos.closeEntry()
         }
         zos.finish()
         zos.flush()
@@ -139,7 +145,7 @@ object BackupCodec {
             }
             val j = json ?: throw IOException("data.json tidak ada di cadangan")
             val root = MiniJson.parse(j)
-            return Restored(fromJson(root), media, assetsFromJson(root))
+            return Restored(fromJson(root), media, assetsFromJson(root), umFromJson(root), jadwalFromJson(root))
         } catch (e: Exception) {
             written.forEach { vault.delete(it) }
             if (e is IOException) throw e
@@ -156,8 +162,10 @@ object BackupCodec {
     // ---------- JSON ----------
     private fun geo(g: GeoPoint?): Any? = g?.let { mapOf("lat" to it.lat, "lng" to it.lng, "acc" to it.accuracyM, "src" to it.source) }
 
-    fun toJson(snaps: List<DinasSnapshot>, assets: List<AsetBundle> = emptyList()): Map<String, Any?> = mapOf(
+    fun toJson(snaps: List<DinasSnapshot>, assets: List<AsetBundle> = emptyList(), um: List<UmBundle> = emptyList(), jadwal: List<JadwalModel> = emptyList()): Map<String, Any?> = mapOf(
+        "jadwal" to jadwal.map { mapOf("id" to it.id, "judul" to it.judul, "jenis" to it.jenis.name, "tgl" to it.tanggal, "mulai" to it.jamMulai, "selesaiJam" to it.jamSelesai, "lokasi" to it.lokasi, "peserta" to it.peserta, "catatan" to it.catatan, "done" to it.selesai, "created" to it.createdAt, "updated" to it.updatedAt) },
         "aset" to assets.map { asetJson(it) },
+        "um" to um.map { umJson(it) },
         "format" to "dinas-backup", "version" to 1,
         "dinas" to snaps.map { s ->
             mapOf(
@@ -219,6 +227,41 @@ object BackupCodec {
                     MediaModel(s(o["id"]), if (o["type"] == "TEMUAN") OwnerType.TEMUAN else OwnerType.TITIK, s(o["owner"]), MediaKind.from(sn(o["kind"])), safePath(s(o["path"])), s(o["name"]), n(o["size"]) ?: 0L, n(o["at"]) ?: 0L, i(o["order"])) },
             )
         }
+    }
+
+    /** Cadangan lama tanpa kunci "jadwal" menghasilkan daftar kosong. */
+    fun jadwalFromJson(root: Any?): List<JadwalModel> = l(m(root)["jadwal"]).map { x ->
+        val o = m(x)
+        JadwalModel(s(o["id"]).ifEmpty { throw IllegalArgumentException("id jadwal kosong") }, s(o["judul"]), JadwalJenis.from(sn(o["jenis"])), s(o["tgl"]), s(o["mulai"]), s(o["selesaiJam"]),
+            s(o["lokasi"]), s(o["peserta"]), s(o["catatan"]), o["done"] == true, n(o["created"]) ?: 0L, n(o["updated"]) ?: 0L)
+    }
+
+    private fun umJson(b: UmBundle): Map<String, Any?> {
+        val u = b.um
+        return mapOf(
+            "id" to u.id, "nomor" to u.nomor, "judul" to u.judul, "dinas" to u.dinasId, "pemohon" to u.pemohon,
+            "tgl" to u.tglPengajuan, "diajukan" to u.jumlahDiajukan, "tglCair" to u.tglCair, "cair" to u.jumlahCair,
+            "catatan" to u.catatan, "status" to u.status.name, "created" to u.createdAt, "updated" to u.updatedAt,
+            "bon" to b.bons.map { bb ->
+                mapOf("id" to bb.bon.id, "tgl" to bb.bon.tanggal, "kat" to bb.bon.kategori.name, "uraian" to bb.bon.uraian, "jumlah" to bb.bon.jumlah,
+                    "order" to bb.bon.order, "created" to bb.bon.createdAt,
+                    "foto" to bb.fotos.map { mapOf("id" to it.id, "path" to it.path, "order" to it.order) })
+            },
+        )
+    }
+
+    /** Cadangan lama tanpa kunci "um" menghasilkan daftar kosong. */
+    fun umFromJson(root: Any?): List<UmBundle> = l(m(root)["um"]).map { x ->
+        val o = m(x)
+        val id = s(o["id"]).ifEmpty { throw IllegalArgumentException("id uang muka kosong") }
+        val u = UangMukaModel(id, s(o["nomor"]), s(o["judul"]), sn(o["dinas"]), s(o["pemohon"]), s(o["tgl"]),
+            (o["diajukan"] as? Number)?.toDouble() ?: 0.0, s(o["tglCair"]), (o["cair"] as? Number)?.toDouble() ?: 0.0,
+            s(o["catatan"]), UmStatus.from(sn(o["status"])), n(o["created"]) ?: 0L, n(o["updated"]) ?: 0L)
+        UmBundle(u, l(o["bon"]).map { bx ->
+            val q = m(bx); val bid = s(q["id"]).ifEmpty { throw IllegalArgumentException("id bon kosong") }
+            BonBundle(BonModel(bid, id, s(q["tgl"]), BonKategori.from(sn(q["kat"])), s(q["uraian"]), (q["jumlah"] as? Number)?.toDouble() ?: 0.0, i(q["order"]), n(q["created"]) ?: 0L),
+                l(q["foto"]).map { fx -> val f = m(fx); BonFotoModel(s(f["id"]), bid, safePath(s(f["path"])), i(f["order"])) })
+        })
     }
 
     private fun asetJson(b: AsetBundle): Map<String, Any?> {

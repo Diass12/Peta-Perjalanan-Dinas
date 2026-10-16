@@ -117,6 +117,38 @@ interface AppDao {
     @Query("DELETE FROM aset_media WHERE id = :id") suspend fun deleteAsetMedia(id: String)
     @Query("SELECT path FROM aset_media") suspend fun allAsetMediaPaths(): List<String>
 
+    // ---- uang muka
+    @Query("SELECT * FROM uang_muka ORDER BY tglPengajuan DESC, createdAt DESC") fun observeUm(): Flow<List<UangMukaEntity>>
+    @Query("SELECT * FROM uang_muka ORDER BY tglPengajuan DESC, createdAt DESC") suspend fun umAll(): List<UangMukaEntity>
+    @Query("SELECT * FROM uang_muka WHERE id = :id") suspend fun umById(id: String): UangMukaEntity?
+    @Upsert suspend fun upsertUm(e: UangMukaEntity)
+    @Upsert suspend fun upsertUmAll(e: List<UangMukaEntity>)
+    @Query("DELETE FROM uang_muka WHERE id = :id") suspend fun deleteUm(id: String)
+    @Query("SELECT * FROM um_bon ORDER BY umId, tanggal, urutan") fun observeBon(): Flow<List<UmBonEntity>>
+    @Query("SELECT * FROM um_bon ORDER BY umId, tanggal, urutan") suspend fun bonAll(): List<UmBonEntity>
+    @Query("SELECT * FROM um_bon WHERE id = :id") suspend fun bonById(id: String): UmBonEntity?
+    @Query("SELECT * FROM um_bon WHERE umId = :umId") suspend fun bonOfUm(umId: String): List<UmBonEntity>
+    @Upsert suspend fun upsertBon(e: UmBonEntity)
+    @Upsert suspend fun upsertBonAll(e: List<UmBonEntity>)
+    @Query("DELETE FROM um_bon WHERE id = :id") suspend fun deleteBon(id: String)
+    @Query("SELECT COALESCE(MAX(urutan), -1) FROM um_bon WHERE umId = :umId") suspend fun maxBonOrd(umId: String): Int
+    @Query("SELECT * FROM um_foto ORDER BY bonId, urutan") fun observeBonFoto(): Flow<List<UmFotoEntity>>
+    @Query("SELECT * FROM um_foto ORDER BY bonId, urutan") suspend fun bonFotoAll(): List<UmFotoEntity>
+    @Query("SELECT * FROM um_foto WHERE id = :id") suspend fun bonFotoById(id: String): UmFotoEntity?
+    @Query("SELECT * FROM um_foto WHERE bonId = :bonId ORDER BY urutan") suspend fun bonFotoOf(bonId: String): List<UmFotoEntity>
+    @Upsert suspend fun upsertBonFoto(e: UmFotoEntity)
+    @Upsert suspend fun upsertBonFotoAll(e: List<UmFotoEntity>)
+    @Query("DELETE FROM um_foto WHERE id = :id") suspend fun deleteBonFoto(id: String)
+    @Query("SELECT path FROM um_foto") suspend fun allUmFotoPaths(): List<String>
+
+    // ---- jadwal
+    @Query("SELECT * FROM jadwal ORDER BY tanggal, jamMulai, createdAt") fun observeJadwal(): Flow<List<JadwalEntity>>
+    @Query("SELECT * FROM jadwal ORDER BY tanggal, jamMulai, createdAt") suspend fun jadwalAll(): List<JadwalEntity>
+    @Query("SELECT * FROM jadwal WHERE id = :id") suspend fun jadwalById(id: String): JadwalEntity?
+    @Upsert suspend fun upsertJadwal(e: JadwalEntity)
+    @Upsert suspend fun upsertJadwalAll(e: List<JadwalEntity>)
+    @Query("DELETE FROM jadwal WHERE id = :id") suspend fun deleteJadwal(id: String)
+
     // ---- pembersihan berkas yatim
     @Query("SELECT path FROM foto") suspend fun allFotoPaths(): List<String>
     @Query("SELECT path FROM lampiran") suspend fun allLampiranPaths(): List<String>

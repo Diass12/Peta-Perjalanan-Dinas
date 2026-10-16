@@ -228,7 +228,7 @@ class Repository(
     suspend fun exportBackup(out: OutputStream, passphrase: CharArray?) = withContext(Dispatchers.IO) {
         val ids = dao.observeDinasOnce()
         val snaps = ids.mapNotNull { snapshot(it.id) }
-        BackupCodec.write(snaps, vault, out, passphrase, asetBundles())
+        BackupCodec.write(snaps, vault, out, passphrase, asetBundles(), umBundles(), jadwalList())
     }
 
     /** Mengembalikan jumlah dinas yang dipulihkan. Dinas ber-ID sama akan ditimpa. */
@@ -249,13 +249,17 @@ class Repository(
             dao.upsertAsetAll(r.assets.map { it.aset.toEntity() })
             dao.upsertAsetFotoAll(r.assets.flatMap { b -> b.fotos.map { it.toEntity() } })
             dao.upsertAsetMediaAll(r.assets.flatMap { b -> b.media.map { it.toEntity() } })
+            dao.upsertJadwalAll(r.jadwal.map { it.toEntity() })
+            dao.upsertUmAll(r.um.map { it.um.toEntity() })
+            dao.upsertBonAll(r.um.flatMap { u -> u.bons.map { it.bon.toEntity() } })
+            dao.upsertBonFotoAll(r.um.flatMap { u -> u.bons.flatMap { b -> b.fotos.map { it.toEntity() } } })
         }
         r.snapshots.size
     }
 
     /** Menghapus berkas terenkripsi yang tidak dirujuk database (sisa proses yang terhenti). */
     suspend fun cleanOrphans(): Int = withContext(Dispatchers.IO) {
-        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths() + dao.allAsetFotoPaths() + dao.allAsetMediaPaths()).toSet()
+        val used = (dao.allFotoPaths() + dao.allLampiranPaths() + dao.allMediaPaths() + dao.allAsetFotoPaths() + dao.allAsetMediaPaths() + dao.allUmFotoPaths()).toSet()
         vault.deleteOrphans(used)
     }
 
@@ -360,4 +364,75 @@ class Repository(
         }
         id
     }
+
+    // ---------- uang muka & bon ----------
+    private fun bundleUm(um: List<UangMukaEntity>, bon: List<UmBonEntity>, foto: List<UmFotoEntity>): List<UmBundle> {
+        val fotoBy = foto.groupBy { it.bonId }
+        val bonBy = bon.groupBy { it.umId }
+        return um.map { u -> UmBundle(u.toModel(), bonBy[u.id].orEmpty().map { b -> BonBundle(b.toModel(), fotoBy[b.id].orEmpty().map { it.toModel() }) }) }
+    }
+
+    fun observeUmBundles(): Flow<List<UmBundle>> = combine(dao.observeUm(), dao.observeBon(), dao.observeBonFoto()) { u, b, f -> bundleUm(u, b, f) }
+
+    suspend fun umBundles(): List<UmBundle> = withContext(Dispatchers.IO) { bundleUm(dao.umAll(), dao.bonAll(), dao.bonFotoAll()) }
+
+    /** Id kosong = pengajuan baru. */
+    suspend fun saveUm(m: UangMukaModel): String = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        val id = m.id.ifEmpty { uid() }
+        val old = dao.umById(id)
+        dao.upsertUm(m.copy(id = id, createdAt = old?.createdAt ?: now, updatedAt = now).toEntity())
+        id
+    }
+
+    suspend fun deleteUm(id: String) = withContext(Dispatchers.IO) {
+        val paths = dao.bonOfUm(id).flatMap { b -> dao.bonFotoOf(b.id).map { it.path } }
+        dao.deleteUm(id)
+        paths.forEach { vault.delete(it) }
+    }
+
+    suspend fun saveBon(m: BonModel): String = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        val id = m.id.ifEmpty { uid() }
+        val old = dao.bonById(id)
+        val order = old?.urutan ?: (dao.maxBonOrd(m.umId) + 1)
+        dao.upsertBon(m.copy(id = id, order = order, createdAt = old?.createdAt ?: now).toEntity())
+        id
+    }
+
+    suspend fun deleteBon(id: String) = withContext(Dispatchers.IO) {
+        val paths = dao.bonFotoOf(id).map { it.path }
+        dao.deleteBon(id)
+        paths.forEach { vault.delete(it) }
+    }
+
+    suspend fun addBonFoto(bonId: String, jpeg: ByteArray): String = withContext(Dispatchers.IO) {
+        val path = vault.save(jpeg, "bon", "jpg")
+        try {
+            val id = uid()
+            val order = (dao.bonFotoOf(bonId).maxOfOrNull { it.urutan } ?: -1) + 1
+            dao.upsertBonFoto(UmFotoEntity(id, bonId, path, order))
+            id
+        } catch (e: Exception) { vault.delete(path); throw e }
+    }
+
+    suspend fun deleteBonFoto(id: String) = withContext(Dispatchers.IO) {
+        val f = dao.bonFotoById(id) ?: return@withContext
+        dao.deleteBonFoto(id); vault.delete(f.path)
+    }
+
+    // ---------- jadwal ----------
+    fun observeJadwal(): Flow<List<JadwalModel>> = dao.observeJadwal().map { l -> l.map { it.toModel() } }
+    suspend fun jadwalList(): List<JadwalModel> = withContext(Dispatchers.IO) { dao.jadwalAll().map { it.toModel() } }
+
+    /** Id kosong = jadwal baru. */
+    suspend fun saveJadwal(m: JadwalModel): String = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        val id = m.id.ifEmpty { uid() }
+        val old = dao.jadwalById(id)
+        dao.upsertJadwal(m.copy(id = id, createdAt = old?.createdAt ?: now, updatedAt = now).toEntity())
+        id
+    }
+
+    suspend fun deleteJadwal(id: String) = withContext(Dispatchers.IO) { dao.deleteJadwal(id) }
 }

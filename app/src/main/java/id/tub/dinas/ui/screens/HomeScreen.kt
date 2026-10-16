@@ -28,22 +28,37 @@ fun HomeScreen(vm: MainViewModel) {
     Column(Modifier.fillMaxSize().background(C.Bg)) {
         GameHeader(rememberPlayer(vm)) { Pic(id.tub.dinas.R.drawable.ic_setting, 30.dp, Modifier.clickable { vm.push(Screen.Settings) }) }
         Box(Modifier.weight(1f)) {
-            if (list.isEmpty()) Empty("Belum ada dinas. Ketuk “+ Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan laporan.")
-            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                item {
-                  Box {
-                    androidx.compose.foundation.Image(
-                        androidx.compose.ui.res.painterResource(id.tub.dinas.R.drawable.peta_indonesia), null,
-                        Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(20.dp)).border(1.dp, Color(0x886FD8FF), RoundedCornerShape(20.dp)),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop, alignment = androidx.compose.ui.Alignment.CenterEnd)
-                  }
-                }
+                        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 item {
                     val reg by vm.aset.register.collectAsState()
                     val ditemukan = reg.count { it.state == id.tub.dinas.domain.AuditState.FOUND }
                     Panel(onClick = { vm.push(Screen.Aset) }) {
                         Text("Aset & Scan", style = MaterialTheme.typography.titleMedium)
                         Text(if (reg.isEmpty()) "Register aset, scan kode TUB, audit fisik, ekspor Memo FAT" else "${reg.size} aset · $ditemukan ditemukan dalam audit", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                item {
+                    Panel(onClick = { creating = true }) {
+                        Text("+ Dinas baru", style = MaterialTheme.typography.titleMedium)
+                        Text("Catat titik dokumentasi dan temuan laporan perjalanan dinas", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                item {
+                    val um by vm.um.bundles.collectAsState()
+                    Panel(onClick = { vm.push(Screen.UangMuka) }) {
+                        Text("Uang Muka & Realisasi", style = MaterialTheme.typography.titleMedium)
+                        val belum = um.count { it.um.status != id.tub.dinas.domain.UmStatus.SELESAI }
+                        Text(if (um.isEmpty()) "Catat pengajuan uang muka dan foto bon realisasi" else "${um.size} pengajuan · $belum belum selesai direalisasi", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                item {
+                    val jd by vm.jadwal.daftar.collectAsState()
+                    val hariIni = id.tub.dinas.um.todayIso()
+                    val depan = jd.filter { !it.selesai && it.tanggal >= hariIni }
+                    Panel(onClick = { vm.push(Screen.Jadwal) }) {
+                        Text("Jadwal", style = MaterialTheme.typography.titleMedium)
+                        val next = depan.firstOrNull()
+                        Text(if (jd.isEmpty()) "Rekap jadwal audit, meeting, tenggat, dan agenda lainnya" else if (next == null) "${jd.size} agenda · tidak ada yang akan datang" else "${depan.size} akan datang · berikutnya: ${next.judul} (${id.tub.dinas.um.fmtTgl(next.tanggal)})", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 items(list, key = { it.id }) { d ->
@@ -57,9 +72,6 @@ fun HomeScreen(vm: MainViewModel) {
                     }
                 }
             }
-        }
-        Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) {
-            AmberButton("+ Dinas baru", Modifier.fillMaxWidth()) { creating = true }
         }
     }
     if (creating) DinasDialog(null, onDismiss = { creating = false }) { name, s, e, note ->

@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 @Database(
-    entities = [DinasEntity::class, TitikEntity::class, TemuanEntity::class, FotoEntity::class, LampiranEntity::class, PoinEntity::class, MediaEntity::class, AsetEntity::class, AsetFotoEntity::class, AsetMediaEntity::class],
-    version = 4,
+    entities = [DinasEntity::class, TitikEntity::class, TemuanEntity::class, FotoEntity::class, LampiranEntity::class, PoinEntity::class, MediaEntity::class, AsetEntity::class, AsetFotoEntity::class, AsetMediaEntity::class, UangMukaEntity::class, UmBonEntity::class, UmFotoEntity::class, JadwalEntity::class],
+    version = 5,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,12 +46,28 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) { db.execSQL(SQL_ASET_MEDIA); db.execSQL(SQL_ASET_MEDIA_IDX) }
         }
 
+        /** SQL v5: uang muka, bon, foto bon. */
+        const val SQL_UM = "CREATE TABLE IF NOT EXISTS `uang_muka` (`id` TEXT NOT NULL, `nomor` TEXT NOT NULL, `judul` TEXT NOT NULL, `dinasId` TEXT, `pemohon` TEXT NOT NULL, `tglPengajuan` TEXT NOT NULL, `jumlahDiajukan` REAL NOT NULL, `tglCair` TEXT NOT NULL, `jumlahCair` REAL NOT NULL, `catatan` TEXT NOT NULL, `status` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+        const val SQL_UM_BON = "CREATE TABLE IF NOT EXISTS `um_bon` (`id` TEXT NOT NULL, `umId` TEXT NOT NULL, `tanggal` TEXT NOT NULL, `kategori` TEXT NOT NULL, `uraian` TEXT NOT NULL, `jumlah` REAL NOT NULL, `urutan` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`umId`) REFERENCES `uang_muka`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+        const val SQL_UM_BON_IDX = "CREATE INDEX IF NOT EXISTS `index_um_bon_umId` ON `um_bon` (`umId`)"
+        const val SQL_UM_FOTO = "CREATE TABLE IF NOT EXISTS `um_foto` (`id` TEXT NOT NULL, `bonId` TEXT NOT NULL, `path` TEXT NOT NULL, `urutan` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`bonId`) REFERENCES `um_bon`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+        const val SQL_UM_FOTO_IDX = "CREATE INDEX IF NOT EXISTS `index_um_foto_bonId` ON `um_foto` (`bonId`)"
+
+        const val SQL_JADWAL = "CREATE TABLE IF NOT EXISTS `jadwal` (`id` TEXT NOT NULL, `judul` TEXT NOT NULL, `jenis` TEXT NOT NULL, `tanggal` TEXT NOT NULL, `jamMulai` TEXT NOT NULL, `jamSelesai` TEXT NOT NULL, `lokasi` TEXT NOT NULL, `peserta` TEXT NOT NULL, `catatan` TEXT NOT NULL, `selesai` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+
+        /** v4 -> v5: tabel uang muka dan jadwal. Data lama tidak disentuh. */
+        val MIGRATION_4_5 = object : androidx.room.migration.Migration(4, 5) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL(SQL_UM); db.execSQL(SQL_UM_BON); db.execSQL(SQL_UM_BON_IDX); db.execSQL(SQL_UM_FOTO); db.execSQL(SQL_UM_FOTO_IDX); db.execSQL(SQL_JADWAL)
+            }
+        }
+
         /** Database dienkripsi SQLCipher. Tidak ada fallbackToDestructiveMigration: data pengguna tidak boleh hilang diam-diam. */
         fun open(ctx: Context, key: ByteArray): AppDatabase {
             System.loadLibrary("sqlcipher")
             return Room.databaseBuilder(ctx.applicationContext, AppDatabase::class.java, "dinas.db")
                 .openHelperFactory(SupportOpenHelperFactory(key))
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
         }
     }

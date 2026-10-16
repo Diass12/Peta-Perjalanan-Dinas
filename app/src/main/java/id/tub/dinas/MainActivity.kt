@@ -123,6 +123,8 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
         is Screen.Pdf -> PdfViewerScreen(vm, s)
         Screen.Settings -> SettingsScreen(vm)
         Screen.Aset -> AsetScreen(vm)
+        Screen.UangMuka -> UmScreen(vm)
+        Screen.Jadwal -> JadwalScreen(vm)
         is Screen.Present -> PresentationScreen(vm, s.dinasId)
     }
     vm.sharedText?.let { id.tub.dinas.ui.components.SharedLocationDialog(vm, it) }

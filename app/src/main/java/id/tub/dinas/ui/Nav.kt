@@ -7,6 +7,8 @@ sealed interface Screen {
     data class Pdf(val path: String, val name: String) : Screen
     data object Settings : Screen
     data object Aset : Screen
+    data object UangMuka : Screen
+    data object Jadwal : Screen
     data class Present(val dinasId: String) : Screen
 }
 
