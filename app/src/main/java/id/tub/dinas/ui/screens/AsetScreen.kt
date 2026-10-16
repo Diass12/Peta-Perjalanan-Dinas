@@ -42,15 +42,19 @@ fun AsetScreen(vm: MainViewModel) {
     val list by c.register.collectAsState()
     val fotos by c.fotos.collectAsState()
     val ctx = LocalContext.current
-    var exportDialog by remember { mutableStateOf(false) }
-    var exportReq by remember { mutableStateOf<Pair<Int, List<AsetModel>>?>(null) }
+    var exportFmt by remember { mutableStateOf<String?>(null) }          // xlsx | pdf | html | label (null = dialog tertutup)
+    var exportReq by remember { mutableStateOf<Triple<String, Int, List<AsetModel>>?>(null) }
     var resetAsk by remember { mutableStateOf(false) }
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris -> if (uris.isNotEmpty()) c.galeriUris = uris }
     val importPick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) c.siapkanImport(uri) }
-    val create = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { uri ->
+    fun jalankan(uri: android.net.Uri?) {
         val req = exportReq; exportReq = null
-        if (uri != null && req != null) c.exportMemo(uri, req.first, req.second)
+        if (uri == null || req == null) return
+        if (req.first == "xlsx") c.exportMemo(uri, req.second, req.third) else c.exportLain(uri, req.first, req.second, req.third)
     }
+    val createXlsx = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { jalankan(it) }
+    val createPdf = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { jalankan(it) }
+    val createHtml = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/html")) { jalankan(it) }
 
     val filtered = remember(list, c.query, c.kategori, c.barcode, c.auditFilter, c.peringatan, c.deptFilter, c.ownerFilter, fotos) { c.filtered(list) }
     var masterOpen by remember { mutableStateOf(false) }
@@ -64,8 +68,8 @@ fun AsetScreen(vm: MainViewModel) {
     val scanAudit = { c.auditMode = true; c.scannerBuka = true }
     val doGallery = { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
     val doImport = { importPick.launch(arrayOf("*/*")) }
-    val doExport = { exportDialog = true }
-    val doLabels = { vm.toast("Label QR: menyusul di pembaruan berikutnya") }
+    val doExport = { exportFmt = "xlsx" }
+    val doLabels = { exportFmt = "label" }
 
     Column(Modifier.fillMaxSize().background(A.Bg)) {
         Box(Modifier.weight(1f)) {
@@ -87,7 +91,7 @@ fun AsetScreen(vm: MainViewModel) {
         "foto" -> BulkFotoDialog(vm, list.filter { it.id in sel }.map { it.id }) { aksi = null }
         "status" -> BulkStatusDialog(vm, sel) { aksi = null }
         "hapus" -> Confirm("Hapus ${sel.size} aset?", "Aset terpilih dan semua fotonya dihapus permanen.", onConfirm = { c.bulkHapus(sel) }, onDismiss = { aksi = null })
-        "ekspor" -> { exportDialog = true; aksi = null }
+        "ekspor" -> { exportFmt = "xlsx"; aksi = null }
         "label" -> { doLabels(); aksi = null }
         else -> {}
     }
@@ -103,16 +107,24 @@ fun AsetScreen(vm: MainViewModel) {
     c.importState?.let { st -> ImportDialog(vm, st) }
     c.editing?.let { id -> AsetEditor(vm, id) }
 
-    if (exportDialog) ExportDialog(
-        total = list.size, terfilter = filtered.size, terpilih = sel.size,
-        onDismiss = { exportDialog = false },
-        onGo = { n, cakupan ->
-            exportDialog = false
-            val scope = when (cakupan) { 1 -> filtered; 2 -> list.filter { it.id in sel }; else -> list }
-            exportReq = n to scope
-            create.launch("Physical Check ${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.xlsx")
-        },
-    )
+    exportFmt?.let { fmt0 ->
+        ExportDialog(
+            awal = fmt0, total = list.size, terfilter = filtered.size, terpilih = sel.size,
+            onDismiss = { exportFmt = null },
+            onGo = { fmt, n, cakupan ->
+                exportFmt = null
+                val scope = when (cakupan) { 1 -> filtered; 2 -> list.filter { it.id in sel }; else -> list }
+                exportReq = Triple(fmt, n, scope)
+                val tgl = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+                when (fmt) {
+                    "xlsx" -> createXlsx.launch("Physical Check $tgl.xlsx")
+                    "pdf" -> createPdf.launch("Laporan Aset $tgl.pdf")
+                    "html" -> createHtml.launch("Laporan Aset $tgl.html")
+                    else -> createPdf.launch("Label QR Aset $tgl.pdf")
+                }
+            },
+        )
+    }
     if (resetAsk) Confirm("Sesi audit baru?", "Semua status audit dikembalikan ke “Belum”. Data aset dan foto tidak berubah.", "Mulai", onConfirm = { c.resetAudit() }, onDismiss = { resetAsk = false })
 }
 
@@ -167,26 +179,41 @@ private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
 }
 
 @Composable
-private fun ExportDialog(total: Int, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onGo: (Int, Int) -> Unit) {
+private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onGo: (String, Int, Int) -> Unit) {
+    var fmt by remember { mutableStateOf(awal) }
     var n by remember { mutableIntStateOf(2) }
     var cakupan by remember { mutableIntStateOf(if (terpilih > 0) 2 else 0) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Ekspor Excel (Memo FAT)") },
+        title = { Text(if (fmt == "label") "Cetak label QR" else "Ekspor laporan") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Tiga sheet: Tagged, Untagged, Belum Ada Kode Aset.", color = C.Muted)
+                Text("Format", style = MaterialTheme.typography.labelSmall)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Chip("Excel", fmt == "xlsx", onClick = { fmt = "xlsx" })
+                    Chip("PDF", fmt == "pdf", onClick = { fmt = "pdf" })
+                    Chip("HTML", fmt == "html", onClick = { fmt = "html" })
+                    Chip("Label QR", fmt == "label", onClick = { fmt = "label" })
+                }
+                Text(when (fmt) {
+                    "xlsx" -> "Memo FAT: tiga sheet Tagged, Untagged, Belum Ada Kode Aset."
+                    "pdf" -> "Daftar aset per baris dengan foto, siap cetak."
+                    "html" -> "Satu berkas mandiri dengan pencarian dan zoom foto; bisa dibuka di browser mana pun."
+                    else -> "PDF stiker label A4 (3 × 8) berisi QR kode aset. Hanya aset yang punya kode."
+                }, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                 Text("Cakupan", style = MaterialTheme.typography.labelSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Chip("Semua ($total)", cakupan == 0, onClick = { cakupan = 0 })
                     Chip("Terfilter ($terfilter)", cakupan == 1, onClick = { cakupan = 1 })
                     if (terpilih > 0) Chip("Terpilih ($terpilih)", cakupan == 2, onClick = { cakupan = 2 })
                 }
-                Text("Foto per aset", style = MaterialTheme.typography.labelSmall)
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { (1..4).forEach { k -> Chip("$k", n == k, onClick = { n = k }) } }
+                if (fmt != "label") {
+                    Text("Foto per aset", style = MaterialTheme.typography.labelSmall)
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { (if (fmt == "xlsx") 1..4 else 0..4).forEach { k -> Chip("$k", n == k, onClick = { n = k }) } }
+                }
             }
         },
-        confirmButton = { TextButton(onClick = { onGo(n, cakupan) }) { Text("Ekspor") } },
+        confirmButton = { TextButton(onClick = { onGo(fmt, if (fmt == "xlsx") n.coerceAtLeast(1) else n, cakupan) }) { Text(if (fmt == "label") "Buat label" else "Ekspor") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
     )
 }

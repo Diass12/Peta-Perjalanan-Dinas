@@ -55,6 +55,7 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
     val fotos = fotosAll[asetId].orEmpty()
 
     fun close() { c.editing = null; c.pendingNew = null }
+    val kartu = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri -> if (uri != null && existing != null) c.exportKartu(uri, existing) }
 
     var camPath by rememberSaveable { mutableStateOf<String?>(null) }
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
@@ -241,6 +242,7 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
 
                 if (isSaved) {
                     AmberButton(if (existing?.temuanId != null) "Buat temuan lagi di dinas…" else "Buat temuan lensa Aset di dinas…", Modifier.fillMaxWidth()) { temuanDlg = true }
+                    SoftButton("Unduh kartu aset (PDF)", Modifier.fillMaxWidth()) { kartu.launch("Aset ${(existing?.code ?: "").ifEmpty { "tanpa-kode" }}.pdf") }
                     SoftButton("Hapus aset", Modifier.fillMaxWidth(), danger = true) { delAsk = true }
                 }
                 Spacer(Modifier.height(24.dp))

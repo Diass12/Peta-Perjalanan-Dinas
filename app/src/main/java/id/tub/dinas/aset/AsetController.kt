@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import id.tub.dinas.MainViewModel
 import id.tub.dinas.domain.*
+import id.tub.dinas.export.AsetReports
 import id.tub.dinas.export.MemoFat
 import id.tub.dinas.media.PhotoPipeline
 import kotlinx.coroutines.Dispatchers
@@ -440,6 +441,36 @@ class AsetController(private val vm: MainViewModel) {
     }
 
     // ---------------- export ----------------
+
+    private fun company(daftar: List<AsetModel>) = daftar.map { it.owner }.filter { it.isNotBlank() }.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key ?: "PT TRI USAHA BARU"
+
+    /** format: pdf | html | label. */
+    fun exportLain(uri: Uri, format: String, maxFoto: Int, daftar: List<AsetModel>) = vm.work {
+        val fm = fotos.value
+        val co = company(daftar)
+        withContext(Dispatchers.IO) {
+            val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
+            val baca: (String) -> ByteArray? = { p -> runCatching { repo.vault.read(p) }.getOrNull() }
+            os.use {
+                when (format) {
+                    "pdf" -> AsetReports.laporanPdf(daftar, fm, co, maxFoto, baca, it)
+                    "html" -> AsetReports.laporanHtml(daftar, fm, co, maxFoto, baca, it)
+                    else -> AsetReports.labelPdf(daftar, co, it)
+                }
+            }
+        }
+        vm.toast(when (format) { "label" -> "Label QR tersimpan (${daftar.count { it.code.isNotBlank() }} label)"; "pdf" -> "PDF tersimpan (${daftar.size} aset)"; else -> "HTML tersimpan (${daftar.size} aset)" })
+    }
+
+    fun exportKartu(uri: Uri, a: AsetModel) = vm.work {
+        val fm = fotos.value[a.id].orEmpty()
+        withContext(Dispatchers.IO) {
+            val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
+            os.use { AsetReports.kartuPdf(a, fm, { p -> runCatching { repo.vault.read(p) }.getOrNull() }, it) }
+        }
+        vm.toast("Kartu aset tersimpan")
+    }
+
 
     fun exportMemo(uri: Uri, maxFoto: Int, daftar: List<AsetModel>) = vm.work {
         val bundles = fotos.value

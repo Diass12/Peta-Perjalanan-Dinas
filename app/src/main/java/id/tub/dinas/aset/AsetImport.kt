@@ -44,7 +44,7 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
             if (dryRun) return
             val a = m.copy(id = UUID.randomUUID().toString(), createdAt = System.currentTimeMillis()).addLog("diimpor")
             val id = repo.saveAset(a)
-            photos().forEach { repo.addAsetFoto(id, it, null) }
+            unik(photos()).forEach { repo.addAsetFoto(id, it, null) }
             index(a.copy(id = id))
             return
         }
@@ -55,8 +55,20 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         if (needPhotos) foto += photoCount
         if (dryRun) return
         repo.saveAset(merged.addLog("dilengkapi dari import"))
-        if (needPhotos) photos().forEach { repo.addAsetFoto(old.id, it, null) }
+        if (needPhotos) unik(photos()).forEach { repo.addAsetFoto(old.id, it, null) }
         index(merged)
+    }
+
+    /** Membuang foto kembar (dHash, jarak Hamming ≤ 6) di dalam satu aset, mis. gambar yang tertanam dua kali. */
+    private fun unik(l: List<ByteArray>): List<ByteArray> {
+        val hs = ArrayList<Long>(); val out = ArrayList<ByteArray>()
+        for (b in l) {
+            val h = id.tub.dinas.export.Imaging.dHash(b)
+            if (h != null && hs.any { id.tub.dinas.export.Imaging.hamming(it, h) <= 6 }) continue
+            if (h != null) hs.add(h)
+            out.add(b)
+        }
+        return out
     }
 
     private fun merge(o: AsetModel, n: AsetModel): AsetModel = o.copy(
