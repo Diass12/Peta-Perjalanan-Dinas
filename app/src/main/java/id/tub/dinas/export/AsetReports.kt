@@ -102,7 +102,7 @@ object AsetReports {
         val sisi = if (op.asli) 1400 else 360
         for ((i, a) in aset.withIndex()) {
             val ph = if (n > 0) (fotos[a.id].orEmpty()).take(n).mapNotNull { f -> readFoto(f.path)?.let { Imaging.decode(it, sisi) } } else emptyList()
-            val ekstra = (if (op.nbv && (a.nbv != null || a.harga != null)) 11f else 0f) + (if (op.remarks && a.remarks.isNotBlank()) 20f else 0f)
+            val ekstra = (if (op.nbv && id.tub.dinas.security.Lisensi.ho && (a.nbv != null || a.harga != null)) 11f else 0f) + (if (op.remarks && a.remarks.isNotBlank()) 20f else 0f)
             val h = 74f + ekstra + (if (ph.isNotEmpty()) 84f else 0f)
             if (y + h > PH - M) baru()
             val cv = c!!
@@ -114,7 +114,7 @@ object AsetReports {
             ty += cv.wrap(a.name.ifEmpty { "(tanpa nama)" }, pName, (M + 26).toFloat(), ty, w, 2) + 2f
             ty += cv.wrap(line("Kategori" to KodeAset.labelKategori(a.category), "Dept" to a.dept, "Lokasi" to a.location, "User" to a.user), pInfo, (M + 26).toFloat(), ty, w, 2) + 1f
             ty += cv.wrap(line("Kondisi" to a.cond, "Barcode" to (if (op.barcode) (a.barcode?.label ?: "Non Aset") else ""), "Audit" to a.state.label, "PT" to (if (op.pemilik) a.owner else ""), "Milik/Sewa" to (if (op.pemilik) a.tenureLabel else ""), "Cek" to a.checkDate), pInfo, (M + 26).toFloat(), ty, w, 2) + 1f
-            val nbvTxt = if (op.nbv) line("Nilai buku" to (a.nbv?.let { "%,.0f".format(it) } ?: ""), "Harga" to (a.harga?.let { "%,.0f".format(it) } ?: "")) else ""
+            val nbvTxt = if (op.nbv && id.tub.dinas.security.Lisensi.ho) line("Nilai buku" to (a.nbv?.let { "%,.0f".format(it) } ?: ""), "Harga" to (a.harga?.let { "%,.0f".format(it) } ?: "")) else ""
             if (nbvTxt.isNotBlank()) ty += cv.wrap(nbvTxt, pInfo, (M + 26).toFloat(), ty, w, 1) + 1f
             if (op.remarks && a.remarks.isNotBlank()) cv.wrap("Ket: " + a.remarks, pInfo, (M + 26).toFloat(), ty, w, 2)
             var px = (M + 26).toFloat()
@@ -145,7 +145,7 @@ object AsetReports {
             "Departemen" to a.dept, "Lokasi" to a.location, "User" to a.user, "Kondisi" to a.cond, "Tgl pembelian" to a.acq, "Tgl cek fisik" to a.checkDate,
             "Status barcode" to (a.barcode?.label ?: "Non Aset"), "Status audit" to a.state.label, "Nilai buku (IDR)" to (a.nbv?.let { String.format(Locale("id", "ID"), "%,.0f", it) } ?: ""),
             "Harga perolehan (IDR)" to (a.harga?.let { String.format(Locale("id", "ID"), "%,.0f", it) } ?: ""), "Keterangan" to a.remarks,
-        ).filter { it.second.isNotBlank() }
+        ).filter { it.second.isNotBlank() && (id.tub.dinas.security.Lisensi.ho || !it.first.contains("IDR")) }
         for ((k, x) in rows) {
             c.drawText(k, M.toFloat(), y + 10f, lab)
             y += c.wrap(x, v, 150f, y, PW - M - 150, 3).coerceAtLeast(14f) + 6f
@@ -180,7 +180,7 @@ td{padding:8px;border-bottom:1px solid #eee;vertical-align:top;font-size:13px}td
 @media print{input{display:none}body{background:#fff}th{position:static}td img{max-width:90px}}</style></head><body>
 <h1>Laporan Aset — """.trimIndent() + esc(company) + """</h1><small>""" + hari() + " · " + aset.size + """ aset</small><br>
 <input id="q" placeholder="Cari kode, nama, dept, lokasi…" oninput="f()">
-<table id="t"><thead><tr><th>No</th>""" + (if (op.foto) "<th>Foto</th>" else "") + """<th>Kode</th><th>Nama</th><th>Kategori</th><th>Dept</th><th>Lokasi</th><th>User</th><th>Kondisi</th>""" + (if (op.barcode) "<th>Barcode</th>" else "") + "<th>Audit</th>" + (if (op.remarks) "<th>Keterangan</th>" else "") + (if (op.nbv) "<th>Harga</th><th>Nilai Buku</th>" else "") + (if (op.pemilik) "<th>PT Pemilik</th><th>Kepemilikan</th>" else "") + """</tr></thead><tbody>
+<table id="t"><thead><tr><th>No</th>""" + (if (op.foto) "<th>Foto</th>" else "") + """<th>Kode</th><th>Nama</th><th>Kategori</th><th>Dept</th><th>Lokasi</th><th>User</th><th>Kondisi</th>""" + (if (op.barcode) "<th>Barcode</th>" else "") + "<th>Audit</th>" + (if (op.remarks) "<th>Keterangan</th>" else "") + (if (op.nbv && id.tub.dinas.security.Lisensi.ho) "<th>Harga</th><th>Nilai Buku</th>" else "") + (if (op.pemilik) "<th>PT Pemilik</th><th>Kepemilikan</th>" else "") + """</tr></thead><tbody>
 """)
         val n = if (op.foto) maxFoto.coerceIn(0, 4) else 0
         for ((i, a) in aset.withIndex()) {
@@ -192,7 +192,7 @@ td{padding:8px;border-bottom:1px solid #eee;vertical-align:top;font-size:13px}td
             if (op.barcode) w.write("<td><span class=\"t ${bc.replace(" ", "")}\">${esc(bc)}</span></td>")
             w.write("<td>${esc(a.state.label)}</td>")
             if (op.remarks) w.write("<td>${esc(a.remarks)}</td>")
-            if (op.nbv) w.write("<td>${a.harga?.let { "%,.0f".format(it) } ?: ""}</td><td>${a.nbv?.let { "%,.0f".format(it) } ?: ""}</td>")
+            if (op.nbv && id.tub.dinas.security.Lisensi.ho) w.write("<td>${a.harga?.let { "%,.0f".format(it) } ?: ""}</td><td>${a.nbv?.let { "%,.0f".format(it) } ?: ""}</td>")
             if (op.pemilik) w.write("<td>${esc(a.owner)}</td><td>${esc(a.tenureLabel)}</td>")
             w.write("</tr>\n")
         }

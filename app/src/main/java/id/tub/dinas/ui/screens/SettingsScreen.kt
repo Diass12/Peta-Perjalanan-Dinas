@@ -165,13 +165,22 @@ fun SettingsScreen(vm: MainViewModel) {
             }
             Panel {
                 var riwayat by remember { mutableStateOf(false) }
-                val idPerangkat = remember {
-                    val raw = android.provider.Settings.Secure.getString(ctx.contentResolver, android.provider.Settings.Secure.ANDROID_ID).orEmpty()
-                    java.security.MessageDigest.getInstance("SHA-256").digest(("dinas$raw").toByteArray()).take(6).joinToString("") { "%02X".format(it) }.chunked(4).joinToString("-")
-                }
+                val idPerangkat = remember { id.tub.dinas.security.Lisensi.idPerangkat(ctx) }
+                var kodeLis by remember { mutableStateOf("") }
                 Text("Info aplikasi", style = MaterialTheme.typography.titleMedium)
-                Text("Lisensi: pemakaian pribadi · tanpa masa berlaku", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                val ho = id.tub.dinas.security.Lisensi.ho
+                Text(if (ho) "Lisensi: Staff HO (lengkap) · ${id.tub.dinas.security.Lisensi.keterangan}" else "Lisensi: Staff Site · NBV disembunyikan", color = if (ho) C.Ok else C.Muted, style = MaterialTheme.typography.bodyMedium)
                 Text("ID perangkat: $idPerangkat", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(6.dp))
+                if (!ho) {
+                    Field(kodeLis, { kodeLis = it }, "Kode lisensi Staff HO", singleLine = true)
+                    Spacer(Modifier.height(6.dp))
+                    SoftButton("Aktifkan Staff HO", Modifier.fillMaxWidth()) {
+                        val r = id.tub.dinas.security.LisensiKode.periksa(kodeLis, idPerangkat, java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(java.util.Date()).toInt())
+                        if (r.ok && r.peran == "HO") { s.licenseCode = kodeLis; id.tub.dinas.security.Lisensi.muat(ctx, kodeLis); kodeLis = ""; vm.toast("Staff HO aktif") }
+                        else vm.toast(if (r.ok) "Kode ini bukan untuk Staff HO" else r.pesan)
+                    }
+                } else SoftButton("Kembali ke Staff Site", Modifier.fillMaxWidth()) { s.licenseCode = ""; id.tub.dinas.security.Lisensi.muat(ctx, ""); vm.toast("Kembali ke Staff Site") }
                 Spacer(Modifier.height(6.dp))
                 SoftButton("📜 Riwayat versi", Modifier.fillMaxWidth()) { riwayat = true }
                 if (riwayat) AlertDialog(onDismissRequest = { riwayat = false }, title = { Text("Riwayat versi") },

@@ -279,6 +279,7 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                     }
                 }
 
+                if (id.tub.dinas.security.Lisensi.ho) {
                 Panel(onClick = { nbvOpen = !nbvOpen }) {
                     Text((if (nbvOpen) "▾ " else "▸ ") + "Data NBV (nilai buku, harga perolehan)", style = MaterialTheme.typography.titleMedium)
                 }
@@ -296,6 +297,7 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                     Field(m.catatan, { m = m.copy(catatan = it) }, "Catatan (NBV)", singleLine = true)
                     Spacer(Modifier.height(6.dp))
                     Field(m.sumber, { m = m.copy(sumber = it) }, "Sumber NBV", singleLine = true)
+                }
                 }
 
                 if (m.log.isNotEmpty()) Panel {

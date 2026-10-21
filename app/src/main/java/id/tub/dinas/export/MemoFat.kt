@@ -71,7 +71,7 @@ object MemoFat {
         )
         val month = SimpleDateFormat("MMMM, yyyy", Locale.ENGLISH).format(Date()).uppercase(Locale.ENGLISH)
         val n = maxFoto.coerceIn(1, 4)
-        val ikut = COLS.indices.filter { i -> when (i) { PHOTO_IDX -> opsi.foto; 11 -> opsi.barcode; 12 -> opsi.remarks; in 13..20 -> opsi.nbv; 21, 22 -> opsi.pemilik; else -> true } }
+        val ikut = COLS.indices.filter { i -> when (i) { PHOTO_IDX -> opsi.foto; 11 -> opsi.barcode; 12 -> opsi.remarks; in 13..20 -> opsi.nbv && id.tub.dinas.security.Lisensi.ho; 21, 22 -> opsi.pemilik; else -> true } }
         val pos = HashMap<Int, Int>().also { m -> ikut.forEachIndexed { k, i -> m[i] = 3 + k } }
         fun cx(i: Int) = pos[i] ?: -1
         for ((sheetName, label, list) in groups) {

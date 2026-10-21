@@ -331,7 +331,7 @@ private fun ExportDialog(awal: String, semua: List<AsetModel>, terfilter: Int, t
                         CekBaris("Foto", o.foto) { o = salin(foto = it) }
                         CekBaris("Status barcode", o.barcode) { o = salin(barcode = it) }
                         CekBaris("Keterangan (remarks)", o.remarks) { o = salin(remarks = it) }
-                        CekBaris("Blok NBV (nilai buku, harga, dll.)", o.nbv) { o = salin(nbv = it) }
+                        if (id.tub.dinas.security.Lisensi.ho) CekBaris("Blok NBV (nilai buku, harga, dll.)", o.nbv) { o = salin(nbv = it) }
                         CekBaris("PT pemilik & kepemilikan", o.pemilik) { o = salin(pemilik = it) }
                     }
                 }

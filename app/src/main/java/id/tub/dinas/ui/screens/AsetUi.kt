@@ -229,7 +229,7 @@ fun AHome(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Aset
                         Text("Progres Audit", color = A.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         Text("$done dari $n", color = A.Muted, fontSize = 15.sp)
                         Spacer(Modifier.height(4.dp))
-                        Row { Text("Total NBV: ", color = A.Ink, fontSize = 15.sp); Text(rupiah(list.sumOf { it.nbv ?: 0.0 }), color = A.Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
+                        if (id.tub.dinas.security.Lisensi.ho) Row { Text("Total NBV: ", color = A.Ink, fontSize = 15.sp); Text(rupiah(list.sumOf { it.nbv ?: 0.0 }), color = A.Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
                         Spacer(Modifier.height(10.dp))
                         AGradButton("Mulai Scan Audit", onClick = onScanAudit)
                     }

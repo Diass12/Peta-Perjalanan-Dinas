@@ -38,7 +38,9 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
     private fun nameKey(a: AsetModel) = (a.name.trim() + "|" + a.dept.trim()).lowercase()
     private fun keyOf(a: AsetModel): String { val k = KodeAset.norm(a.code); return if (k.isNotEmpty()) "c:$k" else "n:${nameKey(a)}" }
 
-    suspend fun add(m: AsetModel, photoCount: Int, photos: () -> List<ByteArray>) {
+    suspend fun add(m0: AsetModel, photoCount: Int, photos: () -> List<ByteArray>) {
+        // Staff Site: kolom NBV di file diabaikan sama sekali.
+        val m = if (id.tub.dinas.security.Lisensi.ho) m0 else m0.copy(nbv = null, harga = null, masa = null, tglTercatat = "", nbvKet = "", catatan = "", sumber = "", srcStatus = "")
         total++
         val key = keyOf(m)
         if (key == "n:|") return

@@ -282,11 +282,12 @@ object BackupCodec {
 
     private fun asetJson(b: AsetBundle): Map<String, Any?> {
         val a = b.aset
+        val ho = id.tub.dinas.security.Lisensi.ho
         return mapOf(
             "id" to a.id, "ord" to a.order, "code" to a.code, "name" to a.name, "cat" to a.category, "classif" to a.classif,
             "owner" to a.owner, "tenure" to a.tenure, "dept" to a.dept, "loc" to a.location, "user" to a.user, "cond" to a.cond,
-            "acq" to a.acq, "check" to a.checkDate, "remarks" to a.remarks, "nbv" to a.nbv, "harga" to a.harga, "masa" to a.masa,
-            "tgl" to a.tglTercatat, "nbvKet" to a.nbvKet, "catatan" to a.catatan, "sumber" to a.sumber, "src" to a.srcStatus,
+            "acq" to a.acq, "check" to a.checkDate, "remarks" to a.remarks, "nbv" to a.nbv.takeIf { ho }, "harga" to a.harga.takeIf { ho }, "masa" to a.masa.takeIf { ho },
+            "tgl" to (if (ho) a.tglTercatat else ""), "nbvKet" to (if (ho) a.nbvKet else ""), "catatan" to (if (ho) a.catatan else ""), "sumber" to (if (ho) a.sumber else ""), "src" to (if (ho) a.srcStatus else ""),
             "barcode" to a.barcode?.name, "bsrc" to a.barcodeSrc.name, "pcodes" to a.pcodes, "state" to a.state.name,
             "audited" to a.auditedAt, "log" to a.log, "created" to a.createdAt, "updated" to a.updatedAt, "temuan" to a.temuanId,
             "foto" to b.fotos.map { mapOf("id" to it.id, "path" to it.path, "order" to it.order, "taken" to it.takenAt) },

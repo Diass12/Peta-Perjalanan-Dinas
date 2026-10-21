@@ -50,6 +50,10 @@ class Settings(ctx: Context) {
     var dark: Boolean
         get() = p.getBoolean("dark", false)
         set(v) { p.edit().putBoolean("dark", v).apply() }
+    /** Kode lisensi (Staff HO). Kosong/tidak sah = Staff Site. */
+    var licenseCode: String
+        get() = p.getString("licenseCode", "") ?: ""
+        set(v) { p.edit().putString("licenseCode", v.trim()).apply() }
     var skyTheme: Boolean
         get() = p.getBoolean("sky", true)
         set(v) { p.edit().putBoolean("sky", v).apply() }

@@ -42,6 +42,7 @@ class MainActivity : FragmentActivity() {
         applySecureFlag()
         handleShare(intent)
         id.tub.dinas.ui.theme.ThemeState.dark = vm.settings.dark
+        id.tub.dinas.security.Lisensi.muat(this, vm.settings.licenseCode)
         id.tub.dinas.i18n.Tr.init(this)
         id.tub.dinas.i18n.Tr.lang = id.tub.dinas.i18n.AppLang.from(vm.settings.lang)
         setContent {
