@@ -139,6 +139,7 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
         is Screen.Present -> PresentationScreen(vm, s.dinasId)
     }
     vm.sharedText?.let { id.tub.dinas.ui.components.SharedLocationDialog(vm, it) }
+    id.tub.dinas.ui.components.LoadingOverlay(aktif = vm.busy || vm.aset.sibuk != null, pesan = vm.aset.sibuk, onBerhenti = if (vm.aset.sibuk != null) ({ vm.aset.berhenti = true }) else null)
     }
 }
 

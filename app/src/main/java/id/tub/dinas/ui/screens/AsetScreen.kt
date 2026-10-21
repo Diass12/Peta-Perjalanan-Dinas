@@ -114,10 +114,6 @@ fun AsetScreen(vm: MainViewModel) {
         "label" -> { doLabels(); aksi = null }
         else -> {}
     }
-    c.sibuk?.let { msg ->
-        AlertDialog(onDismissRequest = {}, title = { Text("Sedang diproses") }, text = { Text(msg) },
-            confirmButton = { TextButton(onClick = { c.berhenti = true }) { Text("Berhenti") } })
-    }
 
     if (c.scannerBuka) AsetScanner(vm) { c.scannerBuka = false }
     GaleriDialogs(vm, list)
