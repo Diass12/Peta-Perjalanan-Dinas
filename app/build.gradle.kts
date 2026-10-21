@@ -26,6 +26,11 @@ android {
     }
 
     signingConfigs {
+        // Kunci debug tetap agar APK debug-latest bisa menimpa (update) versi sebelumnya tanpa uninstall.
+        getByName("debug") {
+            storeFile = file("debug-shared.jks")
+            storePassword = "android"; keyAlias = "androiddebugkey"; keyPassword = "android"
+        }
         if (keystoreProps.getProperty("storeFile") != null) {
             create("release") {
                 storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
