@@ -28,6 +28,9 @@ import id.tub.dinas.media.EncryptedImage
 import id.tub.dinas.ui.components.*
 import id.tub.dinas.ui.theme.C
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,6 +56,9 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
     var nbvOpen by remember(asetId) { mutableStateOf(false) }
     var delAsk by remember { mutableStateOf(false) }
     var temuanDlg by remember { mutableStateOf(false) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var aiBusy by remember { mutableStateOf<String?>(null) }
+    var aiHasil by remember { mutableStateOf<id.tub.dinas.ai.AiHasil?>(null) }
     val ctx = LocalContext.current
     val fotos = fotosAll[asetId].orEmpty()
     var besar by remember { mutableStateOf<Int?>(null) }
@@ -133,6 +139,62 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                             }
                         }
                     }
+                }
+
+                // baca kode & analisis AI
+                if (isSaved && fotos.isNotEmpty()) Panel {
+                    Text("BACA KODE & ANALISIS", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SoftButton(if (aiBusy == "ocr") "Membaca…" else "🔍 Baca kode dari foto", Modifier.weight(1f)) {
+                            if (aiBusy == null) { aiBusy = "ocr"; scope.launch {
+                                try {
+                                    val kode = LinkedHashSet<String>()
+                                    for (f in fotos.take(4)) { val b = vm.repo.asetFotoBytes(f.path) ?: continue; kode.addAll(runCatching { id.tub.dinas.aset.CodeScanner.bacaJpeg(b).kode }.getOrDefault(emptyList())); if (kode.isNotEmpty()) break }
+                                    if (kode.isEmpty()) vm.toast("Tidak ada kode terbaca di foto")
+                                    else {
+                                        var n = m.copy(pcodes = (m.pcodes + kode).distinct())
+                                        if (n.code.isBlank() && kode.size == 1) n = n.copy(code = kode.first())
+                                        val (st, src) = KodeAset.hitungStatusBarcode(n.code, n.pcodes, true, n.barcode, n.barcodeSrc)
+                                        m = n.copy(barcode = st, barcodeSrc = src); vm.toast("Terbaca: ${kode.joinToString(", ")}")
+                                    }
+                                } finally { aiBusy = null }
+                            } }
+                        }
+                        SoftButton(if (aiBusy == "ai") "Menganalisis…" else "✨ Analisis AI (Gemini)", Modifier.weight(1f)) {
+                            val key = vm.settings.geminiKey
+                            if (key.isBlank()) vm.toast("Isi kunci Gemini dulu di Pengaturan")
+                            else if (aiBusy == null) { aiBusy = "ai"; scope.launch {
+                                try {
+                                    val b = vm.repo.asetFotoBytes(fotos.first().path) ?: throw java.io.IOException("Foto tidak terbaca")
+                                    val kecil = withContext(Dispatchers.IO) { id.tub.dinas.aset.AsetImport.toJpeg(b, 1280, 80) ?: b }
+                                    aiHasil = withContext(Dispatchers.IO) { id.tub.dinas.ai.Gemini.analisis(key, vm.settings.geminiModel, kecil) }
+                                } catch (e: Exception) { vm.toast(e.message ?: "Analisis gagal") } finally { aiBusy = null }
+                            } }
+                        }
+                    }
+                    Text("Baca kode berjalan di perangkat tanpa internet. Analisis AI mengirim foto utama ke Google Gemini.", color = C.Muted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 4.dp))
+                }
+                aiHasil?.let { h ->
+                    AlertDialog(onDismissRequest = { aiHasil = null }, title = { Text("Hasil analisis AI") },
+                        text = { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Nama: ${h.nama.ifBlank { "-" }}"); Text("Jenis: ${h.jenis.ifBlank { "-" }}")
+                            Text("Kode terbaca: ${h.kode.joinToString(", ").ifBlank { "-" }}"); Text("Stiker: ${h.barcode.ifBlank { "-" }}")
+                            if (h.catatan.isNotBlank()) Text("Catatan: ${h.catatan}")
+                            Text("Hasil AI bisa keliru; periksa sebelum menyimpan.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                        } },
+                        confirmButton = { TextButton(onClick = {
+                            var n = m
+                            if (h.nama.isNotBlank() && (n.name.isBlank() || n.name != h.nama)) n = n.copy(name = h.nama)
+                            if (h.kode.isNotEmpty()) { n = n.copy(pcodes = (n.pcodes + h.kode).distinct()); if (n.code.isBlank() && h.kode.size == 1) n = n.copy(code = h.kode.first()) }
+                            if (h.catatan.isNotBlank() && n.remarks.isBlank()) n = n.copy(remarks = h.catatan)
+                            val kelas = KodeAset.kelasDariKode(n.code)
+                            if (kelas != null && n.classif.isBlank()) n = n.copy(classif = kelas.nama, category = kelas.kategori)
+                            else if (n.classif.isBlank() && h.jenis.isNotBlank()) n = n.copy(category = KodeAset.tebakKategori(n.code, h.nama + " " + h.jenis))
+                            val (st, src) = KodeAset.hitungStatusBarcode(n.code, n.pcodes, n.pcodes.isNotEmpty(), n.barcode, n.barcodeSrc)
+                            m = n.copy(barcode = st, barcodeSrc = src); aiHasil = null
+                        }) { Text("Terapkan") } },
+                        dismissButton = { TextButton(onClick = { aiHasil = null }) { Text("Tutup") } })
                 }
 
                 // video & dokumen

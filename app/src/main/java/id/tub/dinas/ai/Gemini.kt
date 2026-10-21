@@ -1,0 +1,79 @@
+package id.tub.dinas.ai
+
+import android.util.Base64
+import id.tub.dinas.data.backup.MiniJson
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
+
+/** Hasil analisis satu foto aset oleh Gemini. */
+class AiHasil(val nama: String, val jenis: String, val kode: List<String>, val barcode: String, val catatan: String)
+
+/**
+ * Klien Gemini (Google AI Studio, kunci gratis). Foto DIKIRIM ke server Google hanya saat tombol dipakai;
+ * kunci disimpan di perangkat dan dikirim lewat header, bukan di URL.
+ */
+object Gemini {
+    private const val BASE = "https://generativelanguage.googleapis.com/v1beta"
+
+    private const val PROMPT = "Foto ini adalah barang/aset perusahaan, kadang dengan stiker barcode/QR atau label kode aset (contoh pola TUBOE250018, TUBME240003). " +
+        "Jawab HANYA JSON: {\"nama\":\"nama barang singkat dalam bahasa Indonesia, sebut warna/merek bila terlihat\"," +
+        "\"jenis\":\"jenis barang, mis. Genset, Laptop, Kendaraan, Meja\",\"kode\":[\"semua kode aset yang terbaca di stiker/label, huruf besar tanpa spasi\"]," +
+        "\"barcode\":\"tagged bila ada stiker kode aset terbaca, untagged bila ada stiker tetapi kode tidak terbaca, none bila tidak ada stiker\"," +
+        "\"catatan\":\"kondisi atau keterangan penting singkat, boleh kosong\"}. Jangan menebak kode yang tidak terlihat jelas."
+
+    fun parseHasil(body: String): AiHasil {
+        val root = MiniJson.parse(body) as? Map<*, *> ?: throw IOException("Balasan tidak dikenali")
+        (root["error"] as? Map<*, *>)?.let { throw IOException((it["message"] as? String) ?: "Kesalahan dari Gemini") }
+        val parts = (((root["candidates"] as? List<*>)?.firstOrNull() as? Map<*, *>)?.get("content") as? Map<*, *>)?.get("parts") as? List<*>
+        val text = parts?.mapNotNull { (it as? Map<*, *>)?.get("text") as? String }?.joinToString("")?.trim()
+            ?: throw IOException("Gemini tidak memberi jawaban (foto mungkin diblokir)")
+        val clean = text.removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+        val j = MiniJson.parse(clean) as? Map<*, *> ?: throw IOException("Jawaban Gemini bukan JSON")
+        val kode = (j["kode"] as? List<*>).orEmpty().mapNotNull { it as? String }
+            .map { it.uppercase().replace(Regex("\\s+"), "") }.filter { it.length in 6..20 }.distinct()
+        return AiHasil(
+            nama = (j["nama"] as? String).orEmpty().trim(), jenis = (j["jenis"] as? String).orEmpty().trim(),
+            kode = kode, barcode = (j["barcode"] as? String).orEmpty().lowercase(), catatan = (j["catatan"] as? String).orEmpty().trim(),
+        )
+    }
+
+    fun parseModel(body: String): List<String> {
+        val root = MiniJson.parse(body) as? Map<*, *> ?: return emptyList()
+        (root["error"] as? Map<*, *>)?.let { throw IOException((it["message"] as? String) ?: "Kunci ditolak") }
+        return (root["models"] as? List<*>).orEmpty().mapNotNull { m ->
+            val mm = m as? Map<*, *> ?: return@mapNotNull null
+            val ok = (mm["supportedGenerationMethods"] as? List<*>)?.contains("generateContent") == true
+            (mm["name"] as? String)?.removePrefix("models/")?.takeIf { ok && it.startsWith("gemini") }
+        }.sorted()
+    }
+
+    private fun call(url: String, key: String, post: String?): String {
+        val c = URL(url).openConnection() as HttpURLConnection
+        try {
+            c.connectTimeout = 15000; c.readTimeout = 60000
+            c.setRequestProperty("x-goog-api-key", key.trim())
+            if (post != null) { c.requestMethod = "POST"; c.doOutput = true; c.setRequestProperty("Content-Type", "application/json"); c.outputStream.use { it.write(post.toByteArray()) } }
+            val code = c.responseCode
+            val body = (if (code in 200..299) c.inputStream else c.errorStream)?.use { it.readBytes().toString(Charsets.UTF_8) }.orEmpty()
+            if (code !in 200..299) {
+                val msg = runCatching { ((MiniJson.parse(body) as Map<*, *>)["error"] as Map<*, *>)["message"] as String }.getOrNull()
+                throw IOException(when (code) { 400, 403 -> "Kunci/model ditolak ($code): ${msg ?: ""}"; 429 -> "Kuota gratis habis, coba lagi nanti"; else -> "Gemini error $code ${msg ?: ""}" })
+            }
+            return body
+        } finally { c.disconnect() }
+    }
+
+    fun analisis(key: String, model: String, jpeg: ByteArray): AiHasil {
+        val req = mapOf(
+            "contents" to listOf(mapOf("parts" to listOf(
+                mapOf("text" to PROMPT),
+                mapOf("inline_data" to mapOf("mime_type" to "image/jpeg", "data" to Base64.encodeToString(jpeg, Base64.NO_WRAP))),
+            ))),
+            "generationConfig" to mapOf("responseMimeType" to "application/json", "temperature" to 0.1),
+        )
+        return parseHasil(call("$BASE/models/${model.trim().ifBlank { "gemini-flash-latest" }}:generateContent", key, MiniJson.write(req)))
+    }
+
+    fun modelTersedia(key: String): List<String> = parseModel(call("$BASE/models?pageSize=100", key, null))
+}

@@ -75,6 +75,13 @@ class Settings(ctx: Context) {
     var repoVideo: String
         get() = p.getString("repoVideo", "") ?: ""
         set(v) { p.edit().putString("repoVideo", v).apply() }
+    /** Kunci Gemini (opsional) untuk "Analisis AI"; hanya di perangkat ini. */
+    var geminiKey: String
+        get() = p.getString("geminiKey", "") ?: ""
+        set(v) { p.edit().putString("geminiKey", v.trim()).apply() }
+    var geminiModel: String
+        get() = p.getString("geminiModel", "gemini-flash-latest") ?: "gemini-flash-latest"
+        set(v) { p.edit().putString("geminiModel", v.trim().ifBlank { "gemini-flash-latest" }).apply() }
     var lastDinasId: String?
         get() = p.getString("lastDinas", null)
         set(v) { p.edit().putString("lastDinas", v).apply() }

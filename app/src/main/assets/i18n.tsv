@@ -655,3 +655,14 @@ Lengkapi: hanya mengisi kolom yang masih kosong; data lama tidak ditimpa.|Fill i
 Perbarui: isi sel Excel yang tidak kosong menggantikan data di aplikasi (mis. PT Pemilik). Sel kosong tidak menghapus. Perubahan tiap kolom ditampilkan di bawah.|Update: non-empty Excel cells replace data in the app (e.g. PT Pemilik). Empty cells delete nothing. Each column change is listed below.|更新：Excel中非空单元格将替换应用内数据（如PT Pemilik）。空单元格不会删除。每列的变更列在下方。|更新：Excelの空でないセルがアプリ内のデータを置き換えます（例：PT Pemilik）。空のセルは削除しません。列ごとの変更を下に表示します。|갱신: Excel의 비어 있지 않은 셀이 앱 데이터를 대체합니다(예: PT Pemilik). 빈 셀은 삭제하지 않습니다. 열별 변경 사항이 아래에 표시됩니다.
 perubahan terdeteksi|changes detected|项变更|件の変更を検出|건의 변경 감지
 (kosong)|(empty)|（空）|（空）|(비어 있음)
+Analisis AI (Gemini, opsional)|AI analysis (Gemini, optional)|AI分析（Gemini，可选）|AI分析（Gemini、任意）|AI 분석(Gemini, 선택)
+Info aplikasi|App info|应用信息|アプリ情報|앱 정보
+📜 Riwayat versi|📜 Version history|📜 版本记录|📜 バージョン履歴|📜 버전 기록
+Riwayat versi|Version history|版本记录|バージョン履歴|버전 기록
+Cek model untuk kunci saya|Check models for my key|检查我的密钥可用的模型|キーで使えるモデルを確認|내 키로 사용할 수 있는 모델 확인
+Lisensi: pemakaian pribadi · tanpa masa berlaku|License: personal use · no expiry|许可：个人使用 · 无期限|ライセンス：個人利用・期限なし|라이선스: 개인 사용 · 만료 없음
+BACA KODE & ANALISIS|READ CODE & ANALYSIS|读取编码与分析|コード読み取りと分析|코드 읽기 및 분석
+🔍 Baca kode dari foto|🔍 Read code from photo|🔍 从照片读取编码|🔍 写真からコードを読む|🔍 사진에서 코드 읽기
+✨ Analisis AI (Gemini)|✨ AI analysis (Gemini)|✨ AI分析（Gemini）|✨ AI分析（Gemini）|✨ AI 분석(Gemini)
+Hasil analisis AI|AI analysis result|AI分析结果|AI分析結果|AI 분석 결과
+Terapkan|Apply|应用|適用|적용

@@ -129,6 +129,48 @@ fun SettingsScreen(vm: MainViewModel) {
                 Text("Menu, tombol, dan petunjuk diterjemahkan. Data yang Anda ketik (nama dinas, judul, catatan) dan format tanggal tetap seperti aslinya. Sinkronisasi cloud belum tersedia; gunakan Cadangan di bawah untuk memindahkan data antar-perangkat.", color = C.Muted, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 8.dp))
             }
             Panel {
+                var key by remember { mutableStateOf(s.geminiKey) }
+                var model by remember { mutableStateOf(s.geminiModel) }
+                var daftar by remember { mutableStateOf<List<String>>(emptyList()) }
+                var cek by remember { mutableStateOf(false) }
+                val scopeAi = androidx.compose.runtime.rememberCoroutineScope()
+                Text("Analisis AI (Gemini, opsional)", style = MaterialTheme.typography.titleMedium)
+                Text("Untuk mengenali barang dan membaca stiker kode aset dari foto. Isi kunci gratis dari aistudio.google.com/apikey. Kunci hanya disimpan di perangkat ini. Saat dipakai, foto aset dikirim ke Google; tanpa kunci, tidak ada data yang dikirim.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(8.dp))
+                Field(key, { key = it.trim() }, "Kunci API Gemini (AIza…)", singleLine = true)
+                Spacer(Modifier.height(6.dp))
+                Field(model, { model = it.trim() }, "Model", singleLine = true)
+                if (daftar.isNotEmpty()) @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class) FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) { daftar.forEach { d -> Chip(d, model == d) { model = d } } }
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SoftButton(if (cek) "Memeriksa…" else "Cek model untuk kunci saya", Modifier.weight(1f)) {
+                        if (key.isBlank()) vm.toast("Isi kunci dulu")
+                        else if (!cek) { cek = true; scopeAi.launch {
+                            try { daftar = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { id.tub.dinas.ai.Gemini.modelTersedia(key) }; vm.toast("${daftar.size} model tersedia") }
+                            catch (e: Exception) { vm.toast(e.message ?: "Gagal memeriksa") } finally { cek = false }
+                        } }
+                    }
+                    PrimaryButton("Simpan", Modifier.weight(1f)) { s.geminiKey = key; s.geminiModel = model; vm.toast("Pengaturan Gemini disimpan") }
+                }
+            }
+            Panel {
+                var riwayat by remember { mutableStateOf(false) }
+                val idPerangkat = remember {
+                    val raw = android.provider.Settings.Secure.getString(ctx.contentResolver, android.provider.Settings.Secure.ANDROID_ID).orEmpty()
+                    java.security.MessageDigest.getInstance("SHA-256").digest(("dinas$raw").toByteArray()).take(6).joinToString("") { "%02X".format(it) }.chunked(4).joinToString("-")
+                }
+                Text("Info aplikasi", style = MaterialTheme.typography.titleMedium)
+                Text("Lisensi: pemakaian pribadi · tanpa masa berlaku", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                Text("ID perangkat: $idPerangkat", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(6.dp))
+                SoftButton("📜 Riwayat versi", Modifier.fillMaxWidth()) { riwayat = true }
+                if (riwayat) AlertDialog(onDismissRequest = { riwayat = false }, title = { Text("Riwayat versi") },
+                    text = { Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RIWAYAT.forEach { (v, l) -> Column { Text(v, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold); l.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) } } }
+                    } },
+                    confirmButton = { TextButton(onClick = { riwayat = false }) { Text("Tutup") } })
+            }
+            Panel {
                 Text("Cadangan", style = MaterialTheme.typography.titleMedium)
                 Text("Cadangan memuat semua dinas beserta foto dan PDF. Beri kata sandi supaya berkas aman bila berpindah tangan.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
@@ -168,3 +210,19 @@ fun PasswordDialog(title: String, hint: String, confirmLabel: String, onDismiss:
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
     )
 }
+
+private val RIWAYAT = listOf(
+    "Terbaru" to listOf(
+        "Analisis AI (Gemini) dan Baca kode dari foto di editor aset",
+        "Import Excel/JSON mendeteksi semua perubahan per kolom (mode Perbarui)",
+        "Ekspor Excel: pilih sheet, kolom, dan mutu foto",
+        "Hiburan: repositori komik/novel dan pemutar video yang diisi sendiri; novel Inggris (Gutenberg)",
+        "Perbaikan tautan BMKG; kunci tanda tangan tetap agar APK bisa diperbarui",
+    ),
+    "Redesign Enterprise Minimalist" to listOf(
+        "Menu bawah: Beranda, Peta & GPS, Audit & Dokumen, Wawasan & Berita",
+        "Profil, Dokumen & Tiket, Galeri Lapangan, pilihan bahasa (5 bahasa)",
+        "Perbaikan: kamera audit tanpa dinas, temuan pending ganda, perbesar foto aset",
+    ),
+    "1.0.0" to listOf("Dinas, peta GPS, temuan, uang muka, jadwal, Aset Scan, ekspor, cadangan terenkripsi"),
+)
