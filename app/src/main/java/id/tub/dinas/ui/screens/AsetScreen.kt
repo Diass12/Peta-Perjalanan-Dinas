@@ -5,6 +5,8 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -176,8 +178,15 @@ private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
                     FilterChip(selected = !st.timpa, onClick = { if (st.timpa) vm.aset.ubahMode(false) }, label = { Text("Lengkapi") })
                     FilterChip(selected = st.timpa, onClick = { if (!st.timpa) vm.aset.ubahMode(true) }, label = { Text("Perbarui") })
                 }
-                Text(if (st.timpa) "Perbarui: isi sel Excel yang tidak kosong menggantikan data di aplikasi (mis. PT Pemilik). Sel kosong tidak menghapus. Status audit tidak berubah." else "Lengkapi: hanya mengisi kolom yang masih kosong; data lama tidak ditimpa.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                Text(if (st.timpa) "Perbarui: isi sel Excel yang tidak kosong menggantikan data di aplikasi (mis. PT Pemilik). Sel kosong tidak menghapus. Perubahan tiap kolom ditampilkan di bawah." else "Lengkapi: hanya mengisi kolom yang masih kosong; data lama tidak ditimpa.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
                 Text("• ${r.baru} aset baru\n• ${r.update} akan ${if (st.timpa) "diperbarui" else "dilengkapi"}\n• ${r.sama} sama, dilewati\n• ${r.ganda} ganda di dalam file, dilewati\n• ${r.foto} foto akan ditambahkan")
+                if (r.perubahan.isNotEmpty()) {
+                    Text("${r.totalPerubahan} perubahan terdeteksi", fontWeight = FontWeight.Bold)
+                    Column(Modifier.heightIn(max = 220.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        r.perubahan.forEach { Text(it, fontSize = 12.sp) }
+                        if (r.totalPerubahan > r.perubahan.size) Text("… dan ${r.totalPerubahan - r.perubahan.size} lainnya", color = C.Muted, fontSize = 12.sp)
+                    }
+                }
                 Text("Foto ditambahkan ke aset yang belum punya foto. Cadangan dulu bila data penting.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
             }
         },

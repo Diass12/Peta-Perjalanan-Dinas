@@ -15,13 +15,14 @@ import java.time.Instant
 import java.util.UUID
 
 /** Hasil pemeriksaan (pratinjau) atau penerapan import. */
-class ImportReport(val total: Int, val baru: Int, val update: Int, val sama: Int, val ganda: Int, val foto: Int, val info: String)
+class ImportReport(val total: Int, val baru: Int, val update: Int, val sama: Int, val ganda: Int, val foto: Int, val info: String, val perubahan: List<String> = emptyList(), val totalPerubahan: Int = 0)
 
 /** Menerapkan baris hasil baca ke register: kunci = kode ternormalisasi; bila kosong nama+dept. Mode "Lengkapi": hanya mengisi yang kosong. */
 class AsetImporter(private val repo: Repository, existing: List<AsetModel>, private val fotoCount: Map<String, Int>, private val dryRun: Boolean, private val timpa: Boolean = false) {
     private val byCode = HashMap<String, AsetModel>()
     private val byName = HashMap<String, AsetModel>()
     private val seen = HashSet<String>()
+    val perubahan = ArrayList<String>(); var totalPerubahan = 0
     var total = 0; var baru = 0; var update = 0; var sama = 0; var ganda = 0; var foto = 0
 
     init { existing.forEach { index(it) } }
@@ -52,6 +53,7 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         val needPhotos = photoCount > 0 && (fotoCount[old.id] ?: 0) == 0
         if (merged == old && !needPhotos) { sama++; return }
         update++
+        selisih(old, merged)
         if (needPhotos) foto += photoCount
         if (dryRun) return
         repo.saveAset(merged.addLog(if (timpa) "diperbarui dari import" else "dilengkapi dari import"))
@@ -71,6 +73,25 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         return out
     }
 
+    /** Mencatat tiap kolom yang berubah (maks. 300 baris ditampilkan). */
+    private fun selisih(o: AsetModel, n: AsetModel) {
+        val nama = o.code.ifBlank { o.name }
+        fun c(label: String, a: Any?, b: Any?) {
+            val x = a?.toString().orEmpty(); val y = b?.toString().orEmpty()
+            if (x == y) return
+            totalPerubahan++
+            if (perubahan.size < 300) perubahan.add("$nama · $label: ${x.ifBlank { "(kosong)" }} → ${y.ifBlank { "(kosong)" }}")
+        }
+        c("Nama", o.name, n.name); c("Klasifikasi", o.classif, n.classif); c("PT Pemilik", o.owner, n.owner)
+        c("Kepemilikan", o.tenure, n.tenure); c("Dept", o.dept, n.dept); c("Lokasi", o.location, n.location); c("User", o.user, n.user)
+        c("Kondisi", o.cond, n.cond); c("Tgl perolehan", o.acq, n.acq); c("Tgl cek", o.checkDate, n.checkDate); c("Keterangan", o.remarks, n.remarks)
+        c("Nilai buku", o.nbv, n.nbv); c("Harga", o.harga, n.harga); c("Masa manfaat", o.masa, n.masa)
+        c("Tgl tercatat", o.tglTercatat, n.tglTercatat); c("NBV ket.", o.nbvKet, n.nbvKet); c("Catatan", o.catatan, n.catatan)
+        c("Sumber", o.sumber, n.sumber); c("Status match", o.srcStatus, n.srcStatus); c("Barcode", o.barcode, n.barcode)
+        c("Status audit", o.state, n.state)
+        if (o.pcodes != n.pcodes) c("Kode tambahan", o.pcodes.joinToString(), n.pcodes.joinToString())
+    }
+
     /** Mode "Perbarui": nilai tak kosong dari file menggantikan data lama; sel kosong di file tidak menghapus. Status audit & foto tetap. */
     private fun perbarui(o: AsetModel, n: AsetModel): AsetModel {
         fun s(a: String, b: String) = b.trim().ifBlank { a }
@@ -86,6 +107,7 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
             sumber = s(o.sumber, n.sumber), srcStatus = s(o.srcStatus, n.srcStatus),
             barcode = n.barcode ?: o.barcode, barcodeSrc = if (n.barcode != null) n.barcodeSrc else o.barcodeSrc,
             pcodes = (o.pcodes + n.pcodes).distinct(),
+            state = if (n.state != AuditState.PENDING) n.state else o.state, auditedAt = n.auditedAt ?: o.auditedAt,
         )
     }
 
@@ -106,7 +128,7 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         auditedAt = o.auditedAt ?: n.auditedAt,
     )
 
-    fun report(info: String) = ImportReport(total, baru, update, sama, ganda, foto, info)
+    fun report(info: String) = ImportReport(total, baru, update, sama, ganda, foto, info, perubahan.toList(), totalPerubahan)
 }
 
 object AsetImport {

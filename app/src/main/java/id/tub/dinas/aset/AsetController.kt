@@ -25,7 +25,7 @@ class ScanReport(val lines: List<ScanLine>, val diabaikan: Int, val jpeg: ByteAr
 
 class GaleriHasil(val lines: List<ScanLine>, val tanpaKode: Int, val dibuat: Int, val gagal: Int, val jpegTanpaKode: List<ByteArray>)
 
-class ImportState(val kind: String, val file: File, val report: ImportReport, val plan: AsetImport.XlsxPlan?, val timpa: Boolean = false)
+class ImportState(val kind: String, val file: File, val report: ImportReport, val plan: AsetImport.XlsxPlan?, val timpa: Boolean = true)
 
 /** Status & operasi layar Aset: filter, scan, import, export. Dipegang MainViewModel supaya bertahan saat layar diputar. */
 class AsetController(private val vm: MainViewModel) {
@@ -407,16 +407,16 @@ class AsetController(private val vm: MainViewModel) {
             val bundles = repo.asetBundles()
             val existing = bundles.map { it.aset }
             val counts = bundles.associate { it.aset.id to it.fotos.size }
-            val imp = AsetImporter(repo, existing, counts, dryRun = true)
+            val imp = AsetImporter(repo, existing, counts, dryRun = true, timpa = true)
             if (head[0] == 'P'.code.toByte() && head[1] == 'K'.code.toByte()) {
                 val plan = withContext(Dispatchers.IO) { AsetImport.planXlsx(file) }
                 for ((m, c, _) in plan.rows) imp.add(m, c) { emptyList() }
                 importState?.file?.delete()
-                importState = ImportState("xlsx", file, imp.report("Sheet \"${plan.sheet}\", judul di baris ${plan.headerRow}. Kolom dikenali: ${plan.kolom.joinToString(", ")}"), plan)
+                importState = ImportState("xlsx", file, imp.report("Sheet \"${plan.sheet}\", judul di baris ${plan.headerRow}. Kolom dikenali: ${plan.kolom.joinToString(", ")}"), plan, true)
             } else {
                 withContext(Dispatchers.IO) { file.inputStream().use { s -> AsetImport.streamJson(s, false) { m, c, p -> imp.add(m, c, p) } } }
                 importState?.file?.delete()
-                importState = ImportState("json", file, imp.report("Cadangan AsetScan (JSON)"), null)
+                importState = ImportState("json", file, imp.report("Cadangan AsetScan (JSON)"), null, true)
             }
         } catch (e: Exception) { file.delete(); throw e }
     }
