@@ -15,10 +15,14 @@ import java.time.Instant
 import java.util.UUID
 
 /** Hasil pemeriksaan (pratinjau) atau penerapan import. */
-class ImportReport(val total: Int, val baru: Int, val update: Int, val sama: Int, val ganda: Int, val foto: Int, val info: String, val perubahan: List<String> = emptyList(), val totalPerubahan: Int = 0)
+/** Satu baris perbandingan: aset di database (lama) vs aset di file (baru). status: baru | ubah | sama. diff = (kolom, nilai database, nilai import). */
+class ImportItem(val key: String, val label: String, val status: String, val lama: AsetModel?, val baru: AsetModel, val diff: List<Triple<String, String, String>>, val tambahFoto: Int = 0)
+
+class ImportReport(val total: Int, val baru: Int, val update: Int, val sama: Int, val ganda: Int, val foto: Int, val info: String, val perubahan: List<String> = emptyList(), val totalPerubahan: Int = 0, val items: List<ImportItem> = emptyList())
 
 /** Menerapkan baris hasil baca ke register: kunci = kode ternormalisasi; bila kosong nama+dept. Mode "Lengkapi": hanya mengisi yang kosong. */
-class AsetImporter(private val repo: Repository, existing: List<AsetModel>, private val fotoCount: Map<String, Int>, private val dryRun: Boolean, private val timpa: Boolean = false) {
+class AsetImporter(private val repo: Repository, existing: List<AsetModel>, private val fotoCount: Map<String, Int>, private val dryRun: Boolean, private val timpa: Boolean = false, private val pilih: Set<String>? = null) {
+    val items = ArrayList<ImportItem>()
     private val byCode = HashMap<String, AsetModel>()
     private val byName = HashMap<String, AsetModel>()
     private val seen = HashSet<String>()
@@ -40,9 +44,11 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         if (key == "n:|") return
         if (!seen.add(key)) { ganda++; return }
         val old = (KodeAset.norm(m.code).takeIf { it.isNotEmpty() }?.let { byCode[it] }) ?: if (KodeAset.norm(m.code).isEmpty()) byName[nameKey(m)] else null
+        if (!dryRun && pilih != null && key !in pilih) return
+        val judul = m.code.ifBlank { m.name }
         if (old == null) {
             baru++; foto += photoCount
-            if (dryRun) return
+            if (dryRun) { if (items.size < 3000) items.add(ImportItem(key, judul, "baru", null, m, emptyList(), photoCount)); return }
             val a = m.copy(id = UUID.randomUUID().toString(), createdAt = System.currentTimeMillis()).addLog("diimpor")
             val id = repo.saveAset(a)
             unik(photos()).forEach { repo.addAsetFoto(id, it, null) }
@@ -51,9 +57,10 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         }
         val merged = if (timpa) perbarui(old, m) else merge(old, m)
         val needPhotos = photoCount > 0 && (fotoCount[old.id] ?: 0) == 0
-        if (merged == old && !needPhotos) { sama++; return }
+        if (merged == old && !needPhotos) { sama++; if (dryRun && items.size < 3000) items.add(ImportItem(key, judul, "sama", old, m, emptyList())); return }
         update++
         selisih(old, merged)
+        if (dryRun && items.size < 3000) items.add(ImportItem(key, judul, "ubah", old, m, daftarBeda(old, merged), if (needPhotos) photoCount else 0))
         if (needPhotos) foto += photoCount
         if (dryRun) return
         repo.saveAset(merged.addLog(if (timpa) "diperbarui dari import" else "dilengkapi dari import"))
@@ -76,11 +83,17 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
     /** Mencatat tiap kolom yang berubah (maks. 300 baris ditampilkan). */
     private fun selisih(o: AsetModel, n: AsetModel) {
         val nama = o.code.ifBlank { o.name }
-        fun c(label: String, a: Any?, b: Any?) {
-            val x = a?.toString().orEmpty(); val y = b?.toString().orEmpty()
-            if (x == y) return
+        for ((label, x, y) in daftarBeda(o, n)) {
             totalPerubahan++
             if (perubahan.size < 300) perubahan.add("$nama · $label: ${x.ifBlank { "(kosong)" }} → ${y.ifBlank { "(kosong)" }}")
+        }
+    }
+
+    private fun daftarBeda(o: AsetModel, n: AsetModel): List<Triple<String, String, String>> {
+        val out = ArrayList<Triple<String, String, String>>()
+        fun c(label: String, a: Any?, b: Any?) {
+            val x = a?.toString().orEmpty(); val y = b?.toString().orEmpty()
+            if (x != y) out.add(Triple(label, x, y))
         }
         c("Nama", o.name, n.name); c("Klasifikasi", o.classif, n.classif); c("PT Pemilik", o.owner, n.owner)
         c("Kepemilikan", o.tenure, n.tenure); c("Dept", o.dept, n.dept); c("Lokasi", o.location, n.location); c("User", o.user, n.user)
@@ -90,6 +103,7 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         c("Sumber", o.sumber, n.sumber); c("Status match", o.srcStatus, n.srcStatus); c("Barcode", o.barcode, n.barcode)
         c("Status audit", o.state, n.state)
         if (o.pcodes != n.pcodes) c("Kode tambahan", o.pcodes.joinToString(), n.pcodes.joinToString())
+        return out
     }
 
     /** Mode "Perbarui": nilai tak kosong dari file menggantikan data lama; sel kosong di file tidak menghapus. Status audit & foto tetap. */
@@ -128,7 +142,7 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
         auditedAt = o.auditedAt ?: n.auditedAt,
     )
 
-    fun report(info: String) = ImportReport(total, baru, update, sama, ganda, foto, info, perubahan.toList(), totalPerubahan)
+    fun report(info: String) = ImportReport(total, baru, update, sama, ganda, foto, info, perubahan.toList(), totalPerubahan, items.toList())
 }
 
 object AsetImport {

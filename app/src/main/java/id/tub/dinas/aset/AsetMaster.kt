@@ -22,6 +22,9 @@ class MasterStore(ctx: Context) {
         (saved(f) + register.map { f.get(it) }).map { it.trim() }.filter { it.isNotEmpty() }
             .distinctBy { it.lowercase() }.sortedBy { it.lowercase() }
 
+    /** Hapus semua pilihan tersimpan (kembali ke bawaan). */
+    fun reset() { p.edit().clear().apply() }
+
     fun add(f: MasterField, v: String) {
         val t = v.trim(); if (t.isEmpty()) return
         val cur = (p.getString(f.key, null)?.split('\n')?.filter { it.isNotBlank() } ?: emptyList())

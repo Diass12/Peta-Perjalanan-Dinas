@@ -433,13 +433,26 @@ class AsetController(private val vm: MainViewModel) {
         }
     }
 
+    /** Hapus semua aset (beserta foto/video/dokumen). Bila [uri] diberikan, cadangan JSON ditulis dulu. */
+    fun hapusSemua(uri: Uri?, resetMaster: Boolean) = vm.work {
+        val semua = repo.asetList()
+        if (uri != null) withContext(Dispatchers.IO) {
+            val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
+            os.use { AsetJson.tulis(semua, fotos.value, master, semua, { p -> runCatching { repo.vault.read(p) }.getOrNull() }, it) }
+        }
+        withContext(Dispatchers.IO) { for (a in semua) repo.deleteAset(a.id) }
+        if (resetMaster) { master.reset(); masterVer++ }
+        selected = emptySet()
+        vm.toast("${semua.size} aset dihapus")
+    }
+
     fun batalImport() { importState?.file?.delete(); importState = null }
 
-    fun terapkanImport() {
+    fun terapkanImport(pilih: Set<String>) {
         val st = importState ?: return
         vm.work {
             val bundles = repo.asetBundles()
-            val imp = AsetImporter(repo, bundles.map { it.aset }, bundles.associate { it.aset.id to it.fotos.size }, dryRun = false, timpa = st.timpa)
+            val imp = AsetImporter(repo, bundles.map { it.aset }, bundles.associate { it.aset.id to it.fotos.size }, dryRun = false, timpa = st.timpa, pilih = pilih)
             withContext(Dispatchers.IO) {
                 if (st.kind == "xlsx") {
                     for ((m, c, entries) in st.plan!!.rows) imp.add(m, c) { entries.mapNotNull { e -> XlsxReader.readImage(st.file, e)?.let { b -> AsetImport.toJpeg(b) } } }

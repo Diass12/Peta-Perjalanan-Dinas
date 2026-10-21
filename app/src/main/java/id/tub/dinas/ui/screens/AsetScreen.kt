@@ -1,5 +1,12 @@
 package id.tub.dinas.ui.screens
 
+import id.tub.dinas.ui.components.Chip
+import id.tub.dinas.ui.components.Field
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import id.tub.dinas.domain.KodeAset
+import id.tub.dinas.domain.AsetFotoModel
+import androidx.compose.foundation.border
 import id.tub.dinas.ui.components.Text
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -49,6 +56,10 @@ fun AsetScreen(vm: MainViewModel) {
     var exportFmt by remember { mutableStateOf<String?>(null) }          // xlsx | pdf | html | label (null = dialog tertutup)
     var exportReq by remember { mutableStateOf<Triple<String, Int, List<AsetModel>>?>(null) }
     var resetAsk by remember { mutableStateOf(false) }
+    var clearAsk by remember { mutableStateOf(false) }
+    var clearBackup by remember { mutableStateOf(true) }
+    var clearMaster by remember { mutableStateOf(true) }
+    val createClearBackup = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> if (uri != null) c.hapusSemua(uri, clearMaster) }
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(50)) { uris -> if (uris.isNotEmpty()) c.galeriUris = uris }
     val importPick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) c.siapkanImport(uri) }
     fun jalankan(uri: android.net.Uri?) {
@@ -73,6 +84,7 @@ fun AsetScreen(vm: MainViewModel) {
     val scanAudit = { c.auditMode = true; c.scannerBuka = true }
     val doGallery = { gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
     val doImport = { importPick.launch(arrayOf("*/*")) }
+    val doBackup = { exportReq = Triple("json", 4, list); createJson.launch("AsetScan backup ${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.json") }
     val doExport = { exportFmt = "xlsx" }
     val doLabels = { exportFmt = "label" }
 
@@ -82,7 +94,7 @@ fun AsetScreen(vm: MainViewModel) {
                 0 -> AHome(vm, list, fotos, scanAudit, goFilter)
                 1 -> AAssets(vm, list, filtered, fotos, doGallery, doExport, doLabels)
                 2 -> AAudit(vm, list, fotos, scanAudit) { resetAsk = true }
-                else -> AMenu(vm, list.size, doImport, doExport, { masterOpen = true }, doGallery, doLabels) { c.tab = 1; c.selMode = true }
+                else -> AMenu(vm, list.size, doImport, doExport, { masterOpen = true }, doGallery, doLabels, doBackup, doImport, { clearAsk = true }) { c.tab = 1; c.selMode = true }
             }
         }
         if (c.selMode && c.tab == 1) ASelectionBar(vm, filtered) { aksi = it }
@@ -132,6 +144,10 @@ fun AsetScreen(vm: MainViewModel) {
             },
         )
     }
+    if (clearAsk) ClearDialog(vm, list, fotos, clearBackup, clearMaster, { clearBackup = it }, { clearMaster = it }, { clearAsk = false }) { backup ->
+        clearAsk = false
+        if (backup) createClearBackup.launch("AsetScan backup sebelum hapus ${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.json") else c.hapusSemua(null, clearMaster)
+    }
     if (resetAsk) Confirm("Sesi audit baru?", "Semua status audit dikembalikan ke “Belum”. Data aset dan foto tidak berubah.", "Mulai", onConfirm = { c.resetAudit() }, onDismiss = { resetAsk = false })
 }
 
@@ -167,34 +183,101 @@ private fun ScanReportDialog(vm: MainViewModel, rep: ScanReport) {
 }
 
 @Composable
-private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
-    val r = st.report
+private fun ClearDialog(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<AsetFotoModel>>, backup: Boolean, master: Boolean,
+                        onBackup: (Boolean) -> Unit, onMaster: (Boolean) -> Unit, onDismiss: () -> Unit, onGo: (Boolean) -> Unit) {
+    var teks by remember { mutableStateOf("") }
+    val dup = list.map { KodeAset.norm(it.code) }.filter { it.isNotEmpty() }.groupingBy { it }.eachCount().count { it.value > 1 }
     AlertDialog(
-        onDismissRequest = { vm.aset.batalImport() },
-        title = { Text("Import aset") },
+        onDismissRequest = onDismiss, containerColor = A.Card,
+        title = { Text("🗑 Hapus database", color = A.Ink) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(r.info, color = C.Muted)
-                Text("${r.total} baris dibaca", fontWeight = FontWeight.Bold)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = !st.timpa, onClick = { if (st.timpa) vm.aset.ubahMode(false) }, label = { Text("Lengkapi") })
-                    FilterChip(selected = st.timpa, onClick = { if (!st.timpa) vm.aset.ubahMode(true) }, label = { Text("Perbarui") })
-                }
-                Text(if (st.timpa) "Perbarui: isi sel Excel yang tidak kosong menggantikan data di aplikasi (mis. PT Pemilik). Sel kosong tidak menghapus. Perubahan tiap kolom ditampilkan di bawah." else "Lengkapi: hanya mengisi kolom yang masih kosong; data lama tidak ditimpa.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
-                Text("• ${r.baru} aset baru\n• ${r.update} akan ${if (st.timpa) "diperbarui" else "dilengkapi"}\n• ${r.sama} sama, dilewati\n• ${r.ganda} ganda di dalam file, dilewati\n• ${r.foto} foto akan ditambahkan")
-                if (r.perubahan.isNotEmpty()) {
-                    Text("${r.totalPerubahan} perubahan terdeteksi", fontWeight = FontWeight.Bold)
-                    Column(Modifier.heightIn(max = 220.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        r.perubahan.forEach { Text(it, fontSize = 12.sp) }
-                        if (r.totalPerubahan > r.perubahan.size) Text("… dan ${r.totalPerubahan - r.perubahan.size} lainnya", color = C.Muted, fontSize = 12.sp)
-                    }
-                }
-                Text("Foto ditambahkan ke aset yang belum punya foto. Cadangan dulu bila data penting.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Semua aset, foto, video, dan dokumen aset akan dihapus dari aplikasi ini. Tidak bisa dibatalkan (kecuali dari cadangan).", color = A.Ink)
+                Text("Saat ini: ${list.size} aset · kode ganda: $dup · tanpa foto: ${list.count { fotos[it.id].isNullOrEmpty() }} · tanpa kode: ${list.count { it.code.isBlank() }}",
+                    color = Color(0xFF7A5200), modifier = Modifier.fillMaxWidth().background(Color(0xFFFEF3C7), RoundedCornerShape(12.dp)).padding(10.dp))
+                CekBaris("Unduh cadangan JSON data saat ini dulu (disarankan)", backup, onBackup)
+                CekBaris("Kembalikan daftar master (pilihan dropdown) ke bawaan", master, onMaster)
+                Field(teks, { teks = it }, "Ketik HAPUS untuk melanjutkan", singleLine = true)
             }
         },
-        confirmButton = { TextButton(enabled = r.baru + r.update > 0, onClick = { vm.aset.terapkanImport() }) { Text("Impor ${r.baru + r.update}") } },
-        dismissButton = { TextButton(onClick = { vm.aset.batalImport() }) { Text("Batal") } },
+        confirmButton = { TextButton(enabled = teks.trim().equals("HAPUS", true), onClick = { onGo(backup) }) { Text("Hapus", color = A.Red) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
     )
+}
+
+private fun nilaiRingkas(a: AsetModel) = listOf("Kode" to a.code, "Nama" to a.name, "Dept" to a.dept, "Lokasi" to a.location, "PT" to a.owner, "Kondisi" to a.cond).filter { it.second.isNotBlank() }
+
+@Composable
+private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
+    val r = st.report
+    val daftar = r.items
+    var terpilih by remember(st) { mutableStateOf(daftar.filter { it.status != "sama" }.map { it.key }.toSet()) }
+    var filter by remember { mutableStateOf("ubah") }
+    val tampil = daftar.filter { filter == "semua" || it.status == filter }
+    androidx.compose.ui.window.Dialog(onDismissRequest = { vm.aset.batalImport() }, properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
+        Column(Modifier.fillMaxSize().background(A.Bg).statusBarsPadding().navigationBarsPadding()) {
+            Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Import aset — periksa perubahan", color = A.Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("${r.info}. ${r.total} baris dibaca, ${r.ganda} ganda di file dilewati.", color = A.Muted, fontSize = 12.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Chip("Perbarui", st.timpa) { if (!st.timpa) vm.aset.ubahMode(true) }
+                    Chip("Lengkapi", !st.timpa) { if (st.timpa) vm.aset.ubahMode(false) }
+                }
+                Text(if (st.timpa) "Perbarui: nilai tak kosong di file menggantikan database. Sel kosong tidak menghapus." else "Lengkapi: hanya mengisi kolom database yang kosong.", color = A.Muted, fontSize = 11.sp)
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Chip("Berubah ${r.update}", filter == "ubah") { filter = "ubah" }
+                    Chip("Baru ${r.baru}", filter == "baru") { filter = "baru" }
+                    Chip("Tidak berubah ${r.sama}", filter == "sama") { filter = "sama" }
+                    Chip("Semua ${daftar.size}", filter == "semua") { filter = "semua" }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = { terpilih = terpilih + tampil.map { it.key } }) { Text("Pilih yang tampil") }
+                    TextButton(onClick = { terpilih = terpilih - tampil.map { it.key }.toSet() }) { Text("Kosongkan") }
+                    Spacer(Modifier.weight(1f))
+                    Text("${terpilih.size} dipilih", color = A.Accent, fontWeight = FontWeight.Bold)
+                }
+            }
+            LazyColumn(Modifier.weight(1f).padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (tampil.isEmpty()) item { Text("Tidak ada baris di kategori ini.", color = A.Muted, modifier = Modifier.padding(16.dp)) }
+                items(tampil, key = { it.key }) { it ->
+                    val on = it.key in terpilih
+                    Column(Modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(14.dp)).border(1.dp, if (on) A.Accent else A.Line, RoundedCornerShape(14.dp)).padding(10.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = on, onCheckedChange = { c -> terpilih = if (c) terpilih + it.key else terpilih - it.key })
+                            Column(Modifier.weight(1f)) {
+                                Text(it.label, color = A.Ink, fontWeight = FontWeight.Bold, maxLines = 1)
+                                if (it.baru.name.isNotBlank() && it.baru.name != it.label) Text(it.baru.name, color = A.Muted, fontSize = 12.sp, maxLines = 1)
+                            }
+                            Text(when (it.status) { "baru" -> "BARU"; "ubah" -> "BERUBAH"; else -> "SAMA" }, fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                                color = when (it.status) { "baru" -> A.Green; "ubah" -> A.Amber; else -> A.Muted })
+                        }
+                        when (it.status) {
+                            "ubah" -> {
+                                it.diff.forEach { (k, lama, baru) ->
+                                    Column(Modifier.padding(start = 12.dp, top = 6.dp)) {
+                                        Text(k, color = A.Muted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                        Text("Database : ${lama.ifBlank { "(kosong)" }}", color = A.Ink, fontSize = 13.sp)
+                                        Text("Import   : ${baru.ifBlank { "(kosong)" }}", color = A.Accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                if (it.tambahFoto > 0) Text("+ ${it.tambahFoto} foto dari file", color = A.Muted, fontSize = 12.sp, modifier = Modifier.padding(start = 12.dp, top = 6.dp))
+                            }
+                            "baru" -> Column(Modifier.padding(start = 12.dp, top = 6.dp)) {
+                                Text("Import   :", color = A.Muted, fontSize = 11.sp)
+                                Text(nilaiRingkas(it.baru).joinToString(" · ") { (k, v) -> "$k: $v" }, color = A.Accent, fontSize = 13.sp)
+                            }
+                            else -> Text("Database = Import", color = A.Muted, fontSize = 12.sp, modifier = Modifier.padding(start = 12.dp, top = 4.dp))
+                        }
+                    }
+                }
+            }
+            Row(Modifier.fillMaxWidth().background(A.Card).padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedButton(onClick = { vm.aset.batalImport() }, Modifier.weight(1f)) { Text("Batal") }
+                Button(onClick = { vm.aset.terapkanImport(terpilih) }, Modifier.weight(2f), enabled = terpilih.isNotEmpty()) { Text("Konfirmasi (${terpilih.size})") }
+            }
+        }
+    }
 }
 
 @Composable
@@ -207,7 +290,7 @@ private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int
         onDismissRequest = onDismiss,
         title = { Text(if (fmt == "label") "Cetak label QR" else "Ekspor laporan") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Format", style = MaterialTheme.typography.labelSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Chip("Excel", fmt == "xlsx", onClick = { fmt = "xlsx" })
@@ -262,7 +345,10 @@ private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int
 @Composable
 private fun CekBaris(label: String, on: Boolean, ubah: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth().clickable { ubah(!on) }, verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = on, onCheckedChange = ubah)
-        Text(label)
+        androidx.compose.runtime.CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides androidx.compose.ui.unit.Dp.Unspecified) {
+            Checkbox(checked = on, onCheckedChange = ubah)
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(label, Modifier.padding(vertical = 6.dp))
     }
 }

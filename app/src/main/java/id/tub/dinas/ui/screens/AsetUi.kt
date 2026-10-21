@@ -464,7 +464,7 @@ private fun MenuRow(glyph: String, c1: Color, c2: Color, title: String, sub: Str
     }
 
 @Composable
-fun AMenu(vm: MainViewModel, count: Int, onImport: () -> Unit, onExport: () -> Unit, onMaster: () -> Unit, onGallery: () -> Unit, onLabels: () -> Unit, onSelect: () -> Unit) {
+fun AMenu(vm: MainViewModel, count: Int, onImport: () -> Unit, onExport: () -> Unit, onMaster: () -> Unit, onGallery: () -> Unit, onLabels: () -> Unit, onBackup: () -> Unit, onRestore: () -> Unit, onClear: () -> Unit, onSelect: () -> Unit) {
     val c = vm.aset
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(bottom = 90.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         AHeader("Menu", "Pengaturan modul aset")
@@ -486,6 +486,12 @@ fun AMenu(vm: MainViewModel, count: Int, onImport: () -> Unit, onExport: () -> U
                 MenuRow("▦", Color(0xFFF08A5D), Color(0xFFE0508F), "Cetak Label QR", "Stiker label untuk aset terdaftar", onLabels)
                 HorizontalDivider(color = A.Line)
                 MenuRow("✓", Color(0xFF8B5CF6), Color(0xFF4C7DF0), "Pilih Banyak Aset", "Edit tabel, edit massal, foto massal, status, ekspor, hapus", onSelect)
+                HorizontalDivider(color = A.Line)
+                MenuRow("🗂", Color(0xFF4C7DF0), Color(0xFF3B9DD8), "Cadangan JSON", "Simpan semua data aset & foto (format AsetScan v2)", onBackup)
+                HorizontalDivider(color = A.Line)
+                MenuRow("♻", Color(0xFFB04FE6), Color(0xFF6B4DF0), "Impor / Pulihkan JSON", "Periksa dulu perbandingannya, lalu pilih yang diproses", onRestore)
+                HorizontalDivider(color = A.Line)
+                MenuRow("🗑", Color(0xFFE0506A), Color(0xFFDC2626), "Hapus Database", "Hapus semua aset (opsi cadangan dulu)", onClear)
             }
             ACard {
                 ATitle("🔒", "Keamanan & Info")
