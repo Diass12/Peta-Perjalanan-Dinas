@@ -16,7 +16,7 @@ class AiHasil(val nama: String, val jenis: String, val kode: List<String>, val b
 object Gemini {
     private const val BASE = "https://generativelanguage.googleapis.com/v1beta"
 
-    private const val PROMPT = "Foto ini adalah barang/aset perusahaan, kadang dengan stiker barcode/QR atau label kode aset (contoh pola TUBOE250018, TUBME240003). " +
+    private const val PROMPT = "Foto ini adalah barang/aset perusahaan, kadang dengan stiker barcode/QR atau label kode aset (contoh pola TUBOE250018, TUBME240003, BAUME2600001). " +
         "Jawab HANYA JSON: {\"nama\":\"nama barang singkat dalam bahasa Indonesia, sebut warna/merek bila terlihat\"," +
         "\"jenis\":\"jenis barang, mis. Genset, Laptop, Kendaraan, Meja\",\"kode\":[\"semua kode aset yang terbaca di stiker/label, huruf besar tanpa spasi\"]," +
         "\"barcode\":\"tagged bila ada stiker kode aset terbaca, untagged bila ada stiker tetapi kode tidak terbaca, none bila tidak ada stiker\"," +

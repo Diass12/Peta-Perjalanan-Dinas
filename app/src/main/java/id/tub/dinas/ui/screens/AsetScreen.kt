@@ -69,6 +69,7 @@ fun AsetScreen(vm: MainViewModel) {
         if (req.first == "xlsx") c.exportMemo(uri, req.second, req.third) else c.exportLain(uri, req.first, req.second, req.third)
     }
     val createXlsx = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { jalankan(it) }
+    val createTemplate = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { if (it != null) c.simpanTemplat(it) }
     val createPdf = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { jalankan(it) }
     val createJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { jalankan(it) }
     val createHtml = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/html")) { jalankan(it) }
@@ -95,7 +96,7 @@ fun AsetScreen(vm: MainViewModel) {
                 0 -> AHome(vm, list, fotos, scanAudit, goFilter)
                 1 -> AAssets(vm, list, filtered, fotos, doGallery, doExport, doLabels)
                 2 -> AAudit(vm, list, fotos, scanAudit) { resetAsk = true }
-                else -> AMenu(vm, list.size, doImport, doExport, { masterOpen = true }, doGallery, doLabels, doBackup, doImport, { clearAsk = true }) { c.tab = 1; c.selMode = true }
+                else -> AMenu(vm, list.size, doImport, doExport, { masterOpen = true }, doGallery, doLabels, doBackup, doImport, { clearAsk = true }, { createTemplate.launch("Templat Impor Aset.xlsx") }) { c.tab = 1; c.selMode = true }
             }
         }
         if (c.selMode && c.tab == 1) ASelectionBar(vm, filtered) { aksi = it }

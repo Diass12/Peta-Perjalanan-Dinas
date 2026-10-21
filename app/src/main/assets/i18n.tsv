@@ -680,3 +680,5 @@ Cadangan JSON|JSON backup|JSON备份|JSONバックアップ|JSON 백업
 Impor / Pulihkan JSON|Import / Restore JSON|导入/恢复JSON|JSONのインポート/復元|JSON 가져오기/복원
 Hapus Database|Clear database|清空数据库|データベースを削除|데이터베이스 삭제
 Hapus|Delete|删除|削除|삭제
+Unduh Templat Excel|Download Excel template|下载Excel模板|Excelテンプレートをダウンロード|Excel 템플릿 다운로드
+Format bawaan untuk impor (Master Database + sheet foto)|Default import format (Master Database + photo sheet)|默认导入格式（主数据库+照片表）|標準のインポート形式（マスターデータベース＋写真シート）|기본 가져오기 형식(마스터 데이터베이스 + 사진 시트)

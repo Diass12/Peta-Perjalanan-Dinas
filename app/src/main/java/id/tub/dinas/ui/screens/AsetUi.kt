@@ -464,13 +464,15 @@ private fun MenuRow(glyph: String, c1: Color, c2: Color, title: String, sub: Str
     }
 
 @Composable
-fun AMenu(vm: MainViewModel, count: Int, onImport: () -> Unit, onExport: () -> Unit, onMaster: () -> Unit, onGallery: () -> Unit, onLabels: () -> Unit, onBackup: () -> Unit, onRestore: () -> Unit, onClear: () -> Unit, onSelect: () -> Unit) {
+fun AMenu(vm: MainViewModel, count: Int, onImport: () -> Unit, onExport: () -> Unit, onMaster: () -> Unit, onGallery: () -> Unit, onLabels: () -> Unit, onBackup: () -> Unit, onRestore: () -> Unit, onClear: () -> Unit, onTemplate: () -> Unit, onSelect: () -> Unit) {
     val c = vm.aset
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(bottom = 90.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         AHeader("Menu", "Pengaturan modul aset")
         Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             ACard {
                 ATitle("💾", "Data")
+                MenuRow("📄", Color(0xFF3B9DD8), Color(0xFF34C3A0), "Unduh Templat Excel", "Format bawaan untuk impor (Master Database + sheet foto)", onTemplate)
+                HorizontalDivider(color = A.Line)
                 MenuRow("⬆", Color(0xFF34C3A0), Color(0xFF3B9DD8), "Impor Excel / Cadangan", "Muat register Excel (termasuk foto tertanam) atau cadangan AsetScan", onImport)
                 HorizontalDivider(color = A.Line)
                 MenuRow("⬇", Color(0xFF6B4DF0), Color(0xFFB04FE6), "Ekspor Laporan (Excel / HTML / PDF)", "Pilih cakupan dan jumlah foto per aset", onExport)

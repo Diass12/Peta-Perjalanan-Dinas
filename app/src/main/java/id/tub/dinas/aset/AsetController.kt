@@ -446,6 +446,14 @@ class AsetController(private val vm: MainViewModel) {
         vm.toast("${semua.size} aset dihapus")
     }
 
+    fun simpanTemplat(uri: Uri) = vm.work {
+        withContext(Dispatchers.IO) {
+            val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
+            os.use { id.tub.dinas.export.AsetTemplate.tulis(it) }
+        }
+        vm.toast("Templat Excel tersimpan")
+    }
+
     fun batalImport() { importState?.file?.delete(); importState = null }
 
     fun terapkanImport(pilih: Set<String>) {
