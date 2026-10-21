@@ -37,6 +37,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import id.tub.dinas.export.MemoFat
 import java.util.UUID
 
 @Composable
@@ -115,6 +116,7 @@ fun AsetScreen(vm: MainViewModel) {
         ExportDialog(
             awal = fmt0, total = list.size, terfilter = filtered.size, terpilih = sel.size,
             onDismiss = { exportFmt = null },
+            onOpsi = { c.opsiXlsx = it },
             onGo = { fmt, n, cakupan ->
                 exportFmt = null
                 val scope = when (cakupan) { 1 -> filtered; 2 -> list.filter { it.id in sel }; else -> list }
@@ -196,10 +198,11 @@ private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
 }
 
 @Composable
-private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onGo: (String, Int, Int) -> Unit) {
+private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onOpsi: (MemoFat.Opsi) -> Unit, onGo: (String, Int, Int) -> Unit) {
     var fmt by remember { mutableStateOf(awal) }
     var n by remember { mutableIntStateOf(2) }
     var cakupan by remember { mutableIntStateOf(if (terpilih > 0) 2 else 0) }
+    var o by remember { mutableStateOf(MemoFat.Opsi()) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (fmt == "label") "Cetak label QR" else "Ekspor laporan") },
@@ -226,13 +229,40 @@ private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int
                     Chip("Terfilter ($terfilter)", cakupan == 1, onClick = { cakupan = 1 })
                     if (terpilih > 0) Chip("Terpilih ($terpilih)", cakupan == 2, onClick = { cakupan = 2 })
                 }
+                if (fmt == "xlsx") {
+                    Text("Sheet yang diekspor", style = MaterialTheme.typography.labelSmall)
+                    CekBaris("Tagged", o.tagged) { o = MemoFat.Opsi(it, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
+                    CekBaris("Untagged", o.untagged) { o = MemoFat.Opsi(o.tagged, it, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
+                    CekBaris("Belum ada kode aset", o.tanpaKode) { o = MemoFat.Opsi(o.tagged, o.untagged, it, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
+                    Text("Data yang disertakan (kolom inti selalu ada)", style = MaterialTheme.typography.labelSmall)
+                    CekBaris("Foto", o.foto) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, it, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
+                    CekBaris("Status barcode", o.barcode) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, it, o.remarks, o.nbv, o.pemilik, o.asli) }
+                    CekBaris("Keterangan (remarks)", o.remarks) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, it, o.nbv, o.pemilik, o.asli) }
+                    CekBaris("Blok NBV (nilai buku, harga, dll.)", o.nbv) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, it, o.pemilik, o.asli) }
+                    CekBaris("PT pemilik & kepemilikan", o.pemilik) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, it, o.asli) }
+                    if (o.foto) {
+                        Text("Mutu foto", style = MaterialTheme.typography.labelSmall)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Chip("Ringan (900px)", !o.asli, onClick = { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, false) })
+                            Chip("Asli", o.asli, onClick = { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, true) })
+                        }
+                    }
+                }
                 if (fmt != "label") {
                     Text("Foto per aset", style = MaterialTheme.typography.labelSmall)
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { (if (fmt == "xlsx") 1..4 else 0..4).forEach { k -> Chip("$k", n == k, onClick = { n = k }) } }
                 }
             }
         },
-        confirmButton = { TextButton(onClick = { onGo(fmt, if (fmt == "xlsx") n.coerceAtLeast(1) else n, cakupan) }) { Text(if (fmt == "label") "Buat label" else "Ekspor") } },
+        confirmButton = { TextButton(enabled = fmt != "xlsx" || o.tagged || o.untagged || o.tanpaKode, onClick = { onOpsi(o); onGo(fmt, if (fmt == "xlsx") n.coerceAtLeast(1) else n, cakupan) }) { Text(if (fmt == "label") "Buat label" else "Ekspor") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
     )
+}
+
+@Composable
+private fun CekBaris(label: String, on: Boolean, ubah: (Boolean) -> Unit) {
+    Row(Modifier.fillMaxWidth().clickable { ubah(!on) }, verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(checked = on, onCheckedChange = ubah)
+        Text(label)
+    }
 }

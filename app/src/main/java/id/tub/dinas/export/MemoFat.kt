@@ -32,17 +32,25 @@ object MemoFat {
     )
     private const val PHOTO_IDX = 10
 
+    /** Pilihan ekspor: sheet mana, kolom opsional mana, dan mutu foto. */
+    class Opsi(
+        val tagged: Boolean = true, val untagged: Boolean = true, val tanpaKode: Boolean = true,
+        val foto: Boolean = true, val barcode: Boolean = true, val remarks: Boolean = true, val nbv: Boolean = true, val pemilik: Boolean = true,
+        val asli: Boolean = false,
+    )
+
     private fun barcodeFill(b: StatusBarcode?) = when (b) { StatusBarcode.TAGGED -> "C6E0B4"; StatusBarcode.UNTAGGED -> "FFE699"; else -> "D9D9D9" }
 
     /** Perkecil foto untuk Excel supaya memori dan ukuran berkas terkendali. */
-    private fun small(bytes: ByteArray): Triple<ByteArray, Int, Int>? {
+    private fun small(bytes: ByteArray, side: Int = 720, asli: Boolean = false): Triple<ByteArray, Int, Int>? {
         val b = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, b)
         if (b.outWidth <= 0 || b.outHeight <= 0) return null
+        if (asli) return Triple(bytes, b.outWidth, b.outHeight)
         var sample = 1
-        while (maxOf(b.outWidth, b.outHeight) / (sample * 2) >= 720) sample *= 2
+        while (maxOf(b.outWidth, b.outHeight) / (sample * 2) >= side) sample *= 2
         var bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return null
-        val sc = 720f / maxOf(bmp.width, bmp.height)
+        val sc = side.toFloat() / maxOf(bmp.width, bmp.height)
         if (sc < 1f) { val t = Bitmap.createScaledBitmap(bmp, (bmp.width * sc).toInt().coerceAtLeast(1), (bmp.height * sc).toInt().coerceAtLeast(1), true); if (t !== bmp) bmp.recycle(); bmp = t }
         val o = ByteArrayOutputStream(96 * 1024)
         bmp.compress(Bitmap.CompressFormat.JPEG, 80, o)
@@ -53,19 +61,22 @@ object MemoFat {
 
     fun export(
         aset: List<AsetModel>, fotos: Map<String, List<AsetFotoModel>>, company: String, maxFoto: Int,
-        readFoto: (String) -> ByteArray?, out: OutputStream,
+        readFoto: (String) -> ByteArray?, out: OutputStream, opsi: Opsi = Opsi(),
     ) {
         val wb = XlsxWriter()
-        val groups = listOf(
-            Triple("Tagged", "Listing Assets - Tagged", aset.filter { it.barcode == StatusBarcode.TAGGED }),
-            Triple("Untagged", "Listing Assets - Untagged", aset.filter { it.barcode == StatusBarcode.UNTAGGED }),
-            Triple("Belum Ada Kode Aset", "Listing Assets - Belum Ada Kode Aset (Non Aset)", aset.filter { it.barcode == StatusBarcode.NONASSET || it.barcode == null }),
+        val groups = listOfNotNull(
+            if (opsi.tagged) Triple("Tagged", "Listing Assets - Tagged", aset.filter { it.barcode == StatusBarcode.TAGGED }) else null,
+            if (opsi.untagged) Triple("Untagged", "Listing Assets - Untagged", aset.filter { it.barcode == StatusBarcode.UNTAGGED }) else null,
+            if (opsi.tanpaKode) Triple("Belum Ada Kode Aset", "Listing Assets - Belum Ada Kode Aset (Non Aset)", aset.filter { it.barcode == StatusBarcode.NONASSET || it.barcode == null }) else null,
         )
         val month = SimpleDateFormat("MMMM, yyyy", Locale.ENGLISH).format(Date()).uppercase(Locale.ENGLISH)
         val n = maxFoto.coerceIn(1, 4)
+        val ikut = COLS.indices.filter { i -> when (i) { PHOTO_IDX -> opsi.foto; 11 -> opsi.barcode; 12 -> opsi.remarks; in 13..20 -> opsi.nbv; 21, 22 -> opsi.pemilik; else -> true } }
+        val pos = HashMap<Int, Int>().also { m -> ikut.forEachIndexed { k, i -> m[i] = 3 + k } }
+        fun cx(i: Int) = pos[i] ?: -1
         for ((sheetName, label, list) in groups) {
             val sh = wb.sheet(sheetName)
-            sh.colWidths(listOf(2.0, 2.0, 2.0) + COLS.map { it.width })
+            sh.colWidths(listOf(2.0, 2.0, 2.0) + ikut.map { COLS[it].width })
             val title = XStyle(bold = true, size = 14.0, wrap = false)
             val lab = XStyle(bold = true, size = 11.0, wrap = false)
             sh.text(0, 1, "Physical Check - Fixed Asset Good Condition", title)
@@ -76,8 +87,9 @@ object MemoFat {
 
             val head = XStyle(bold = true, size = 10.0, fill = HEAD_FILL, h = "center", v = "center", border = true)
             val headNbv = XStyle(bold = true, italic = true, size = 10.0, color = "C00000", fill = HEAD_FILL, h = "center", v = "center", border = true)
-            COLS.forEachIndexed { i, c ->
-                val col = 3 + i
+            ikut.forEachIndexed { k, i ->
+                val c = COLS[i]
+                val col = 3 + k
                 sh.text(6, col, c.title, if (c.nbv) headNbv else head)
                 sh.merge(6, col, 8, col, if (c.nbv) headNbv else head)
             }
@@ -85,19 +97,19 @@ object MemoFat {
             val bodyC = body.copy(h = "center")
             list.forEachIndexed { idx, a ->
                 val r = 9 + idx
-                val ph = (fotos[a.id].orEmpty()).take(n).mapNotNull { f -> readFoto(f.path)?.let { small(it) } }
+                val ph = if (!opsi.foto) emptyList() else (fotos[a.id].orEmpty()).take(n).mapNotNull { f -> readFoto(f.path)?.let { small(it, 900, opsi.asli) } }
                 sh.rowHeight(r, if (ph.isNotEmpty()) ROW_PHOTO_PT else ROW_PLAIN_PT)
-                fun t(c: Int, v: String, st: XStyle = body) = sh.text(r, 3 + c, v, st)
+                fun t(c: Int, v: String, st: XStyle = body) { val x = cx(c); if (x >= 0) sh.text(r, x, v, st) }
                 sh.number(r, 3, (idx + 1).toDouble(), bodyC)
                 t(1, a.classif); t(2, a.code); t(3, a.acq); t(4, a.name); t(5, a.location); t(6, a.dept); t(7, a.user)
                 t(8, a.checkDate); t(9, a.cond)
-                sh.style(r, 3 + PHOTO_IDX, body)
+                if (cx(PHOTO_IDX) >= 0) sh.style(r, cx(PHOTO_IDX), body)
                 t(11, a.barcode?.label ?: "Non Aset", bodyC.copy(fill = barcodeFill(a.barcode)))
                 t(12, a.remarks)
                 t(13, a.nbvKet); t(14, a.tglTercatat)
-                a.masa?.let { sh.number(r, 3 + 15, it.toDouble(), body) } ?: sh.style(r, 3 + 15, body)
-                a.harga?.let { sh.number(r, 3 + 16, it, body) } ?: sh.style(r, 3 + 16, body)
-                a.nbv?.let { sh.number(r, 3 + 17, it, body) } ?: sh.style(r, 3 + 17, body)
+                if (cx(15) >= 0) a.masa?.let { sh.number(r, cx(15), it.toDouble(), body) } ?: sh.style(r, cx(15), body)
+                if (cx(16) >= 0) a.harga?.let { sh.number(r, cx(16), it, body) } ?: sh.style(r, cx(16), body)
+                if (cx(17) >= 0) a.nbv?.let { sh.number(r, cx(17), it, body) } ?: sh.style(r, cx(17), body)
                 t(18, a.catatan); t(19, a.sumber); t(20, a.srcStatus); t(21, a.owner); t(22, a.tenureLabel)
 
                 if (ph.isNotEmpty()) {
@@ -109,7 +121,7 @@ object MemoFat {
                         val dw = w * sc; val dh = h * sc
                         val offX = k * slotW + (slotW - dw) / 2 + 2
                         val offY = (cellH - dh) / 2
-                        sh.image(bytes, "jpeg", r, 3 + PHOTO_IDX, (offX * EMU).toLong(), (offY * EMU).toLong(), (dw * EMU).toLong(), (dh * EMU).toLong())
+                        sh.image(bytes, "jpeg", r, cx(PHOTO_IDX), (offX * EMU).toLong(), (offY * EMU).toLong(), (dw * EMU).toLong(), (dh * EMU).toLong())
                     }
                 }
             }

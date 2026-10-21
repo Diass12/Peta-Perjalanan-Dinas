@@ -485,12 +485,14 @@ class AsetController(private val vm: MainViewModel) {
     }
 
 
+    var opsiXlsx = id.tub.dinas.export.MemoFat.Opsi()
+
     fun exportMemo(uri: Uri, maxFoto: Int, daftar: List<AsetModel>) = vm.work {
         val bundles = fotos.value
         val company = daftar.map { it.owner }.filter { it.isNotBlank() }.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key ?: "PT TRI USAHA BARU"
         withContext(Dispatchers.IO) {
             val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
-            os.use { MemoFat.export(daftar, bundles, company, maxFoto, { p -> runCatching { repo.vault.read(p) }.getOrNull() }, it) }
+            os.use { MemoFat.export(daftar, bundles, company, maxFoto, { p -> runCatching { repo.vault.read(p) }.getOrNull() }, it, opsiXlsx) }
         }
         vm.toast("Excel Memo FAT tersimpan (${daftar.size} aset)")
     }
