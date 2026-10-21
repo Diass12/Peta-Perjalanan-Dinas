@@ -281,12 +281,28 @@ object AsetImport {
             val score = cols.size
             if (best == null || score > best.score) best = Layout(sh, r, cols, score)
         }
-        return best?.takeIf { it.score >= 3 && ("code" in it.cols || "name" in it.cols) }
+        val b = best?.takeIf { it.score >= 3 && ("code" in it.cols || "name" in it.cols) } ?: return null
+        // Judul "Keterangan" tanpa kolom nama/deskripsi = nama barang (format Master Database BAU).
+        val rc = b.cols["remarks"]
+        if ("name" !in b.cols && rc != null && nh(b.sheet.rows[b.headerRow]?.get(rc)?.text.orEmpty()) == "keterangan")
+            return Layout(b.sheet, b.headerRow, b.cols.filterKeys { it != "remarks" } + ("name" to rc), b.score)
+        return b
     }
 
     /** Memilih sheet dengan judul terbaik. Mengembalikan null bila tidak ada yang cocok. */
     private fun pick(sheets: List<XSheet>): Layout? =
         sheets.mapNotNull { layoutOf(it) }.maxByOrNull { it.score * 1000 + it.sheet.images.values.sumOf { l -> l.size } + it.sheet.rows.size }
+
+    /** Nama perusahaan dari baris "Company : …" di bagian atas salah satu sheet (templat Memo FAT). */
+    private fun perusahaan(sheets: List<XSheet>): String {
+        for (sh in sheets) for (r in sh.rows.keys.filter { it < 12 }) {
+            val cells = sh.rows[r] ?: continue
+            val ks = cells.keys.sorted()
+            val i = ks.indexOfFirst { cells[it]?.text?.trim()?.equals("company", true) == true }
+            if (i >= 0) ks.drop(i + 1).map { cells[it]?.text?.trim().orEmpty() }.firstOrNull { it.isNotEmpty() && it != ":" }?.let { return it }
+        }
+        return ""
+    }
 
     fun parseAngka(s: String): Double? {
         var t = s.trim().replace(Regex("[^0-9.,\\-]"), "")
@@ -318,10 +334,41 @@ object AsetImport {
 
     class XlsxPlan(val rows: List<Triple<AsetModel, Int, List<String>>>, val sheet: String, val headerRow: Int, val kolom: List<String>, val file: File)
 
-    /** Membaca .xlsx menjadi baris aset. `rows` = (model, jumlah foto, nama entri gambar di zip). */
+    /** Membaca .xlsx menjadi baris aset. `rows` = (model, jumlah foto, nama entri gambar di zip). Semua sheet yang berisi data dibaca; baris berkode sama digabung. */
     fun planXlsx(file: File): XlsxPlan {
         val sheets = XlsxReader.read(file)
-        val lay = pick(sheets) ?: throw IOException("Judul kolom tidak dikenali. Pastikan ada kolom seperti Asset Number, Description, Dept.")
+        val layouts = sheets.mapNotNull { layoutOf(it) }
+        if (layouts.isEmpty()) throw IOException("Judul kolom tidak dikenali. Pastikan ada kolom seperti Asset Number, Description, Dept.")
+        val pt = perusahaan(sheets)
+        val hasil = ArrayList<Triple<AsetModel, Int, List<String>>>()
+        val indeks = HashMap<String, Int>()
+        val dipakai = ArrayList<Layout>()
+        for (lay in layouts.sortedByDescending { it.score }) {
+            val baris = bacaSheet(lay, pt)
+            if (baris.isEmpty()) continue
+            dipakai.add(lay)
+            for (t in baris) {
+                val k = KodeAset.norm(t.first.code)
+                val i = if (k.isEmpty()) null else indeks[k]
+                if (i == null) { if (k.isNotEmpty()) indeks[k] = hasil.size; hasil.add(t) }
+                else {
+                    val o = hasil[i]; val n = t.first
+                    val m = o.first.copy(
+                        name = o.first.name.ifBlank { n.name }, classif = o.first.classif.ifBlank { n.classif }, dept = o.first.dept.ifBlank { n.dept },
+                        location = o.first.location.ifBlank { n.location }, user = o.first.user.ifBlank { n.user }, cond = o.first.cond.ifBlank { n.cond },
+                        acq = o.first.acq.ifBlank { n.acq }, remarks = o.first.remarks.ifBlank { n.remarks }, owner = o.first.owner.ifBlank { n.owner },
+                        barcode = o.first.barcode ?: n.barcode, barcodeSrc = if (o.first.barcode == null && n.barcode != null) n.barcodeSrc else o.first.barcodeSrc,
+                    )
+                    hasil[i] = Triple(m, o.second + t.second, o.third + t.third)
+                }
+            }
+        }
+        if (dipakai.isEmpty()) throw IOException("Judul kolom dikenali tetapi tidak ada baris aset yang terisi.")
+        val first = dipakai.first()
+        return XlsxPlan(hasil, dipakai.joinToString(" + ") { it.sheet.name }, first.headerRow + 1, dipakai.flatMap { it.cols.keys }.distinct(), file)
+    }
+
+    private fun bacaSheet(lay: Layout, pt: String): List<Triple<AsetModel, Int, List<String>>> {
         val sh = lay.sheet
         val rows = ArrayList<Triple<AsetModel, Int, List<String>>>()
         fun cell(r: Map<Int, XCell>, f: String) = lay.cols[f]?.let { r[it] }
@@ -334,26 +381,27 @@ object AsetImport {
             val remarks = txt(r, "remarks")
             if (code.isEmpty() && name.isEmpty() && remarks.isEmpty() && imgs.isEmpty()) continue
             if (code == "ASSETNUMBER" || name.equals("description", true)) continue
-            val classifTxt = txt(r, "classif")
+            val classifTxt = txt(r, "classif").takeIf { it.length > 2 }.orEmpty()
             val kelas = KodeAset.kelasDariKode(code) ?: KodeAset.kelasDariNama(classifTxt)
             val bc = txt(r, "barcode").lowercase().let { when { it.contains("untag") -> StatusBarcode.UNTAGGED; it.contains("tagged") -> StatusBarcode.TAGGED; it.contains("non") -> StatusBarcode.NONASSET; else -> null } }
             val ten = txt(r, "tenure").lowercase().let { if (Regex("sewa|rent|lease|rental|kontrak").containsMatchIn(it)) "lease" else "own" }
             val cond = txt(r, "cond").let { when (it.lowercase()) { "good" -> "Baik"; "fair" -> "Cukup"; "poor" -> "Rusak"; else -> it } }
             fun num(f: String) = cell(r, f)?.let { it.num ?: parseAngka(it.text) }
+            val tglCatat = parseTanggal(cell(r, "tglTercatat"))
             val m = AsetModel(
                 id = "", code = code, name = name,
                 category = kelas?.kategori ?: KodeAset.tebakKategori(code, name + " " + classifTxt),
                 classif = kelas?.nama ?: classifTxt,
-                owner = txt(r, "owner"), tenure = ten, dept = txt(r, "dept"), location = txt(r, "location"), user = txt(r, "user"), cond = cond,
-                acq = parseTanggal(cell(r, "acq")), checkDate = parseTanggal(cell(r, "checkDate")), remarks = remarks,
+                owner = txt(r, "owner").ifBlank { pt }, tenure = ten, dept = txt(r, "dept"), location = txt(r, "location"), user = txt(r, "user"), cond = cond,
+                acq = parseTanggal(cell(r, "acq")).ifBlank { tglCatat }, checkDate = parseTanggal(cell(r, "checkDate")), remarks = remarks,
                 nbv = num("nbv"), harga = num("harga"), masa = num("masa")?.toInt(),
-                tglTercatat = parseTanggal(cell(r, "tglTercatat")), nbvKet = txt(r, "nbvKet"), catatan = txt(r, "catatan"),
+                tglTercatat = tglCatat, nbvKet = txt(r, "nbvKet"), catatan = txt(r, "catatan"),
                 sumber = txt(r, "sumber"), srcStatus = txt(r, "srcStatus"),
                 barcode = bc, barcodeSrc = if (bc != null) SumberBarcode.EXCEL else SumberBarcode.NONE,
             )
             rows.add(Triple(m, imgs.size, imgs))
         }
-        return XlsxPlan(rows, sh.name, lay.headerRow + 1, lay.cols.keys.toList(), file)
+        return rows
     }
 
     /** Gambar apa pun -> JPEG ≤ maxSide. Null bila tidak dapat dibaca. */

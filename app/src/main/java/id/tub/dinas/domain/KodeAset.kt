@@ -9,7 +9,8 @@ package id.tub.dinas.domain
 object KodeAset {
     private val DIGIT_KE_HURUF = mapOf('0' to 'O', '1' to 'I', '5' to 'S', '8' to 'B', '2' to 'Z', '6' to 'G')
     private val HURUF_KE_DIGIT = mapOf('O' to '0', 'Q' to '0', 'D' to '0', 'I' to '1', 'L' to '1', 'S' to '5', 'B' to '8', 'Z' to '2', 'G' to '6')
-    private val AWALAN = Regex("^TU[A-Z]{3}$")
+    /** Awalan 5 karakter: TUBxx (TUB) atau BAUxx (PT Bara Alam Utama). */
+    private val AWALAN = Regex("^(TU[A-Z]{3}|BAU[A-Z]{2})$")
     private val AKHIRAN = Regex("^\\d{5,7}$")
     private val NON_ALNUM = Regex("[^A-Z0-9]")
 
@@ -28,13 +29,15 @@ object KodeAset {
         val hasil = LinkedHashSet<String>()
         (teks ?: "").uppercase().split(Regex("\\r?\\n")).forEach { baris ->
             val a = baris.replace(NON_ALNUM, "")
-            var i = a.indexOf("TU")
-            while (i >= 0) {
-                for (n in intArrayOf(6, 5, 7)) {
-                    val k = validasi(a.substring(i, minOf(a.length, i + 5 + n)))
-                    if (k != null) { hasil.add(k); break }
+            for ((awal, urut) in listOf("TU" to intArrayOf(6, 5, 7), "BAU" to intArrayOf(7, 6, 5))) {
+                var i = a.indexOf(awal)
+                while (i >= 0) {
+                    for (n in urut) {
+                        val k = validasi(a.substring(i, minOf(a.length, i + 5 + n)))
+                        if (k != null) { hasil.add(k); break }
+                    }
+                    i = a.indexOf(awal, i + 1)
                 }
-                i = a.indexOf("TU", i + 1)
             }
         }
         return hasil.toList()
