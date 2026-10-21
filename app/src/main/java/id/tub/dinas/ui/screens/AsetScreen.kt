@@ -172,7 +172,12 @@ private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(r.info, color = C.Muted)
                 Text("${r.total} baris dibaca", fontWeight = FontWeight.Bold)
-                Text("• ${r.baru} aset baru\n• ${r.update} akan dilengkapi (hanya kolom yang kosong; data lama tidak ditimpa)\n• ${r.sama} sama, dilewati\n• ${r.ganda} ganda di dalam file, dilewati\n• ${r.foto} foto akan ditambahkan")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = !st.timpa, onClick = { if (st.timpa) vm.aset.ubahMode(false) }, label = { Text("Lengkapi") })
+                    FilterChip(selected = st.timpa, onClick = { if (!st.timpa) vm.aset.ubahMode(true) }, label = { Text("Perbarui") })
+                }
+                Text(if (st.timpa) "Perbarui: isi sel Excel yang tidak kosong menggantikan data di aplikasi (mis. PT Pemilik). Sel kosong tidak menghapus. Status audit tidak berubah." else "Lengkapi: hanya mengisi kolom yang masih kosong; data lama tidak ditimpa.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                Text("• ${r.baru} aset baru\n• ${r.update} akan ${if (st.timpa) "diperbarui" else "dilengkapi"}\n• ${r.sama} sama, dilewati\n• ${r.ganda} ganda di dalam file, dilewati\n• ${r.foto} foto akan ditambahkan")
                 Text("Foto ditambahkan ke aset yang belum punya foto. Cadangan dulu bila data penting.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
             }
         },

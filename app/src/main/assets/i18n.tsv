@@ -648,3 +648,8 @@ Aplikasi ini tidak menyertakan repositori apa pun; isi dan tanggung jawab sumber
 Belum ada|None yet|暂无|まだありません|아직 없음
 tersimpan|saved|已保存|件保存済み|개 저장됨
 Buka di Aniyomi|Open in Aniyomi|在Aniyomi中打开|Aniyomiで開く|Aniyomi에서 열기
+Lengkapi|Fill in|补全|補完|보완
+Perbarui|Update|更新|更新|갱신
+~diperbarui|updated|已更新|更新|갱신됨
+Perbarui: isi sel Excel yang tidak kosong menggantikan data di aplikasi (mis. PT Pemilik). Sel kosong tidak menghapus. Status audit tidak berubah.|Update: non-empty Excel cells replace data in the app (e.g. PT Pemilik). Empty cells delete nothing. Audit status is unchanged.|更新：Excel中非空单元格将替换应用内数据（如PT Pemilik）。空单元格不会删除。审计状态不变。|更新：Excelの空でないセルがアプリ内のデータを置き換えます（例：PT Pemilik）。空のセルは削除しません。監査状況は変わりません。|갱신: Excel의 비어 있지 않은 셀이 앱 데이터를 대체합니다(예: PT Pemilik). 빈 셀은 삭제하지 않습니다. 감사 상태는 유지됩니다.
+Lengkapi: hanya mengisi kolom yang masih kosong; data lama tidak ditimpa.|Fill in: only fills columns that are still empty; existing data is not overwritten.|补全：仅填充仍为空的列；不覆盖已有数据。|補完：空の列のみ入力します。既存データは上書きしません。|보완: 비어 있는 열만 채우며 기존 데이터는 덮어쓰지 않습니다.

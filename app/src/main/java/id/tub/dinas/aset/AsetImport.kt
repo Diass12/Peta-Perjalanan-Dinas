@@ -18,7 +18,7 @@ import java.util.UUID
 class ImportReport(val total: Int, val baru: Int, val update: Int, val sama: Int, val ganda: Int, val foto: Int, val info: String)
 
 /** Menerapkan baris hasil baca ke register: kunci = kode ternormalisasi; bila kosong nama+dept. Mode "Lengkapi": hanya mengisi yang kosong. */
-class AsetImporter(private val repo: Repository, existing: List<AsetModel>, private val fotoCount: Map<String, Int>, private val dryRun: Boolean) {
+class AsetImporter(private val repo: Repository, existing: List<AsetModel>, private val fotoCount: Map<String, Int>, private val dryRun: Boolean, private val timpa: Boolean = false) {
     private val byCode = HashMap<String, AsetModel>()
     private val byName = HashMap<String, AsetModel>()
     private val seen = HashSet<String>()
@@ -48,13 +48,13 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
             index(a.copy(id = id))
             return
         }
-        val merged = merge(old, m)
+        val merged = if (timpa) perbarui(old, m) else merge(old, m)
         val needPhotos = photoCount > 0 && (fotoCount[old.id] ?: 0) == 0
         if (merged == old && !needPhotos) { sama++; return }
         update++
         if (needPhotos) foto += photoCount
         if (dryRun) return
-        repo.saveAset(merged.addLog("dilengkapi dari import"))
+        repo.saveAset(merged.addLog(if (timpa) "diperbarui dari import" else "dilengkapi dari import"))
         if (needPhotos) unik(photos()).forEach { repo.addAsetFoto(old.id, it, null) }
         index(merged)
     }
@@ -69,6 +69,24 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
             out.add(b)
         }
         return out
+    }
+
+    /** Mode "Perbarui": nilai tak kosong dari file menggantikan data lama; sel kosong di file tidak menghapus. Status audit & foto tetap. */
+    private fun perbarui(o: AsetModel, n: AsetModel): AsetModel {
+        fun s(a: String, b: String) = b.trim().ifBlank { a }
+        val kelasBaru = n.classif.isNotBlank()
+        return o.copy(
+            name = s(o.name, n.name),
+            category = if (kelasBaru) n.category else o.category, classif = s(o.classif, n.classif),
+            owner = s(o.owner, n.owner), tenure = if (n.tenure == "lease") "lease" else o.tenure,
+            dept = s(o.dept, n.dept), location = s(o.location, n.location), user = s(o.user, n.user),
+            cond = s(o.cond, n.cond), acq = s(o.acq, n.acq), checkDate = s(o.checkDate, n.checkDate), remarks = s(o.remarks, n.remarks),
+            nbv = n.nbv ?: o.nbv, harga = n.harga ?: o.harga, masa = n.masa ?: o.masa,
+            tglTercatat = s(o.tglTercatat, n.tglTercatat), nbvKet = s(o.nbvKet, n.nbvKet), catatan = s(o.catatan, n.catatan),
+            sumber = s(o.sumber, n.sumber), srcStatus = s(o.srcStatus, n.srcStatus),
+            barcode = n.barcode ?: o.barcode, barcodeSrc = if (n.barcode != null) n.barcodeSrc else o.barcodeSrc,
+            pcodes = (o.pcodes + n.pcodes).distinct(),
+        )
     }
 
     private fun merge(o: AsetModel, n: AsetModel): AsetModel = o.copy(

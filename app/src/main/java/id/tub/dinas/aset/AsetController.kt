@@ -25,7 +25,7 @@ class ScanReport(val lines: List<ScanLine>, val diabaikan: Int, val jpeg: ByteAr
 
 class GaleriHasil(val lines: List<ScanLine>, val tanpaKode: Int, val dibuat: Int, val gagal: Int, val jpegTanpaKode: List<ByteArray>)
 
-class ImportState(val kind: String, val file: File, val report: ImportReport, val plan: AsetImport.XlsxPlan?)
+class ImportState(val kind: String, val file: File, val report: ImportReport, val plan: AsetImport.XlsxPlan?, val timpa: Boolean = false)
 
 /** Status & operasi layar Aset: filter, scan, import, export. Dipegang MainViewModel supaya bertahan saat layar diputar. */
 class AsetController(private val vm: MainViewModel) {
@@ -421,13 +421,25 @@ class AsetController(private val vm: MainViewModel) {
         } catch (e: Exception) { file.delete(); throw e }
     }
 
+    /** Ganti mode import (lengkapi / perbarui) lalu hitung ulang pratinjau dari berkas yang sama. */
+    fun ubahMode(timpa: Boolean) {
+        val st = importState ?: return
+        vm.work {
+            val bundles = repo.asetBundles()
+            val imp = AsetImporter(repo, bundles.map { it.aset }, bundles.associate { it.aset.id to it.fotos.size }, dryRun = true, timpa = timpa)
+            if (st.kind == "xlsx") { for ((m, c, _) in st.plan!!.rows) imp.add(m, c) { emptyList() } }
+            else withContext(Dispatchers.IO) { st.file.inputStream().use { s -> AsetImport.streamJson(s, false) { m, c, p -> imp.add(m, c, p) } } }
+            importState = ImportState(st.kind, st.file, imp.report(st.report.info), st.plan, timpa)
+        }
+    }
+
     fun batalImport() { importState?.file?.delete(); importState = null }
 
     fun terapkanImport() {
         val st = importState ?: return
         vm.work {
             val bundles = repo.asetBundles()
-            val imp = AsetImporter(repo, bundles.map { it.aset }, bundles.associate { it.aset.id to it.fotos.size }, dryRun = false)
+            val imp = AsetImporter(repo, bundles.map { it.aset }, bundles.associate { it.aset.id to it.fotos.size }, dryRun = false, timpa = st.timpa)
             withContext(Dispatchers.IO) {
                 if (st.kind == "xlsx") {
                     for ((m, c, entries) in st.plan!!.rows) imp.add(m, c) { entries.mapNotNull { e -> XlsxReader.readImage(st.file, e)?.let { b -> AsetImport.toJpeg(b) } } }
@@ -436,7 +448,7 @@ class AsetController(private val vm: MainViewModel) {
                 }
             }
             st.file.delete(); importState = null
-            vm.toast("Import selesai: ${imp.baru} baru, ${imp.update} dilengkapi, ${imp.sama} sama, ${imp.ganda} ganda di file")
+            vm.toast("Import selesai: ${imp.baru} baru, ${imp.update} ${if (st.timpa) "diperbarui" else "dilengkapi"}, ${imp.sama} sama, ${imp.ganda} ganda di file")
         }
     }
 
