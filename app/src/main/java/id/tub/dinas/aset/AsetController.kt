@@ -472,14 +472,18 @@ class AsetController(private val vm: MainViewModel) {
     /** format: pdf | html | label. */
     fun exportLain(uri: Uri, format: String, maxFoto: Int, daftar: List<AsetModel>) = vm.work {
         val fm = fotos.value
+        val op = opsiXlsx
+        val daftar = if (format == "pdf" || format == "html") daftar.filter { a ->
+            when (a.barcode) { StatusBarcode.TAGGED -> op.tagged; StatusBarcode.UNTAGGED -> op.untagged; else -> op.tanpaKode }
+        } else daftar
         val co = company(daftar)
         withContext(Dispatchers.IO) {
             val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
             val baca: (String) -> ByteArray? = { p -> runCatching { repo.vault.read(p) }.getOrNull() }
             os.use {
                 when (format) {
-                    "pdf" -> AsetReports.laporanPdf(daftar, fm, co, maxFoto, baca, it)
-                    "html" -> AsetReports.laporanHtml(daftar, fm, co, maxFoto, baca, it)
+                    "pdf" -> AsetReports.laporanPdf(daftar, fm, co, maxFoto, baca, it, op)
+                    "html" -> AsetReports.laporanHtml(daftar, fm, co, maxFoto, baca, it, op)
                     "json" -> AsetJson.tulis(daftar, fm.mapValues { e -> e.value.let { l -> if (maxFoto == 0) emptyList() else l } }, master, repo.asetList(), baca, it)
                     else -> AsetReports.labelPdf(daftar, co, it)
                 }

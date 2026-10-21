@@ -79,7 +79,7 @@ object AsetReports {
 
     // ---------------- PDF daftar ----------------
 
-    fun laporanPdf(aset: List<AsetModel>, fotos: Map<String, List<AsetFotoModel>>, company: String, maxFoto: Int, readFoto: (String) -> ByteArray?, out: OutputStream) {
+    fun laporanPdf(aset: List<AsetModel>, fotos: Map<String, List<AsetFotoModel>>, company: String, maxFoto: Int, readFoto: (String) -> ByteArray?, out: OutputStream, op: MemoFat.Opsi = MemoFat.Opsi()) {
         val doc = PdfDocument()
         var pageNo = 0
         var page: PdfDocument.Page? = null
@@ -98,10 +98,12 @@ object AsetReports {
         baru()
         val pCode = tp(11f, true, 0xFF4F3FE8.toInt(), true); val pName = tp(10.5f, true); val pInfo = tp(8.5f, color = 0xFF444444.toInt())
         val border = Paint().apply { style = Paint.Style.STROKE; color = 0xFFBBBBBB.toInt(); strokeWidth = 0.8f }
-        val n = maxFoto.coerceIn(0, 4)
+        val n = if (op.foto) maxFoto.coerceIn(0, 4) else 0
+        val sisi = if (op.asli) 1400 else 360
         for ((i, a) in aset.withIndex()) {
-            val ph = if (n > 0) (fotos[a.id].orEmpty()).take(n).mapNotNull { f -> readFoto(f.path)?.let { Imaging.decode(it, 360) } } else emptyList()
-            val h = 74f + (if (ph.isNotEmpty()) 84f else 0f)
+            val ph = if (n > 0) (fotos[a.id].orEmpty()).take(n).mapNotNull { f -> readFoto(f.path)?.let { Imaging.decode(it, sisi) } } else emptyList()
+            val ekstra = (if (op.nbv && (a.nbv != null || a.harga != null)) 11f else 0f) + (if (op.remarks && a.remarks.isNotBlank()) 20f else 0f)
+            val h = 74f + ekstra + (if (ph.isNotEmpty()) 84f else 0f)
             if (y + h > PH - M) baru()
             val cv = c!!
             cv.drawRoundRect(RectF(M.toFloat(), y, (PW - M).toFloat(), y + h), 6f, 6f, border)
@@ -111,12 +113,15 @@ object AsetReports {
             var ty = y + 22f
             ty += cv.wrap(a.name.ifEmpty { "(tanpa nama)" }, pName, (M + 26).toFloat(), ty, w, 2) + 2f
             ty += cv.wrap(line("Kategori" to KodeAset.labelKategori(a.category), "Dept" to a.dept, "Lokasi" to a.location, "User" to a.user), pInfo, (M + 26).toFloat(), ty, w, 2) + 1f
-            cv.wrap(line("Kondisi" to a.cond, "Barcode" to (a.barcode?.label ?: "Non Aset"), "Audit" to a.state.label, "PT" to a.owner, "Cek" to a.checkDate), pInfo, (M + 26).toFloat(), ty, w, 2)
+            ty += cv.wrap(line("Kondisi" to a.cond, "Barcode" to (if (op.barcode) (a.barcode?.label ?: "Non Aset") else ""), "Audit" to a.state.label, "PT" to (if (op.pemilik) a.owner else ""), "Milik/Sewa" to (if (op.pemilik) a.tenureLabel else ""), "Cek" to a.checkDate), pInfo, (M + 26).toFloat(), ty, w, 2) + 1f
+            val nbvTxt = if (op.nbv) line("Nilai buku" to (a.nbv?.let { "%,.0f".format(it) } ?: ""), "Harga" to (a.harga?.let { "%,.0f".format(it) } ?: "")) else ""
+            if (nbvTxt.isNotBlank()) ty += cv.wrap(nbvTxt, pInfo, (M + 26).toFloat(), ty, w, 1) + 1f
+            if (op.remarks && a.remarks.isNotBlank()) cv.wrap("Ket: " + a.remarks, pInfo, (M + 26).toFloat(), ty, w, 2)
             var px = (M + 26).toFloat()
             for (b in ph) {
                 val sc = minOf(76f / b.width, 76f / b.height)
                 val dw = b.width * sc; val dh = b.height * sc
-                cv.drawBitmap(b, null, RectF(px, y + 74f, px + dw, y + 74f + dh), null)
+                cv.drawBitmap(b, null, RectF(px, y + 74f + ekstra, px + dw, y + 74f + ekstra + dh), null)
                 px += dw + 8f; b.recycle()
             }
             y += h + 8f
@@ -162,7 +167,7 @@ object AsetReports {
 
     private fun esc(s: String) = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
 
-    fun laporanHtml(aset: List<AsetModel>, fotos: Map<String, List<AsetFotoModel>>, company: String, maxFoto: Int, readFoto: (String) -> ByteArray?, out: OutputStream) {
+    fun laporanHtml(aset: List<AsetModel>, fotos: Map<String, List<AsetFotoModel>>, company: String, maxFoto: Int, readFoto: (String) -> ByteArray?, out: OutputStream, op: MemoFat.Opsi = MemoFat.Opsi()) {
         val w = out.bufferedWriter(Charsets.UTF_8)
         w.write("""<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Laporan Aset</title>
 <style>body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:16px;background:#f5f3ff;color:#1e1b3a}h1{margin:0 0 4px}small{color:#666}
@@ -175,16 +180,21 @@ td{padding:8px;border-bottom:1px solid #eee;vertical-align:top;font-size:13px}td
 @media print{input{display:none}body{background:#fff}th{position:static}td img{max-width:90px}}</style></head><body>
 <h1>Laporan Aset — """.trimIndent() + esc(company) + """</h1><small>""" + hari() + " · " + aset.size + """ aset</small><br>
 <input id="q" placeholder="Cari kode, nama, dept, lokasi…" oninput="f()">
-<table id="t"><thead><tr><th>No</th><th>Foto</th><th>Kode</th><th>Nama</th><th>Kategori</th><th>Dept</th><th>Lokasi</th><th>User</th><th>Kondisi</th><th>Barcode</th><th>Audit</th></tr></thead><tbody>
+<table id="t"><thead><tr><th>No</th>""" + (if (op.foto) "<th>Foto</th>" else "") + """<th>Kode</th><th>Nama</th><th>Kategori</th><th>Dept</th><th>Lokasi</th><th>User</th><th>Kondisi</th>""" + (if (op.barcode) "<th>Barcode</th>" else "") + "<th>Audit</th>" + (if (op.remarks) "<th>Keterangan</th>" else "") + (if (op.nbv) "<th>Harga</th><th>Nilai Buku</th>" else "") + (if (op.pemilik) "<th>PT Pemilik</th><th>Kepemilikan</th>" else "") + """</tr></thead><tbody>
 """)
-        val n = maxFoto.coerceIn(0, 4)
+        val n = if (op.foto) maxFoto.coerceIn(0, 4) else 0
         for ((i, a) in aset.withIndex()) {
-            val imgs = if (n > 0) (fotos[a.id].orEmpty()).take(n).mapNotNull { f -> readFoto(f.path)?.let { Imaging.jpeg(it, 360, 72) } } else emptyList()
+            val imgs = if (n > 0) (fotos[a.id].orEmpty()).take(n).mapNotNull { f -> readFoto(f.path)?.let { if (op.asli) Imaging.jpeg(it, 1400, 85) else Imaging.jpeg(it, 360, 72) } } else emptyList()
             val bc = a.barcode?.label ?: "Non Aset"
-            w.write("<tr><td>${i + 1}</td><td>")
-            for (b in imgs) w.write("<img onclick=\"z(this)\" src=\"data:image/jpeg;base64,${Base64.encodeToString(b, Base64.NO_WRAP)}\">")
-            w.write("</td><td class=\"code\">${esc(a.code.ifEmpty { "—" })}</td><td>${esc(a.name)}</td><td>${esc(KodeAset.labelKategori(a.category))}</td><td>${esc(a.dept)}</td><td>${esc(a.location)}</td><td>${esc(a.user)}</td><td>${esc(a.cond)}</td>")
-            w.write("<td><span class=\"t ${bc.replace(" ", "")}\">${esc(bc)}</span></td><td>${esc(a.state.label)}</td></tr>\n")
+            w.write("<tr><td>${i + 1}</td>")
+            if (op.foto) { w.write("<td>"); for (b in imgs) w.write("<img onclick=\"z(this)\" src=\"data:image/jpeg;base64,${Base64.encodeToString(b, Base64.NO_WRAP)}\">"); w.write("</td>") }
+            w.write("<td class=\"code\">${esc(a.code.ifEmpty { "—" })}</td><td>${esc(a.name)}</td><td>${esc(KodeAset.labelKategori(a.category))}</td><td>${esc(a.dept)}</td><td>${esc(a.location)}</td><td>${esc(a.user)}</td><td>${esc(a.cond)}</td>")
+            if (op.barcode) w.write("<td><span class=\"t ${bc.replace(" ", "")}\">${esc(bc)}</span></td>")
+            w.write("<td>${esc(a.state.label)}</td>")
+            if (op.remarks) w.write("<td>${esc(a.remarks)}</td>")
+            if (op.nbv) w.write("<td>${a.harga?.let { "%,.0f".format(it) } ?: ""}</td><td>${a.nbv?.let { "%,.0f".format(it) } ?: ""}</td>")
+            if (op.pemilik) w.write("<td>${esc(a.owner)}</td><td>${esc(a.tenureLabel)}</td>")
+            w.write("</tr>\n")
         }
         w.write("""</tbody></table><div id="zoom" onclick="this.style.display='none'"><img id="zi"></div>
 <script>function f(){var q=document.getElementById('q').value.toLowerCase();document.querySelectorAll('#t tbody tr').forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(q)>=0?'':'none'})}

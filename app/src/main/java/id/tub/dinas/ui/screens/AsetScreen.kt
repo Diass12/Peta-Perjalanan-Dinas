@@ -1,5 +1,6 @@
 package id.tub.dinas.ui.screens
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import id.tub.dinas.ui.components.Chip
 import id.tub.dinas.ui.components.Field
 import androidx.compose.foundation.layout.FlowRow
@@ -126,7 +127,7 @@ fun AsetScreen(vm: MainViewModel) {
 
     exportFmt?.let { fmt0 ->
         ExportDialog(
-            awal = fmt0, total = list.size, terfilter = filtered.size, terpilih = sel.size,
+            awal = fmt0, semua = list, terfilter = filtered.size, terpilih = sel.size,
             onDismiss = { exportFmt = null },
             onOpsi = { c.opsiXlsx = it },
             onGo = { fmt, n, cakupan ->
@@ -281,65 +282,81 @@ private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
 }
 
 @Composable
-private fun ExportDialog(awal: String, total: Int, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onOpsi: (MemoFat.Opsi) -> Unit, onGo: (String, Int, Int) -> Unit) {
+private fun ExportDialog(awal: String, semua: List<AsetModel>, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onOpsi: (MemoFat.Opsi) -> Unit, onGo: (String, Int, Int) -> Unit) {
     var fmt by remember { mutableStateOf(awal) }
     var n by remember { mutableIntStateOf(2) }
     var cakupan by remember { mutableIntStateOf(if (terpilih > 0) 2 else 0) }
     var o by remember { mutableStateOf(MemoFat.Opsi()) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (fmt == "label") "Cetak label QR" else "Ekspor laporan") },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Format", style = MaterialTheme.typography.labelSmall)
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Chip("Excel", fmt == "xlsx", onClick = { fmt = "xlsx" })
-                    Chip("PDF", fmt == "pdf", onClick = { fmt = "pdf" })
-                    Chip("HTML", fmt == "html", onClick = { fmt = "html" })
-                    Chip("JSON", fmt == "json", onClick = { fmt = "json" })
-                    Chip("Label QR", fmt == "label", onClick = { fmt = "label" })
+    val laporan = fmt == "xlsx" || fmt == "pdf" || fmt == "html"
+    val nTag = semua.count { it.barcode == StatusBarcode.TAGGED }
+    val nUn = semua.count { it.barcode == StatusBarcode.UNTAGGED }
+    val nNon = semua.count { it.barcode == StatusBarcode.NONASSET || it.barcode == null }
+    fun salin(tagged: Boolean = o.tagged, untagged: Boolean = o.untagged, tanpaKode: Boolean = o.tanpaKode, foto: Boolean = o.foto, barcode: Boolean = o.barcode,
+              remarks: Boolean = o.remarks, nbv: Boolean = o.nbv, pemilik: Boolean = o.pemilik, asli: Boolean = o.asli) =
+        MemoFat.Opsi(tagged, untagged, tanpaKode, foto, barcode, remarks, nbv, pemilik, asli)
+    @Composable
+    fun Bagian(judul: String, isi: @Composable ColumnScope.() -> Unit) =
+        Column(Modifier.fillMaxWidth().background(A.Bg, RoundedCornerShape(18.dp)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(judul, color = A.Ink, fontWeight = FontWeight.Bold, fontSize = 16.sp); isi()
+        }
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss, properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 40.dp).background(A.Card, RoundedCornerShape(26.dp)).padding(14.dp)) {
+            Text(if (fmt == "label") "⬇ Cetak label QR" else "⬇ Ekspor laporan", color = A.Ink, fontSize = 22.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 4.dp, bottom = 10.dp))
+            Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Bagian("Format") {
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Chip("📗 Excel", fmt == "xlsx") { fmt = "xlsx" }
+                        Chip("🌐 HTML", fmt == "html") { fmt = "html" }
+                        Chip("📕 PDF", fmt == "pdf") { fmt = "pdf" }
+                        Chip("JSON", fmt == "json") { fmt = "json" }
+                        Chip("Label QR", fmt == "label") { fmt = "label" }
+                    }
+                    Text(when (fmt) {
+                        "xlsx" -> "Templat Memo FAT, foto di dalam sel, dropdown master."
+                        "pdf" -> "Laporan siap cetak / bagikan."
+                        "json" -> "Cadangan format AsetScan v2 lengkap dengan foto & keterangan; bisa diimpor ke Aset Scan PC dan sebaliknya. Pilih 0 foto untuk berkas kecil."
+                        "html" -> "Satu berkas rapi, bisa dicari/difilter/dicetak, tanpa perlu Excel."
+                        else -> "PDF stiker label A4 (3 × 8) berisi QR kode aset. Hanya aset yang punya kode."
+                    }, color = A.Muted, fontSize = 13.sp)
                 }
-                Text(when (fmt) {
-                    "xlsx" -> "Memo FAT: tiga sheet Tagged, Untagged, Belum Ada Kode Aset."
-                    "pdf" -> "Daftar aset per baris dengan foto, siap cetak."
-                    "json" -> "Cadangan format AsetScan v2 lengkap dengan foto & keterangan; bisa diimpor ke Aset Scan PC dan sebaliknya. Pilih 0 foto untuk berkas kecil."
-                    "html" -> "Satu berkas mandiri dengan pencarian dan zoom foto; bisa dibuka di browser mana pun."
-                    else -> "PDF stiker label A4 (3 × 8) berisi QR kode aset. Hanya aset yang punya kode."
-                }, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                Text("Cakupan", style = MaterialTheme.typography.labelSmall)
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Chip("Semua ($total)", cakupan == 0, onClick = { cakupan = 0 })
-                    Chip("Terfilter ($terfilter)", cakupan == 1, onClick = { cakupan = 1 })
-                    if (terpilih > 0) Chip("Terpilih ($terpilih)", cakupan == 2, onClick = { cakupan = 2 })
-                }
-                if (fmt == "xlsx") {
-                    Text("Sheet yang diekspor", style = MaterialTheme.typography.labelSmall)
-                    CekBaris("Tagged", o.tagged) { o = MemoFat.Opsi(it, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
-                    CekBaris("Untagged", o.untagged) { o = MemoFat.Opsi(o.tagged, it, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
-                    CekBaris("Belum ada kode aset", o.tanpaKode) { o = MemoFat.Opsi(o.tagged, o.untagged, it, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
-                    Text("Data yang disertakan (kolom inti selalu ada)", style = MaterialTheme.typography.labelSmall)
-                    CekBaris("Foto", o.foto) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, it, o.barcode, o.remarks, o.nbv, o.pemilik, o.asli) }
-                    CekBaris("Status barcode", o.barcode) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, it, o.remarks, o.nbv, o.pemilik, o.asli) }
-                    CekBaris("Keterangan (remarks)", o.remarks) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, it, o.nbv, o.pemilik, o.asli) }
-                    CekBaris("Blok NBV (nilai buku, harga, dll.)", o.nbv) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, it, o.pemilik, o.asli) }
-                    CekBaris("PT pemilik & kepemilikan", o.pemilik) { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, it, o.asli) }
-                    if (o.foto) {
-                        Text("Mutu foto", style = MaterialTheme.typography.labelSmall)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Chip("Ringan (900px)", !o.asli, onClick = { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, false) })
-                            Chip("Asli", o.asli, onClick = { o = MemoFat.Opsi(o.tagged, o.untagged, o.tanpaKode, o.foto, o.barcode, o.remarks, o.nbv, o.pemilik, true) })
-                        }
+                if (laporan) {
+                    Bagian("Sheet / bagian yang diekspor") {
+                        CekBaris("Tagged ($nTag)", o.tagged) { o = salin(tagged = it) }
+                        CekBaris("Untagged ($nUn)", o.untagged) { o = salin(untagged = it) }
+                        CekBaris("Belum ada kode aset ($nNon)", o.tanpaKode) { o = salin(tanpaKode = it) }
+                    }
+                    Bagian("Data yang disertakan (kolom inti selalu ada)") {
+                        CekBaris("Foto", o.foto) { o = salin(foto = it) }
+                        CekBaris("Status barcode", o.barcode) { o = salin(barcode = it) }
+                        CekBaris("Keterangan (remarks)", o.remarks) { o = salin(remarks = it) }
+                        CekBaris("Blok NBV (nilai buku, harga, dll.)", o.nbv) { o = salin(nbv = it) }
+                        CekBaris("PT pemilik & kepemilikan", o.pemilik) { o = salin(pemilik = it) }
                     }
                 }
-                if (fmt != "label") {
-                    Text("Foto per aset", style = MaterialTheme.typography.labelSmall)
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { (if (fmt == "xlsx") 1..4 else 0..4).forEach { k -> Chip("$k", n == k, onClick = { n = k }) } }
+                if (laporan && o.foto || fmt == "json") Bagian("Foto") {
+                    if (laporan) Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Chip("Ringan (900px)", !o.asli) { o = salin(asli = false) }
+                        Chip("ASLI", o.asli) { o = salin(asli = true) }
+                    }
+                    Text("Foto per aset", color = A.Muted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { (if (fmt == "xlsx") 1..4 else 0..4).forEach { k -> Chip("$k", (if (fmt == "xlsx") n.coerceAtLeast(1) else n) == k) { n = k } } }
+                }
+                Bagian("Cakupan") {
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Chip("Semua aset (${semua.size})", cakupan == 0) { cakupan = 0 }
+                        Chip("Sesuai filter daftar ($terfilter)", cakupan == 1) { cakupan = 1 }
+                        if (terpilih > 0) Chip("Terpilih ($terpilih)", cakupan == 2) { cakupan = 2 }
+                    }
                 }
             }
-        },
-        confirmButton = { TextButton(enabled = fmt != "xlsx" || o.tagged || o.untagged || o.tanpaKode, onClick = { onOpsi(o); onGo(fmt, if (fmt == "xlsx") n.coerceAtLeast(1) else n, cakupan) }) { Text(if (fmt == "label") "Buat label" else "Ekspor") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
-    )
+            Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) { Text("Batal") }
+                TextButton(enabled = !laporan || o.tagged || o.untagged || o.tanpaKode, onClick = { onOpsi(o); onGo(fmt, if (fmt == "xlsx") n.coerceAtLeast(1) else if (laporan && !o.foto) 0 else n, cakupan) }) { Text(if (fmt == "label") "Buat label" else "Ekspor") }
+            }
+        }
+    }
 }
 
 @Composable
