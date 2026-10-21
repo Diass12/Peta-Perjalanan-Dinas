@@ -38,6 +38,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var sharedText by mutableStateOf<String?>(null)
     var locked by mutableStateOf(settings.lockEnabled)
     var busy by mutableStateOf(false)
+    /** Hasil operasi yang ditampilkan sebagai dialog (ekspor, impor, gagal, dll.). */
+    var hasilOp by mutableStateOf<id.tub.dinas.ui.components.HasilOp?>(null)
+    fun hasil(judul: String, pesan: String, uri: Uri? = null, ok: Boolean = true) {
+        hasilOp = id.tub.dinas.ui.components.HasilOp(id.tub.dinas.i18n.Tr.t(judul), id.tub.dinas.i18n.Tr.t(pesan), uri, ok)
+    }
     var lockTimeoutSec by mutableStateOf(settings.lockTimeoutSec)
 
     val aset by lazy { id.tub.dinas.aset.AsetController(this) }
@@ -59,8 +64,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             busy = true
             try { block(); onDone?.invoke() }
-            catch (e: IllegalArgumentException) { toast(e.message ?: "Data tidak valid") }
-            catch (e: Exception) { toast("Gagal: ${e.message ?: e.javaClass.simpleName}") }
+            catch (e: IllegalArgumentException) { hasil("Tidak bisa dilanjutkan", e.message ?: "Data tidak valid", ok = false) }
+            catch (e: Exception) { hasil("Gagal", e.message ?: e.javaClass.simpleName, ok = false) }
             finally { busy = false }
         }
     }
@@ -132,19 +137,19 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun exportExcel(dinasId: String, uri: Uri) = work {
         val os = getApplication<Application>().contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
         os.use { repo.exportExcel(dinasId, it) }
-        toast("Excel tersimpan")
+        hasil("Berkas berhasil diekspor", "Laporan Excel dinas sudah disimpan.", uri)
     }
 
     fun exportBackup(uri: Uri, pass: String) = work {
         val os = getApplication<Application>().contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
         os.use { repo.exportBackup(it, pass.toCharArray().takeIf { p -> p.isNotEmpty() }) }
-        toast(if (pass.isEmpty()) "Cadangan tersimpan (TANPA kata sandi)" else "Cadangan terenkripsi tersimpan")
+        hasil("Cadangan tersimpan", if (pass.isEmpty()) "Cadangan TANPA kata sandi — simpan di tempat aman." else "Cadangan terenkripsi dengan kata sandi Anda.", uri)
     }
 
     fun restoreBackup(uri: Uri, pass: String) = work {
         val ins = getApplication<Application>().contentResolver.openInputStream(uri) ?: throw IllegalArgumentException("Tidak dapat membuka berkas")
         val n = ins.use { repo.restoreBackup(it, pass.toCharArray().takeIf { p -> p.isNotEmpty() }) }
-        toast("$n dinas dipulihkan")
+        hasil("Pemulihan selesai", "$n dinas berhasil dipulihkan.")
     }
 
     override fun onCleared() { tracker.stop() }

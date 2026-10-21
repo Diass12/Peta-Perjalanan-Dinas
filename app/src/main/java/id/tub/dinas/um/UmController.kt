@@ -110,7 +110,7 @@ class UmController(private val vm: MainViewModel) {
             val baca: (String) -> ByteArray? = { p -> runCatching { repo.vault.read(p) }.getOrNull() }
             os.use { if (format == "json") UmTransfer.tulisJson(daftar, baca, it) else UmTransfer.tulisExcel(daftar, baca, it) }
         }
-        vm.toast("${if (format == "json") "JSON" else "Excel"} tersimpan (${daftar.size} pengajuan)")
+        vm.hasil("Berkas berhasil diekspor", "${if (format == "json") "JSON" else "Excel"}: ${daftar.size} pengajuan.", uri)
     }
 
     fun impor(uri: Uri) = vm.work {

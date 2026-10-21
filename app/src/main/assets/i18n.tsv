@@ -685,3 +685,17 @@ Format bawaan untuk impor (Master Database + sheet foto)|Default import format (
 Sedang memproses…|Processing…|处理中…|処理中…|처리 중…
 Mohon tunggu, jangan tutup aplikasi.|Please wait, do not close the app.|请稍候，请勿关闭应用。|しばらくお待ちください。アプリを閉じないでください。|잠시 기다려 주세요. 앱을 닫지 마세요.
 Berhenti|Stop|停止|停止|중지
+Berkas berhasil diekspor|File exported successfully|文件导出成功|ファイルを書き出しました|파일을 내보냈습니다
+Cadangan tersimpan|Backup saved|备份已保存|バックアップを保存しました|백업이 저장되었습니다
+Pemulihan selesai|Restore complete|恢复完成|復元が完了しました|복원 완료
+Import selesai|Import complete|导入完成|インポート完了|가져오기 완료
+OCR selesai|OCR complete|OCR完成|OCR完了|OCR 완료
+OCR dihentikan|OCR stopped|OCR已停止|OCRを停止しました|OCR 중지됨
+Templat tersimpan|Template saved|模板已保存|テンプレートを保存しました|템플릿 저장됨
+Database dihapus|Database cleared|数据库已清空|データベースを削除しました|데이터베이스 삭제됨
+Tidak bisa dilanjutkan|Cannot continue|无法继续|続行できません|계속할 수 없음
+Gagal|Failed|失败|失敗|실패
+Nama berkas|File name|文件名|ファイル名|파일 이름
+Lokasi|Location|位置|場所|위치
+Buka berkas|Open file|打开文件|ファイルを開く|파일 열기
+OK|OK|确定|OK|확인

@@ -389,7 +389,7 @@ class AsetController(private val vm: MainViewModel) {
                     repo.saveAset(a.copy(barcode = st, barcodeSrc = src).addLog("OCR ulang")); ubah++
                 }
             }
-            vm.toast(if (berhenti) "Dihentikan. $ubah aset diperbarui" else "Selesai. $ubah aset diperbarui")
+            vm.hasil(if (berhenti) "OCR dihentikan" else "OCR selesai", "$ubah aset diperbarui statusnya.")
         } finally { sibuk = null }
     }
 
@@ -443,7 +443,7 @@ class AsetController(private val vm: MainViewModel) {
         withContext(Dispatchers.IO) { for (a in semua) repo.deleteAset(a.id) }
         if (resetMaster) { master.reset(); masterVer++ }
         selected = emptySet()
-        vm.toast("${semua.size} aset dihapus")
+        vm.hasil("Database dihapus", "${semua.size} aset dihapus." + if (uri != null) " Cadangan JSON sebelum hapus tersimpan." else "", uri)
     }
 
     fun simpanTemplat(uri: Uri) = vm.work {
@@ -451,7 +451,7 @@ class AsetController(private val vm: MainViewModel) {
             val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
             os.use { id.tub.dinas.export.AsetTemplate.tulis(it) }
         }
-        vm.toast("Templat Excel tersimpan")
+        vm.hasil("Templat tersimpan", "Isi templat ini lalu impor lewat Menu Aset → Impor Excel.", uri)
     }
 
     fun batalImport() { importState?.file?.delete(); importState = null }
@@ -469,7 +469,7 @@ class AsetController(private val vm: MainViewModel) {
                 }
             }
             st.file.delete(); importState = null
-            vm.toast("Import selesai: ${imp.baru} baru, ${imp.update} ${if (st.timpa) "diperbarui" else "dilengkapi"}, ${imp.sama} sama, ${imp.ganda} ganda di file")
+            vm.hasil("Import selesai", "${imp.baru} baru, ${imp.update} ${if (st.timpa) "diperbarui" else "dilengkapi"}, ${imp.sama} sama, ${imp.ganda} ganda di file")
         }
     }
 
@@ -497,7 +497,7 @@ class AsetController(private val vm: MainViewModel) {
                 }
             }
         }
-        vm.toast(when (format) { "label" -> "Label QR tersimpan (${daftar.count { it.code.isNotBlank() }} label)"; "pdf" -> "PDF tersimpan (${daftar.size} aset)"; "json" -> "Cadangan JSON AsetScan tersimpan (${daftar.size} aset)"; else -> "HTML tersimpan (${daftar.size} aset)" })
+        vm.hasil(if (format == "json") "Cadangan tersimpan" else "Berkas berhasil diekspor", when (format) { "label" -> "Label QR: ${daftar.count { it.code.isNotBlank() }} label."; "pdf" -> "Laporan PDF: ${daftar.size} aset."; "json" -> "Cadangan JSON AsetScan: ${daftar.size} aset."; else -> "Laporan HTML: ${daftar.size} aset." }, uri)
     }
 
     fun exportKartu(uri: Uri, a: AsetModel) = vm.work {
@@ -506,7 +506,7 @@ class AsetController(private val vm: MainViewModel) {
             val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
             os.use { AsetReports.kartuPdf(a, fm, { p -> runCatching { repo.vault.read(p) }.getOrNull() }, it) }
         }
-        vm.toast("Kartu aset tersimpan")
+        vm.hasil("Berkas berhasil diekspor", "Kartu aset PDF sudah disimpan.", uri)
     }
 
 
@@ -519,6 +519,6 @@ class AsetController(private val vm: MainViewModel) {
             val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
             os.use { MemoFat.export(daftar, bundles, company, maxFoto, { p -> runCatching { repo.vault.read(p) }.getOrNull() }, it, opsiXlsx) }
         }
-        vm.toast("Excel Memo FAT tersimpan (${daftar.size} aset)")
+        vm.hasil("Berkas berhasil diekspor", "Excel Memo FAT: ${daftar.size} aset.", uri)
     }
 }

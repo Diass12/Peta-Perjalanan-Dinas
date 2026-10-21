@@ -59,7 +59,7 @@ class JadwalController(private val vm: MainViewModel) {
             val os = app.contentResolver.openOutputStream(uri, "w") ?: throw IllegalArgumentException("Tidak dapat menulis berkas")
             os.use { tulisExcel(daftar, it) }
         }
-        vm.toast("Rekap jadwal tersimpan (${daftar.size} agenda)")
+        vm.hasil("Berkas berhasil diekspor", "Rekap jadwal: ${daftar.size} agenda.", uri)
     }
 
     private val HEAD = XStyle(bold = true, color = "FFFFFF", fill = "1F6FE0", h = "center", v = "center", border = true)
