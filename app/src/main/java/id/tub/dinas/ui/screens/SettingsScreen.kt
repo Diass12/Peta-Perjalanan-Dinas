@@ -119,6 +119,15 @@ fun SettingsScreen(vm: MainViewModel) {
                 }
             }
             Panel {
+                Text("Tampilan", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(6.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Chip("☀️ Terang", !id.tub.dinas.ui.theme.ThemeState.dark) { id.tub.dinas.ui.theme.ThemeState.dark = false; s.dark = false }
+                    Chip("🌙 Gelap", id.tub.dinas.ui.theme.ThemeState.dark) { id.tub.dinas.ui.theme.ThemeState.dark = true; s.dark = true }
+                }
+                Text("Mode gelap: hitam kebiruan dengan gradasi ungu–jingga seperti Aset Scan.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+            }
+            Panel {
                 Text("Bahasa aplikasi", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(6.dp))
                 @OptIn(ExperimentalLayoutApi::class)

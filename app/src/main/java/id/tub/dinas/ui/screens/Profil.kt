@@ -60,7 +60,7 @@ fun ProfilScreen(vm: MainViewModel) {
     Column(Modifier.fillMaxSize().background(C.Bg)) {
         Header("Profil", onBack = { vm.pop() })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Column(Modifier.fillMaxWidth().background(C.Brand, RoundedCornerShape(20.dp)).padding(18.dp)) {
+            Column(Modifier.fillMaxWidth().background(C.Grad, RoundedCornerShape(20.dp)).padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(56.dp).background(Color.White.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                         Text(nama.take(1).uppercase().ifEmpty { "A" }, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)

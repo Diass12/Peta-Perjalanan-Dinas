@@ -83,12 +83,12 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
             if (routeNote.isNotEmpty()) Text(routeNote, color = Color.White, fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.BottomStart).padding(10.dp).background(Color(0xCC111827), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 3.dp))
             Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Chip(if (onRoad) "🚗 Jalan" else "⛴ Lurus", false, bg = Color.White) { onRoad = !onRoad; vm.settings.vehicle = if (onRoad) "mobil" else "kapal" }
-                Chip(mapStyle.label, false, bg = Color.White) {
+                Chip(if (onRoad) "🚗 Jalan" else "⛴ Lurus", false, bg = C.Surface) { onRoad = !onRoad; vm.settings.vehicle = if (onRoad) "mobil" else "kapal" }
+                Chip(mapStyle.label, false, bg = C.Surface) {
                     val all = MapStyle.values()
                     mapStyle = all[(mapStyle.ordinal + 1) % all.size]; vm.settings.mapStyle = mapStyle.name
                 }
-                Chip(if (full) "✕" else "⤢", false, bg = Color.White) { fullOpen = !full }
+                Chip(if (full) "✕" else "⤢", false, bg = C.Surface) { fullOpen = !full }
             }
         }
     }
@@ -133,7 +133,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(12.dp)) {
+        Row(Modifier.fillMaxWidth().background(C.Surface).navigationBarsPadding().padding(12.dp)) {
             AmberButton("📍 Kunci titik GPS baru", Modifier.fillMaxWidth()) {
                 vm.work { val id = vm.repo.saveTitik(s.dinas.id, null, "", "", null); vm.editor = Editor.Titik(id) }
             }

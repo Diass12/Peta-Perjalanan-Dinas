@@ -97,7 +97,7 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             // Kartu profil navy
-            Column(Modifier.fillMaxWidth().background(C.Brand, RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)).statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 16.dp, bottom = 22.dp)) {
+            Column(Modifier.fillMaxWidth().background(C.Grad, RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)).statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 16.dp, bottom = 22.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(52.dp).background(Color.White.copy(alpha = 0.16f), CircleShape).clickable { vm.push(Screen.Profil) }, contentAlignment = Alignment.Center) {
                         Text(ThemeState.playerName.take(1).uppercase().ifEmpty { "A" }, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
@@ -186,7 +186,7 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
 @Composable
 fun PetaGpsTab(vm: MainViewModel, s: DinasSnapshot?) {
     Column(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxWidth().background(Color.White).statusBarsPadding().padding(top = 10.dp)) {
+        Column(Modifier.fillMaxWidth().background(C.Surface).statusBarsPadding().padding(top = 10.dp)) {
             Text("Peta & GPS", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 16.dp))
             Text(s?.dinas?.name ?: "Belum ada dinas", color = C.Muted, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 16.dp))
             DinasPicker(vm, s?.dinas?.id)

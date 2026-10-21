@@ -46,6 +46,10 @@ class Settings(ctx: Context) {
     var avatar: Int
         get() = p.getInt("avatar", 0)
         set(v) { p.edit().putInt("avatar", v).apply() }
+    /** Mode tampilan gelap (hitam kebiruan). */
+    var dark: Boolean
+        get() = p.getBoolean("dark", false)
+        set(v) { p.edit().putBoolean("dark", v).apply() }
     var skyTheme: Boolean
         get() = p.getBoolean("sky", true)
         set(v) { p.edit().putBoolean("sky", v).apply() }

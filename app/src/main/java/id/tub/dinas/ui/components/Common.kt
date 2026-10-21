@@ -81,7 +81,7 @@ fun Field(value: String, onChange: (String) -> Unit, label: String, modifier: Mo
     OutlinedTextField(value, onChange, modifier.fillMaxWidth(), label = { Text(label) }, minLines = minLines, singleLine = singleLine,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = C.Brand, unfocusedBorderColor = C.Line, focusedLabelColor = C.Brand, cursorColor = C.Brand,
-            focusedContainerColor = Color.White, unfocusedContainerColor = Color.White))
+            focusedContainerColor = C.Surface, unfocusedContainerColor = C.Surface))
 
 @Composable
 fun Chip(text: String, selected: Boolean, color: Color = C.Brand, bg: Color = C.Chip, onClick: (() -> Unit)? = null) {
@@ -132,7 +132,7 @@ fun SegBar(fraction: Float, color: Color, modifier: Modifier = Modifier, segment
 
 @Composable
 fun Confirm(title: String, text: String, confirmLabel: String = "Hapus", onConfirm: () -> Unit, onDismiss: () -> Unit) =
-    AlertDialog(onDismissRequest = onDismiss, containerColor = Color.White, title = { Text(title) }, text = { Text(text) },
+    AlertDialog(onDismissRequest = onDismiss, containerColor = C.Surface, title = { Text(title) }, text = { Text(text) },
         confirmButton = { TextButton(onClick = { onConfirm(); onDismiss() }) { Text(confirmLabel, color = C.Danger, fontWeight = FontWeight.Bold) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } })
 

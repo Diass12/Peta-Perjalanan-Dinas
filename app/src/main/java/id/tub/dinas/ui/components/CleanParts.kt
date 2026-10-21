@@ -20,7 +20,7 @@ import id.tub.dinas.ui.theme.C
 /** Navigasi bawah: ikon emoji + label; tab aktif biru. selected = -1 bila tidak ada yang aktif. */
 @Composable
 fun CleanNav(items: List<Pair<String, String>>, selected: Int, onSelect: (Int) -> Unit) {
-    Column(Modifier.fillMaxWidth().background(Color.White)) {
+    Column(Modifier.fillMaxWidth().background(C.Surface)) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(C.Line))
         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(vertical = 6.dp)) {
             items.forEachIndexed { i, (icon, label) ->
@@ -39,7 +39,7 @@ fun CleanNav(items: List<Pair<String, String>>, selected: Int, onSelect: (Int) -
 fun StatCard(label: String, value: Int, max: Int, orange: Boolean, modifier: Modifier = Modifier) {
     val c = if (orange) C.Amber else C.Brand
     val shape = RoundedCornerShape(16.dp)
-    Column(modifier.background(Color.White, shape).border(1.dp, C.Line, shape).padding(14.dp)) {
+    Column(modifier.background(C.Surface, shape).border(1.dp, C.Line, shape).padding(14.dp)) {
         Text(label, color = C.Muted, style = MaterialTheme.typography.labelSmall)
         Row(verticalAlignment = Alignment.Bottom) {
             Text("$value", color = C.Ink, fontSize = 28.sp, fontWeight = FontWeight.Bold)
@@ -54,7 +54,7 @@ fun StatCard(label: String, value: Int, max: Int, orange: Boolean, modifier: Mod
 @Composable
 fun MenuTile(icon: String, tint: Color, title: String, subtitle: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val shape = RoundedCornerShape(18.dp)
-    Column(modifier.clip(shape).background(Color.White, shape).border(1.dp, C.Line, shape).clickable { Sfx.menu(); onClick() }.padding(14.dp)) {
+    Column(modifier.clip(shape).background(C.Surface, shape).border(1.dp, C.Line, shape).clickable { Sfx.menu(); onClick() }.padding(14.dp)) {
         Box(Modifier.size(44.dp).background(tint.copy(alpha = 0.14f), RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) { Text(icon, fontSize = 22.sp) }
         Spacer(Modifier.height(10.dp))
         Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
@@ -65,5 +65,5 @@ fun MenuTile(icon: String, tint: Color, title: String, subtitle: String, modifie
 /** Tombol ikon bulat kecil (emoji). */
 @Composable
 fun RoundIcon(icon: String, onClick: () -> Unit) {
-    Box(Modifier.size(44.dp).clip(CircleShape).background(Color.White).border(1.dp, C.Line, CircleShape).clickable(onClick = onClick), contentAlignment = Alignment.Center) { Text(icon, fontSize = 20.sp) }
+    Box(Modifier.size(44.dp).clip(CircleShape).background(C.Surface).border(1.dp, C.Line, CircleShape).clickable(onClick = onClick), contentAlignment = Alignment.Center) { Text(icon, fontSize = 20.sp) }
 }

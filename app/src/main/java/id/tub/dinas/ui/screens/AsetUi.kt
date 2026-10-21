@@ -1,5 +1,6 @@
 package id.tub.dinas.ui.screens
 
+import id.tub.dinas.ui.theme.ThemeState
 import id.tub.dinas.ui.components.Text
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -41,20 +42,21 @@ import id.tub.dinas.media.EncryptedImage
 
 /** Palet modul Aset: meniru tampilan AsetScan (ungu–magenta–oranye, kartu gelap). */
 object A {
-    val Bg = Color(0xFFF5F7FB)
-    val Card = Color(0xFFFFFFFF)
-    val Card2 = Color(0xFFEEF1F6)
-    val Line = Color(0xFFE5E7EB)
-    val Ink = Color(0xFF0F172A)
-    val Muted = Color(0xFF6B7280)
-    val Accent = Color(0xFF15305A)
-    val Green = Color(0xFF059669)
-    val Amber = Color(0xFFD97706)
-    val Red = Color(0xFFDC2626)
-    val Blue = Color(0xFF2563EB)
-    val Pink = Color(0xFFC026D3)
-    val Grad = Brush.horizontalGradient(listOf(Color(0xFF15305A), Color(0xFF15305A)))
-    val Head = Brush.linearGradient(listOf(Color.White, Color.White))
+    private fun p(l: Long, d: Long) = Color(if (ThemeState.dark) d else l)
+    val Bg get() = p(0xFFF5F7FB, 0xFF0E0D22)
+    val Card get() = p(0xFFFFFFFF, 0xFF1A1936)
+    val Card2 get() = p(0xFFEEF1F6, 0xFF26244C)
+    val Line get() = p(0xFFE5E7EB, 0xFF2E2C54)
+    val Ink get() = p(0xFF0F172A, 0xFFF3F2FF)
+    val Muted get() = p(0xFF6B7280, 0xFFA9A7CC)
+    val Accent get() = p(0xFF15305A, 0xFF9B82FF)
+    val Green get() = p(0xFF059669, 0xFF34D399)
+    val Amber get() = p(0xFFD97706, 0xFFFBBF24)
+    val Red get() = p(0xFFDC2626, 0xFFF87171)
+    val Blue get() = p(0xFF2563EB, 0xFF60A5FA)
+    val Pink get() = p(0xFFC026D3, 0xFFE879F9)
+    val Grad: Brush get() = if (ThemeState.dark) Brush.horizontalGradient(listOf(Color(0xFF6C4DF6), Color(0xFFC94FE0), Color(0xFFF08A5D))) else Brush.horizontalGradient(listOf(Color(0xFF15305A), Color(0xFF15305A)))
+    val Head: Brush get() = if (ThemeState.dark) Brush.linearGradient(listOf(Color(0xFF5B3FE0), Color(0xFFB04FE6), Color(0xFFF08A5D))) else Brush.linearGradient(listOf(Color.White, Color.White))
     private val cat = listOf(Color(0xFFD97706), Color(0xFF2563EB), Color(0xFF0D9488), Color(0xFF7C3AED), Color(0xFFDB2777))
     fun cat(k: String): Color = cat[KodeAset.KATEGORI.indexOf(k).coerceAtLeast(0) % cat.size]
     fun state(s: AuditState): Color = when (s) { AuditState.FOUND -> Green; AuditState.MISSING -> Red; AuditState.DAMAGED -> Amber; AuditState.PENDING -> Muted }
@@ -62,7 +64,7 @@ object A {
 
 @Composable
 fun AHeader(title: String, sub: String, onBack: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}, extra: @Composable ColumnScope.() -> Unit = {}) {
-    Column(Modifier.fillMaxWidth().background(Color.White).statusBarsPadding().padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)) {
+    Column(Modifier.fillMaxWidth().background(A.Head).statusBarsPadding().padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             if (onBack != null) Text("‹", color = A.Ink, fontSize = 34.sp, modifier = Modifier.clickable { onBack() }.padding(end = 8.dp))
             Column(Modifier.weight(1f)) {

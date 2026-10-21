@@ -41,9 +41,15 @@ class MainActivity : FragmentActivity() {
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         applySecureFlag()
         handleShare(intent)
+        id.tub.dinas.ui.theme.ThemeState.dark = vm.settings.dark
         id.tub.dinas.i18n.Tr.init(this)
         id.tub.dinas.i18n.Tr.lang = id.tub.dinas.i18n.AppLang.from(vm.settings.lang)
         setContent {
+            val gelap = id.tub.dinas.ui.theme.ThemeState.dark
+            androidx.compose.runtime.SideEffect {
+                val c = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
+                c.isAppearanceLightStatusBars = !gelap; c.isAppearanceLightNavigationBars = !gelap
+            }
             DinasTheme {
                 Root(vm, onUnlock = { requestUnlock() })
             }
@@ -145,7 +151,7 @@ private fun SkyBackground(content: @Composable () -> Unit) {
 @Composable
 fun LockScreen(onUnlock: () -> Unit) {
     LaunchedEffect(Unit) { onUnlock() }
-    Column(Modifier.fillMaxSize().background(C.Ink).padding(32.dp), Arrangement.Center, Alignment.CenterHorizontally) {
+    Column(Modifier.fillMaxSize().background(Color(0xFF0F172A)).padding(32.dp), Arrangement.Center, Alignment.CenterHorizontally) {
         Text("📍", fontSize = 48.sp)
         Spacer(Modifier.height(12.dp))
         Text("Dokumentasi Dinas", color = Color.White, fontSize = 22.sp)

@@ -58,7 +58,7 @@ fun GaleriScreen(vm: MainViewModel) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         row.forEach { x ->
                             val shape = RoundedCornerShape(14.dp)
-                            Column(Modifier.weight(1f).clip(shape).background(androidx.compose.ui.graphics.Color.White, shape).border(1.dp, C.Line, shape)
+                            Column(Modifier.weight(1f).clip(shape).background(C.Surface, shape).border(1.dp, C.Line, shape)
                                 .clickable { vm.push(Screen.Photo(x.s.dinas.id, x.f.ownerId, x.index)) }) {
                                 EncryptedImage(vm.repo.vault, x.f.path, Modifier.fillMaxWidth().height(120.dp), maxSide = 360)
                                 Column(Modifier.padding(8.dp)) {

@@ -70,7 +70,7 @@ fun TemuanTab(vm: MainViewModel, s: DinasSnapshot) {
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(12.dp)) {
+        Row(Modifier.fillMaxWidth().background(C.Surface).navigationBarsPadding().padding(12.dp)) {
             AmberButton("+ Temuan", Modifier.fillMaxWidth()) {
                 vm.work { val id = vm.repo.newTemuan(s.dinas.id, null); vm.editor = Editor.Temuan(id, true) }
             }
