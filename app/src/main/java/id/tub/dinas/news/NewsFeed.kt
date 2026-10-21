@@ -22,8 +22,8 @@ object NewsFeed {
         Sumber("Terkini · Antara", "https://www.antaranews.com/rss/terkini.xml"),
         Sumber("Gempa · BMKG", "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.xml", Tipe.BMKG_GEMPA),
     )
-    const val BMKG_CUACA = "https://www.bmkg.go.id/cuaca/prakiraan-cuaca"
-    const val BMKG_GEMPA_HALAMAN = "https://www.bmkg.go.id/gempabumi/gempabumi-terkini"
+    const val BMKG_CUACA = "https://www.bmkg.go.id/"
+    const val BMKG_GEMPA_HALAMAN = "https://www.bmkg.go.id/gempabumi/gempabumi-terkini.html"
     private const val MAX_BYTES = 2_000_000
     private const val MAX_ITEM = 25
 
