@@ -30,6 +30,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import id.tub.dinas.media.ImageCache
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : FragmentActivity() {
     private val vm: MainViewModel by viewModels()
@@ -43,6 +45,7 @@ class MainActivity : FragmentActivity() {
         handleShare(intent)
         id.tub.dinas.ui.theme.ThemeState.dark = vm.settings.dark
         id.tub.dinas.security.Lisensi.muat(this, vm.settings.licenseCode)
+        androidx.lifecycle.lifecycleScope.launch { id.tub.dinas.security.CekOnline.jalan(applicationContext, vm.settings) }
         id.tub.dinas.i18n.Tr.init(this)
         id.tub.dinas.i18n.Tr.lang = id.tub.dinas.i18n.AppLang.from(vm.settings.lang)
         setContent {
@@ -140,6 +143,7 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
     }
     vm.sharedText?.let { id.tub.dinas.ui.components.SharedLocationDialog(vm, it) }
     id.tub.dinas.ui.components.HasilDialog(vm)
+    PembaruanDialog()
     id.tub.dinas.ui.components.LoadingOverlay(aktif = vm.busy || vm.aset.sibuk != null, pesan = vm.aset.sibuk, onBerhenti = if (vm.aset.sibuk != null) ({ vm.aset.berhenti = true }) else null)
     }
 }
@@ -162,4 +166,29 @@ fun LockScreen(onUnlock: () -> Unit) {
         Spacer(Modifier.height(24.dp))
         AmberButton("Buka kunci", onClick = onUnlock)
     }
+}
+
+@Composable
+private fun PembaruanDialog() {
+    val u = id.tub.dinas.security.CekOnline.update
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val buka = { runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(u?.url ?: "")).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }; Unit }
+    if (u != null && u.wajib) {
+        Column(Modifier.fillMaxSize().background(Color(0xFF0F172A)).padding(32.dp), Arrangement.Center, Alignment.CenterHorizontally) {
+            Text("⬆️", fontSize = 48.sp); Spacer(Modifier.height(12.dp))
+            Text("Perbarui aplikasi", color = Color.White, fontSize = 22.sp)
+            Text("Versi ini sudah tidak didukung. Unduh versi terbaru${if (u.nama.isNotBlank()) " (${u.nama})" else ""}, lalu pasang untuk menimpa — data Anda tetap aman.", color = Color(0xFFB8C2CB), fontSize = 14.sp)
+            Spacer(Modifier.height(24.dp)); AmberButton("Unduh versi terbaru", onClick = buka)
+        }
+    } else if (u != null && !id.tub.dinas.security.CekOnline.abaikan) {
+        androidx.compose.material3.AlertDialog(onDismissRequest = { id.tub.dinas.security.CekOnline.abaikan = true },
+            title = { Text("Ada versi baru") },
+            text = { Text("Versi terbaru${if (u.nama.isNotBlank()) " ${u.nama}" else ""} tersedia. Unduh, lalu pasang untuk menimpa; data tetap aman.") },
+            confirmButton = { androidx.compose.material3.TextButton(onClick = { id.tub.dinas.security.CekOnline.abaikan = true; buka() }) { Text("Unduh") } },
+            dismissButton = { androidx.compose.material3.TextButton(onClick = { id.tub.dinas.security.CekOnline.abaikan = true }) { Text("Nanti") } })
+    }
+    val pl = id.tub.dinas.security.CekOnline.pesanLisensi
+    if (pl.isNotBlank()) androidx.compose.material3.AlertDialog(onDismissRequest = { id.tub.dinas.security.CekOnline.pesanLisensi = "" },
+        title = { Text("Lisensi") }, text = { Text(pl) },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = { id.tub.dinas.security.CekOnline.pesanLisensi = "" }) { Text("OK") } })
 }

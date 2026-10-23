@@ -54,6 +54,10 @@ class Settings(ctx: Context) {
     var licenseCode: String
         get() = p.getString("licenseCode", "") ?: ""
         set(v) { p.edit().putString("licenseCode", v.trim()).apply() }
+    /** Waktu (ms) terakhir lisensi terverifikasi online. */
+    var cekOk: Long
+        get() = p.getLong("cekOk", 0L)
+        set(v) { p.edit().putLong("cekOk", v).apply() }
     var skyTheme: Boolean
         get() = p.getBoolean("sky", true)
         set(v) { p.edit().putBoolean("sky", v).apply() }

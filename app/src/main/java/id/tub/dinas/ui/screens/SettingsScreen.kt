@@ -232,6 +232,7 @@ fun PasswordDialog(title: String, hint: String, confirmLabel: String, onDismiss:
 
 private val RIWAYAT = listOf(
     "Terbaru" to listOf(
+        "1.1.0: cek lisensi online (pencabutan berlaku), pengingat dan kunci versi lama",
         "Analisis AI (Gemini) dan Baca kode dari foto di editor aset",
         "Import Excel/JSON mendeteksi semua perubahan per kolom (mode Perbarui)",
         "Ekspor Excel: pilih sheet, kolom, dan mutu foto",
