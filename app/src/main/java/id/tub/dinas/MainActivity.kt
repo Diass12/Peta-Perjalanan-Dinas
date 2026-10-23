@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import id.tub.dinas.media.ImageCache
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class MainActivity : FragmentActivity() {
@@ -45,7 +44,7 @@ class MainActivity : FragmentActivity() {
         handleShare(intent)
         id.tub.dinas.ui.theme.ThemeState.dark = vm.settings.dark
         id.tub.dinas.security.Lisensi.muat(this, vm.settings.licenseCode)
-        androidx.lifecycle.lifecycleScope.launch { id.tub.dinas.security.CekOnline.jalan(applicationContext, vm.settings) }
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch { id.tub.dinas.security.CekOnline.jalan(applicationContext, vm.settings) }
         id.tub.dinas.i18n.Tr.init(this)
         id.tub.dinas.i18n.Tr.lang = id.tub.dinas.i18n.AppLang.from(vm.settings.lang)
         setContent {
