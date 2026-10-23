@@ -190,6 +190,18 @@ fun SettingsScreen(vm: MainViewModel) {
                     confirmButton = { TextButton(onClick = { riwayat = false }) { Text("Tutup") } })
             }
             Panel {
+                var lp by remember { mutableStateOf(s.lapPerusahaan) }; var lk by remember { mutableStateOf(s.lapKota) }
+                var ln by remember { mutableStateOf(s.lapPenyiap) }; var lj by remember { mutableStateOf(s.lapJabatan) }; var lc by remember { mutableStateOf(s.lapPemeriksa) }
+                Text("Laporan realisasi (LPBPD)", style = MaterialTheme.typography.titleMedium)
+                Text("Kepala dan tanda tangan pada laporan biaya perjalanan dinas hasil ekspor.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(6.dp))
+                Field(lp, { lp = it; s.lapPerusahaan = it }, "Nama perusahaan", singleLine = true)
+                Spacer(Modifier.height(6.dp)); Field(lk, { lk = it; s.lapKota = it }, "Kota (untuk tanggal cetak)", singleLine = true)
+                Spacer(Modifier.height(6.dp)); Field(ln, { ln = it; s.lapPenyiap = it }, "Dipersiapkan oleh (nama)", singleLine = true)
+                Spacer(Modifier.height(6.dp)); Field(lj, { lj = it; s.lapJabatan = it }, "Jabatan penyiap (mis. SPV. Accounting)", singleLine = true)
+                Spacer(Modifier.height(6.dp)); Field(lc, { lc = it; s.lapPemeriksa = it }, "Diperiksa oleh (mis. Finance)", singleLine = true)
+            }
+            Panel {
                 Text("Cadangan", style = MaterialTheme.typography.titleMedium)
                 Text("Cadangan memuat semua dinas beserta foto dan PDF. Beri kata sandi supaya berkas aman bila berpindah tangan.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
@@ -198,7 +210,7 @@ fun SettingsScreen(vm: MainViewModel) {
                     SoftButton("Pulihkan") { openBackup.launch(arrayOf("*/*")) }
                 }
             }
-            Text("Versi 1.0.0 · tanpa analitik, tanpa iklan, data tidak dikirim ke server.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+            Text("Versi 1.1.0 · tanpa analitik dan iklan. Data dinas tidak dikirim ke server; hanya kode lisensi dan ID perangkat diperiksa online.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
         }
     }
 
@@ -233,6 +245,7 @@ fun PasswordDialog(title: String, hint: String, confirmLabel: String, onDismiss:
 private val RIWAYAT = listOf(
     "Terbaru" to listOf(
         "1.1.0: cek lisensi online (pencabutan berlaku), pengingat dan kunci versi lama",
+        "Laporan realisasi format LPBPD (ekspor Excel), kategori Tiket/Speedboat/Uang Saku, pencairan tambahan",
         "Analisis AI (Gemini) dan Baca kode dari foto di editor aset",
         "Import Excel/JSON mendeteksi semua perubahan per kolom (mode Perbarui)",
         "Ekspor Excel: pilih sheet, kolom, dan mutu foto",

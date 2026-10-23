@@ -16,6 +16,10 @@ data class XStyle(
     val v: String = "top",      // top|center|bottom
     val border: Boolean = false,
     val underline: Boolean = false,
+    val font: String = "Calibri",
+    val numFmt: String? = null,
+    /** Border per sisi "kiri,kanan,atas,bawah" (thin/hair/double/kosong); menggantikan [border] bila diisi. */
+    val bd: String? = null,
 )
 
 data class XRun(val text: String, val bold: Boolean = false, val italic: Boolean = false, val color: String? = null, val size: Double? = null)
@@ -28,7 +32,7 @@ class XlsxWriter {
 
     internal fun styleId(s: XStyle): Int = styles.getOrPut(s) { styles.size }
 
-    internal class Cell(val style: Int, val text: String?, val num: Double?, val runs: List<XRun>?)
+    internal class Cell(val style: Int, val text: String?, val num: Double?, val runs: List<XRun>?, val formula: String? = null)
     internal class Img(val bytes: ByteArray, val ext: String, val row: Int, val col: Int, val offX: Long, val offY: Long, val cx: Long, val cy: Long)
 
     class Sheet internal constructor(val name: String, private val owner: XlsxWriter) {
@@ -39,12 +43,15 @@ class XlsxWriter {
         private val links = ArrayList<Triple<Int, Int, String>>()
         private val images = ArrayList<Img>()
         var showGrid = false
+        var landscape = false
 
         fun colWidths(w: List<Double>) { widths = w }
         fun rowHeight(row: Int, pt: Double) { heights[row] = pt }
         fun heightOf(row: Int): Double = heights[row] ?: 15.0
         fun text(row: Int, col: Int, t: String, st: XStyle = XStyle()) { put(row, col, Cell(owner.styleId(st), t, null, null)) }
         fun number(row: Int, col: Int, n: Double, st: XStyle = XStyle()) { put(row, col, Cell(owner.styleId(st), null, n, null)) }
+        /** Sel rumus; [cached] = nilai hasil agar tampil juga di penampil tanpa kalkulasi ulang. */
+        fun formula(row: Int, col: Int, f: String, cached: Double, st: XStyle = XStyle()) { put(row, col, Cell(owner.styleId(st), null, cached, null, f)) }
         fun rich(row: Int, col: Int, runs: List<XRun>, st: XStyle = XStyle()) { put(row, col, Cell(owner.styleId(st), null, null, runs)) }
         fun style(row: Int, col: Int, st: XStyle) { if (cells[row]?.get(col) == null) put(row, col, Cell(owner.styleId(st), null, null, null)) }
         fun merge(r1: Int, c1: Int, r2: Int, c2: Int, st: XStyle? = null) {
@@ -68,7 +75,7 @@ class XlsxWriter {
             sb.append("""<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="${if (showGrid) 1 else 0}"/></sheetViews><sheetFormatPr defaultRowHeight="15"/>""")
             if (widths.isNotEmpty()) {
                 sb.append("<cols>")
-                widths.forEachIndexed { i, w -> sb.append("""<col min="${i + 1}" max="${i + 1}" width="$w" customWidth="1"/>""") }
+                widths.forEachIndexed { i, w -> sb.append("""<col min="${i + 1}" max="${i + 1}" width="${if (w <= 0) 1.0 else w}" customWidth="1"${if (w <= 0) " hidden=\"1\"" else ""}/>""") }
                 sb.append("</cols>")
             }
             sb.append("<sheetData>")
@@ -93,6 +100,7 @@ class XlsxWriter {
                             sb.append("</is></c>")
                         }
                         cell.text != null -> sb.append("""<c r="$a" s="${cell.style}" t="inlineStr"><is><t xml:space="preserve">${esc(cell.text)}</t></is></c>""")
+                        cell.formula != null -> sb.append("""<c r="$a" s="${cell.style}"><f>${esc(cell.formula)}</f><v>${cell.num}</v></c>""")
                         cell.num != null -> sb.append("""<c r="$a" s="${cell.style}"><v>${cell.num}</v></c>""")
                         else -> sb.append("""<c r="$a" s="${cell.style}"/>""")
                     }
@@ -110,7 +118,7 @@ class XlsxWriter {
                 links.forEachIndexed { i, (r, c, _) -> sb.append("""<hyperlink ref="${ref(r, c)}" r:id="${linkRids[i]}"/>""") }
                 sb.append("</hyperlinks>")
             }
-            sb.append("""<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="portrait" fitToWidth="1" fitToHeight="0"/>""")
+            sb.append("""<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="${if (landscape) "landscape" else "portrait"}" fitToWidth="1" fitToHeight="0"/>""")
             if (drawingRid != null) sb.append("""<drawing r:id="$drawingRid"/>""")
             sb.append("</worksheet>")
             return sb.toString()
@@ -136,7 +144,7 @@ class XlsxWriter {
             wb.append("""<sheet name="${esc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>""")
             wr.append("""<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>""")
         }
-        wb.append("</sheets></workbook>")
+        wb.append("</sheets><calcPr fullCalcOnLoad=\"1\"/></workbook>")
         wr.append("""<Relationship Id="rId${sheets.size + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>""")
         put("xl/workbook.xml", wb.toString()); put("xl/_rels/workbook.xml.rels", wr.toString())
 
@@ -177,14 +185,18 @@ class XlsxWriter {
         fills["<fill><patternFill patternType=\"none\"/></fill>"] = 0
         fills["<fill><patternFill patternType=\"gray125\"/></fill>"] = 1
         val xfs = StringBuilder()
+        val numFmts = LinkedHashMap<String, Int>(); val extraBorders = LinkedHashMap<String, Int>()
+        fun edge(tag: String, st: String) = if (st.isBlank()) "<$tag/>" else "<$tag style=\"${st.trim()}\"><color rgb=\"FF000000\"/></$tag>"
         for (s in styles.keys) {
-            val f = "<font>${if (s.bold) "<b/>" else ""}${if (s.italic) "<i/>" else ""}${if (s.underline) "<u/>" else ""}<sz val=\"${s.size}\"/><color rgb=\"FF${s.color}\"/><name val=\"Calibri\"/></font>"
+            val f = "<font>${if (s.bold) "<b/>" else ""}${if (s.italic) "<i/>" else ""}${if (s.underline) "<u/>" else ""}<sz val=\"${s.size}\"/><color rgb=\"FF${s.color}\"/><name val=\"${s.font}\"/></font>"
             val fi = fonts.getOrPut(f) { fonts.size }
             val fl = if (s.fill == null) 0 else fills.getOrPut("<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF${s.fill}\"/><bgColor indexed=\"64\"/></patternFill></fill>") { fills.size }
-            xfs.append("""<xf numFmtId="0" fontId="$fi" fillId="$fl" borderId="${if (s.border) 1 else 0}" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment${s.h?.let { " horizontal=\"$it\"" } ?: ""} vertical="${s.v}"${if (s.wrap) " wrapText=\"1\"" else ""}/></xf>""")
+            val nf = s.numFmt?.let { numFmts.getOrPut(it) { 164 + numFmts.size } } ?: 0
+            val bid = if (s.bd != null) { val e = s.bd.split(",").let { l -> List(4) { l.getOrElse(it) { "" } } }; 2 + extraBorders.getOrPut("<border>${edge("left", e[0])}${edge("right", e[1])}${edge("top", e[2])}${edge("bottom", e[3])}<diagonal/></border>") { extraBorders.size } } else if (s.border) 1 else 0
+            xfs.append("""<xf numFmtId="$nf" fontId="$fi" fillId="$fl" borderId="$bid" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment${s.h?.let { " horizontal=\"$it\"" } ?: ""} vertical="${s.v}"${if (s.wrap) " wrapText=\"1\"" else ""}/></xf>""")
         }
         val bd = "<border><left style=\"thin\"><color rgb=\"FFDDD8CC\"/></left><right style=\"thin\"><color rgb=\"FFDDD8CC\"/></right><top style=\"thin\"><color rgb=\"FFDDD8CC\"/></top><bottom style=\"thin\"><color rgb=\"FFDDD8CC\"/></bottom><diagonal/></border>"
-        return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="${fonts.size}">${fonts.keys.joinToString("")}</fonts><fills count="${fills.size}">${fills.keys.joinToString("")}</fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>$bd</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${styles.size}">$xfs</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>"""
+        return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${if (numFmts.isEmpty()) "" else "<numFmts count=\"${numFmts.size}\">" + numFmts.entries.joinToString("") { "<numFmt numFmtId=\"${it.value}\" formatCode=\"${esc(it.key)}\"/>" } + "</numFmts>"}<fonts count="${fonts.size}">${fonts.keys.joinToString("")}</fonts><fills count="${fills.size}">${fills.keys.joinToString("")}</fills><borders count="${2 + extraBorders.size}"><border><left/><right/><top/><bottom/><diagonal/></border>$bd${extraBorders.keys.joinToString("")}</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${styles.size}">$xfs</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>"""
     }
 
     companion object {

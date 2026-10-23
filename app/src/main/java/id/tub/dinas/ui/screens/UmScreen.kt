@@ -50,6 +50,7 @@ fun UmScreen(vm: MainViewModel) {
     var req by remember { mutableStateOf<Pair<String, List<UmBundle>>?>(null) }
     fun run(uri: Uri?) { val r = req; req = null; if (uri != null && r != null) c.ekspor(uri, r.first, r.second) }
     val createXlsx = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { run(it) }
+    val createLpbpd = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { run(it) }
     val createJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { run(it) }
     val importPick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) c.impor(uri) }
 
@@ -68,6 +69,10 @@ fun UmScreen(vm: MainViewModel) {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Excel: rekap + rincian bon dengan foto, bisa diimpor kembali. JSON: lengkap dengan foto, untuk tukar data antar-perangkat/PC.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    if (scope.size == 1) {
+                        Text("Laporan realisasi: format LPBPD (kolom Akomodasi, Transportasi, Konsumsi, Uang Saku, Lain-lain) siap cetak untuk Finance.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                        SoftButton("Laporan realisasi (LPBPD)", Modifier.fillMaxWidth()) { req = "lpbpd" to scope; askScope = null; createLpbpd.launch("REALISASI ${scope[0].um.judul.ifBlank { scope[0].um.nomor }.replace(Regex("[\\\\/:*?\"<>|]"), " ").trim()}.xlsx") }
+                    }
                 }
             },
             confirmButton = { TextButton(onClick = { req = "xlsx" to scope; askScope = null; createXlsx.launch("Uang Muka ${todayIso()}.xlsx") }) { Text("Excel") } },
@@ -153,7 +158,8 @@ private fun ColumnScope.UmDetail(vm: MainViewModel, b: UmBundle, onExport: () ->
             KV("Tgl cair", fmtTgl(u.tglCair).ifEmpty { "-" })
             KV("Dicairkan", rupiah(u.jumlahCair))
             u.dinasId?.let { id -> dinas.firstOrNull { it.id == id }?.let { KV("Dinas", it.name) } }
-            if (u.catatan.isNotBlank()) Text(u.catatan, color = C.Muted, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
+            u.pencairanTambahan.forEach { (t, j) -> KV("Pencairan tambahan ${fmtTgl(t)}", rupiah(j)) }
+            if (u.catatanTeks.isNotBlank()) Text(u.catatanTeks, color = C.Muted, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { UmStatus.entries.forEach { s -> Chip(s.label, u.status == s, onClick = { c.ubahStatus(u, s) }) } }
         }
@@ -206,7 +212,8 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
     var diaj by remember(ex.id) { mutableStateOf(if (ex.jumlahDiajukan == 0.0) "" else ex.jumlahDiajukan.toLong().toString()) }
     var tglC by remember(ex.id) { mutableStateOf(ex.tglCair) }
     var cair by remember(ex.id) { mutableStateOf(if (ex.jumlahCair == 0.0) "" else ex.jumlahCair.toLong().toString()) }
-    var cat by remember(ex.id) { mutableStateOf(ex.catatan) }
+    var cat by remember(ex.id) { mutableStateOf(ex.catatanTeks) }
+    var tambah by remember(ex.id) { mutableStateOf(ex.pencairanTambahan.joinToString("\n") { "${it.first} ${it.second.toLong()}" }) }
     var dinasId by remember(ex.id) { mutableStateOf(ex.dinasId) }
     AlertDialog(
         onDismissRequest = { c.editUm = null },
@@ -220,6 +227,7 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
                 Field(diaj, { diaj = it }, "Jumlah diajukan (Rp)", singleLine = true)
                 DateField("Tgl cair (kosong bila belum cair)", tglC, { tglC = it })
                 Field(cair, { cair = it }, "Jumlah dicairkan (Rp)", singleLine = true)
+                Field(tambah, { tambah = it }, "Pencairan tambahan (bon sementara ke-2 dst): satu baris \"yyyy-MM-dd jumlah\", mis. 2026-10-07 2290000", minLines = 2)
                 Field(cat, { cat = it }, "Catatan", minLines = 2)
                 if (dinas.isNotEmpty()) {
                     Text("Terkait dinas", style = MaterialTheme.typography.labelSmall, color = C.Muted)
@@ -236,7 +244,7 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
                 var st = ex.status
                 if (cr > 0 && st == UmStatus.DIAJUKAN) st = UmStatus.CAIR
                 c.simpanUm(ex.copy(nomor = nomor.trim(), judul = judul.trim(), pemohon = pemohon.trim(), tglPengajuan = tgl, jumlahDiajukan = dj,
-                    tglCair = tglC, jumlahCair = cr, catatan = cat.trim(), dinasId = dinasId, status = st))
+                    tglCair = tglC, jumlahCair = cr, catatan = UangMukaModel.gabungCatatan(cat, tambah.lines().mapNotNull { l -> val t = l.trim().split(Regex("\\s+")); if (t.size < 2) null else AsetImport.parseAngka(t.last())?.takeIf { it > 0 }?.let { t.first() to it } }), dinasId = dinasId, status = st))
             }) { Text("Simpan") }
         },
         dismissButton = { TextButton(onClick = { c.editUm = null }) { Text("Batal") } },

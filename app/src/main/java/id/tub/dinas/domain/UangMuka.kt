@@ -7,15 +7,18 @@ enum class UmStatus(val label: String) {
 
 /** Tag bon. */
 enum class BonKategori(val label: String) {
-    TRANSPORTASI("Transportasi"), HOTEL("Hotel"), MAKAN_PAGI("Makan Pagi"), MAKAN_SIANG("Makan Siang"),
-    MAKAN_MALAM("Makan Malam"), LAUNDRY("Laundry"), LAINNYA("Lainnya");
+    TIKET("Tiket Pesawat"), TRANSPORTASI("Transportasi"), KAPAL("Speedboat / Kapal"), HOTEL("Hotel"), MAKAN_PAGI("Makan Pagi"), MAKAN_SIANG("Makan Siang"),
+    MAKAN_MALAM("Makan Malam"), UANG_SAKU("Uang Saku"), LAUNDRY("Laundry"), LAINNYA("Lainnya");
     companion object {
         fun from(s: String?): BonKategori {
             val t = s?.trim().orEmpty()
             entries.firstOrNull { it.name.equals(t, true) || it.label.equals(t, true) }?.let { return it }
             val l = t.lowercase()
             return when {
-                l.contains("transport") || l.contains("taksi") || l.contains("tiket") || l.contains("bensin") || l.contains("ojek") -> TRANSPORTASI
+                l.contains("uang saku") || l.contains("uangsaku") -> UANG_SAKU
+                l.contains("pesawat") || l.contains("tiket") -> TIKET
+                l.contains("speedboat") || l.contains("kapal") || l.contains("ferry") || l.contains("feri") -> KAPAL
+                l.contains("transport") || l.contains("taksi") || l.contains("taxi") || l.contains("travel") || l.contains("bensin") || l.contains("ojek") -> TRANSPORTASI
                 l.contains("hotel") || l.contains("penginapan") || l.contains("losmen") -> HOTEL
                 l.contains("pagi") || l.contains("sarapan") -> MAKAN_PAGI
                 l.contains("siang") -> MAKAN_SIANG
@@ -42,7 +45,20 @@ data class UangMukaModel(
     val status: UmStatus = UmStatus.DIAJUKAN,
     val createdAt: Long = 0L,
     val updatedAt: Long = 0L,
-)
+) {
+    /** Pencairan tambahan (bon sementara ke-2 dst), disimpan sebagai baris "#BON|yyyy-MM-dd|jumlah" di catatan. */
+    val pencairanTambahan: List<Pair<String, Double>> get() = catatan.lines().mapNotNull { l ->
+        if (!l.startsWith("#BON|")) return@mapNotNull null
+        val p = l.split("|"); val j = p.getOrNull(2)?.trim()?.toDoubleOrNull() ?: return@mapNotNull null
+        (p.getOrNull(1)?.trim().orEmpty()) to j
+    }
+    /** Catatan tanpa baris pencairan tambahan. */
+    val catatanTeks: String get() = catatan.lines().filterNot { it.startsWith("#BON|") }.joinToString("\n").trim()
+    companion object {
+        fun gabungCatatan(teks: String, tambahan: List<Pair<String, Double>>) =
+            (listOf(teks.trim()).filter { it.isNotEmpty() } + tambahan.map { "#BON|${it.first}|${it.second.toLong()}" }).joinToString("\n")
+    }
+}
 
 data class BonModel(
     val id: String, val umId: String, val tanggal: String = "", val kategori: BonKategori = BonKategori.LAINNYA,
@@ -56,7 +72,7 @@ class BonBundle(val bon: BonModel, val fotos: List<BonFotoModel>)
 class UmBundle(val um: UangMukaModel, val bons: List<BonBundle>) {
     val totalBon: Double get() = bons.sumOf { it.bon.jumlah }
     /** Dana yang dipegang: jumlah cair bila sudah ada, kalau belum jumlah yang diajukan. */
-    val dana: Double get() = if (um.jumlahCair > 0) um.jumlahCair else um.jumlahDiajukan
+    val dana: Double get() = (if (um.jumlahCair > 0) um.jumlahCair else um.jumlahDiajukan) + um.pencairanTambahan.sumOf { it.second }
     /** Positif = sisa uang muka harus dikembalikan; negatif = kurang, ditagihkan (reimburse). */
     val sisa: Double get() = dana - totalBon
     fun perKategori(): Map<BonKategori, Double> = BonKategori.entries.associateWith { k -> bons.filter { it.bon.kategori == k }.sumOf { it.bon.jumlah } }.filterValues { it != 0.0 }

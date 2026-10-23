@@ -54,6 +54,22 @@ class Settings(ctx: Context) {
     var licenseCode: String
         get() = p.getString("licenseCode", "") ?: ""
         set(v) { p.edit().putString("licenseCode", v.trim()).apply() }
+    /** Kepala & tanda tangan Laporan Realisasi (LPBPD). */
+    var lapPerusahaan: String
+        get() = p.getString("lapPerusahaan", "PT TRI USAHA BARU") ?: ""
+        set(v) { p.edit().putString("lapPerusahaan", v.trim()).apply() }
+    var lapKota: String
+        get() = p.getString("lapKota", "Jakarta") ?: ""
+        set(v) { p.edit().putString("lapKota", v.trim()).apply() }
+    var lapPenyiap: String
+        get() = p.getString("lapPenyiap", "") ?: ""
+        set(v) { p.edit().putString("lapPenyiap", v.trim()).apply() }
+    var lapJabatan: String
+        get() = p.getString("lapJabatan", "") ?: ""
+        set(v) { p.edit().putString("lapJabatan", v.trim()).apply() }
+    var lapPemeriksa: String
+        get() = p.getString("lapPemeriksa", "Finance") ?: ""
+        set(v) { p.edit().putString("lapPemeriksa", v.trim()).apply() }
     /** Waktu (ms) terakhir lisensi terverifikasi online. */
     var cekOk: Long
         get() = p.getLong("cekOk", 0L)
