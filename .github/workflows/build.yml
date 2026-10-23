@@ -66,7 +66,21 @@ jobs:
           path: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/distribusi/*.apk
+            app/build/outputs/mapping/distribusi/mapping.txt
           if-no-files-found: warn
+
+      - name: Build APK distribusi (R8 + penyusutan resource)
+        run: ./gradlew assembleDistribusi --stacktrace --console=plain
+
+      - name: Terbitkan APK distribusi ke Releases
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete terbaru --cleanup-tag --yes || true
+          gh release create terbaru app/build/outputs/apk/distribusi/*.apk \
+            --title "APK terbaru (diperkecil R8)" --notes "Dibangun otomatis dari commit ${GITHUB_SHA::7}. Bisa menimpa pemasangan lama tanpa menghapus data." --prerelease
 
       - name: Terbitkan APK debug ke Releases (mudah diunduh dari HP)
         if: github.event_name != 'pull_request'

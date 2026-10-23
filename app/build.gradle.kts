@@ -48,6 +48,14 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("release")
         }
+        // APK untuk dibagikan: R8 + penyusutan resource, tidak debuggable. Sementara ditandatangani dengan kunci
+        // yang sama dengan debug-latest supaya bisa menimpa (update) pemasangan lama TANPA hapus data.
+        create("distribusi") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = false
+            matchingFallbacks += listOf("release")
+        }
     }
 
     compileOptions {
