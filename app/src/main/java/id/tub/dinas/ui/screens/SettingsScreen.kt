@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.asImageBitmap
 import id.tub.dinas.MainViewModel
 import id.tub.dinas.data.PhotoPreset
 import id.tub.dinas.security.AppLock
@@ -194,6 +195,26 @@ fun SettingsScreen(vm: MainViewModel) {
                 var ln by remember { mutableStateOf(s.lapPenyiap) }; var lj by remember { mutableStateOf(s.lapJabatan) }; var lc by remember { mutableStateOf(s.lapPemeriksa) }
                 Text("Laporan realisasi (LPBPD)", style = MaterialTheme.typography.titleMedium)
                 Text("Kepala dan tanda tangan pada laporan biaya perjalanan dinas hasil ekspor.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(6.dp))
+                var logoVer by remember { mutableStateOf(0) }
+                val logoFile = remember { java.io.File(ctx.filesDir, "logo_laporan.png") }
+                val pilihLogo = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+                    if (uri != null) runCatching {
+                        val bmp = ctx.contentResolver.openInputStream(uri)!!.use { android.graphics.BitmapFactory.decodeStream(it) }!!
+                        val sc = minOf(1f, 500f / maxOf(bmp.width, bmp.height))
+                        val kecil = if (sc < 1f) android.graphics.Bitmap.createScaledBitmap(bmp, (bmp.width * sc).toInt().coerceAtLeast(1), (bmp.height * sc).toInt().coerceAtLeast(1), true) else bmp
+                        logoFile.outputStream().use { kecil.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                        logoVer++; vm.toast("Logo laporan disimpan")
+                    }.onFailure { vm.toast("Gambar tidak dapat dibaca") }
+                }
+                val logoBmp = remember(logoVer) { runCatching { android.graphics.BitmapFactory.decodeStream(if (logoFile.exists()) logoFile.inputStream() else ctx.assets.open("logo_tub.png")) }.getOrNull() }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (logoBmp != null) androidx.compose.foundation.Image(logoBmp.asImageBitmap(), "Logo laporan", Modifier.size(72.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        SoftButton("Ganti logo") { pilihLogo.launch("image/*") }
+                        if (logoFile.exists()) SoftButton("Pakai logo bawaan") { logoFile.delete(); logoVer++; vm.toast("Logo bawaan dipakai") }
+                    }
+                }
                 Spacer(Modifier.height(6.dp))
                 Field(lp, { lp = it; s.lapPerusahaan = it }, "Nama perusahaan", singleLine = true)
                 Spacer(Modifier.height(6.dp)); Field(lk, { lk = it; s.lapKota = it }, "Kota (untuk tanggal cetak)", singleLine = true)

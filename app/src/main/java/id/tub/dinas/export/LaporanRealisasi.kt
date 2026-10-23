@@ -54,7 +54,16 @@ object LaporanRealisasi {
         // Kepala
         sh.rowHeight(1, 34.0); sh.rowHeight(2, 44.0); sh.rowHeight(3, 15.0)
         sh.merge(1, 0, 2, 2, st(bd = "thin,,thin,"))
-        logo?.let { sh.image(it, "png", 1, 2, 295000L, 47625L, 110 * 9525L, 94 * 9525L) }
+        logo?.let {
+            // Muat dalam kotak 130x96 px, di tengah; ukuran asli dibaca dari header PNG.
+            var w = 130; var h = 96
+            if (it.size > 24 && it[1] == 'P'.code.toByte()) {
+                fun i4(o: Int) = ((it[o].toInt() and 255) shl 24) or ((it[o + 1].toInt() and 255) shl 16) or ((it[o + 2].toInt() and 255) shl 8) or (it[o + 3].toInt() and 255)
+                val pw = i4(16); val ph = i4(20)
+                if (pw > 0 && ph > 0) { val sc = minOf(130.0 / pw, 96.0 / ph); w = (pw * sc).toInt().coerceAtLeast(1); h = (ph * sc).toInt().coerceAtLeast(1) }
+            }
+            sh.image(it, "png", 1, 2, ((172 - w).coerceAtLeast(0) / 2) * 9525L, ((104 - h).coerceAtLeast(0) / 2) * 9525L, w * 9525L, h * 9525L)
+        }
         sh.merge(3, 0, 3, 2, st(bold = true, h = "center", bd = "thin,,,thin")); sh.text(3, 0, id.perusahaan, st(bold = true, h = "center", bd = "thin,,,thin"))
         sh.merge(1, 3, 2, 11, st(bold = true, size = 16.0, h = "center", bd = ",thin,thin,"))
         sh.text(1, 3, "LAPORAN REALISASI BIAYA PERJALANAN DINAS", st(bold = true, size = 16.0, h = "center", bd = ",thin,thin,"))

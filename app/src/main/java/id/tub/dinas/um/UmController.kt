@@ -113,7 +113,8 @@ class UmController(private val vm: MainViewModel) {
                     "json" -> UmTransfer.tulisJson(daftar, baca, it)
                     "lpbpd" -> {
                         val se = vm.settings
-                        val logo = runCatching { app.assets.open("logo_tub.png").use { a -> a.readBytes() } }.getOrNull()
+                        val lf = File(app.filesDir, "logo_laporan.png")
+                        val logo = runCatching { if (lf.exists()) lf.readBytes() else app.assets.open("logo_tub.png").use { a -> a.readBytes() } }.getOrNull()
                         val now = java.util.Calendar.getInstance()
                         val tgl = id.tub.dinas.export.LaporanRealisasi.tgl(String.format(java.util.Locale.US, "%04d-%02d-%02d", now.get(java.util.Calendar.YEAR), now.get(java.util.Calendar.MONTH) + 1, now.get(java.util.Calendar.DAY_OF_MONTH)))
                         id.tub.dinas.export.LaporanRealisasi.tulis(daftar.first(), id.tub.dinas.export.IdentitasLaporan(se.lapPerusahaan, se.lapKota, tgl, se.lapPenyiap.ifBlank { se.playerName }, se.lapJabatan.ifBlank { se.jabatan }, se.lapPemeriksa), logo, it)
