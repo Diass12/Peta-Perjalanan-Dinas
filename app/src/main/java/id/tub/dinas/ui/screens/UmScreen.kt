@@ -191,7 +191,7 @@ private fun BonRow(vm: MainViewModel, bb: BonBundle) {
             if (bb.fotos.isNotEmpty()) EncryptedImage(vm.repo.vault, bb.fotos.first().path, Modifier.size(64.dp).itemFrame(10.dp), maxSide = 240)
             else Box(Modifier.size(64.dp).itemFrame(10.dp), contentAlignment = Alignment.Center) { Text("Tanpa foto", color = C.Muted, style = MaterialTheme.typography.labelSmall) }
             Column(Modifier.weight(1f)) {
-                Text(x.kategori.label, fontWeight = FontWeight.Bold)
+                Text(x.labelKat, fontWeight = FontWeight.Bold)
                 Text(listOf(fmtTgl(x.tanggal), x.uraian).filter { it.isNotBlank() }.joinToString(" · "), color = C.Muted, style = MaterialTheme.typography.bodyMedium, maxLines = 2)
                 if (bb.fotos.size > 1) Text("${bb.fotos.size} foto", color = C.Muted, style = MaterialTheme.typography.labelSmall)
             }
@@ -261,6 +261,9 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
     if (bb == null) return
     val b = bb.bon
     var kat by remember(bonId) { mutableStateOf(b.kategori) }
+    var tagK by remember(bonId) { mutableStateOf(b.tag) }
+    var kustom by remember { mutableStateOf(vm.settings.kategoriKustom) }
+    var kategoriBaru by remember { mutableStateOf(false) }
     var tgl by remember(bonId) { mutableStateOf(b.tanggal) }
     var ur by remember(bonId) { mutableStateOf(b.uraian) }
     var jml by remember(bonId) { mutableStateOf(if (b.jumlah == 0.0) "" else b.jumlah.toLong().toString()) }
@@ -282,7 +285,31 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(20)) { uris -> if (uris.isNotEmpty()) c.tambahFoto(bonId, uris) }
 
-    fun simpan() = c.simpanBon(b.copy(kategori = kat, tanggal = tgl.ifEmpty { b.tanggal }, uraian = ur.trim(), jumlah = AsetImport.parseAngka(jml) ?: 0.0))
+    fun simpan() = c.simpanBon(b.copy(kategori = kat, tag = tagK, tanggal = tgl.ifEmpty { b.tanggal }, uraian = ur.trim(), jumlah = AsetImport.parseAngka(jml) ?: 0.0))
+
+    if (kategoriBaru) {
+        var nama by remember { mutableStateOf("") }
+        var grup by remember { mutableStateOf(BonKategori.TRANSPORTASI) }
+        val pilihan = listOf("Akomodasi" to BonKategori.HOTEL, "Transportasi" to BonKategori.TRANSPORTASI, "Konsumsi" to BonKategori.MAKAN_SIANG, "Uang Saku" to BonKategori.UANG_SAKU, "Lain-lain" to BonKategori.LAINNYA)
+        AlertDialog(onDismissRequest = { kategoriBaru = false }, title = { Text("Kategori baru") },
+            text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Field(nama, { nama = it }, "Nama (mis. Pesawat ulang-alik, Kapal selam)", singleLine = true)
+                Text("Masuk ke kolom laporan:", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) { pilihan.forEach { (n, g) -> Chip(n, grup == g, onClick = { grup = g }) } }
+                if (kustom.isNotEmpty()) {
+                    Text("Kategori buatan Anda (ketuk untuk menghapus):", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        kustom.forEach { x -> Chip("✕ ${x.first}", false, onClick = { kustom = kustom - x; vm.settings.kategoriKustom = kustom; if (tagK == x.first) tagK = "" }) }
+                    }
+                }
+            } },
+            confirmButton = { TextButton(enabled = nama.isNotBlank(), onClick = {
+                val n = nama.trim().replace("|", " ")
+                if (kustom.none { it.first.equals(n, true) }) { kustom = kustom + (n to grup.name); vm.settings.kategoriKustom = kustom }
+                kat = grup; tagK = kustom.first { it.first.equals(n, true) }.first; kategoriBaru = false
+            }) { Text("Tambah & pilih") } },
+            dismissButton = { TextButton(onClick = { kategoriBaru = false }) { Text("Tutup") } })
+    }
 
     Dialog(onDismissRequest = { c.tutupBon(bonId) }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         BackHandler { c.tutupBon(bonId) }
@@ -293,7 +320,9 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
                     Text("TAG", style = MaterialTheme.typography.labelSmall, color = C.Muted)
                     Spacer(Modifier.height(6.dp))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        BonKategori.entries.forEach { k -> Chip(k.label, kat == k, onClick = { kat = k }) }
+                        BonKategori.entries.forEach { k -> Chip(k.label, kat == k && tagK.isBlank(), onClick = { kat = k; tagK = "" }) }
+                        kustom.forEach { (n, g) -> Chip(n, tagK == n, onClick = { kat = BonKategori.from(g); tagK = n }) }
+                        Chip("+ Kategori baru", false, onClick = { kategoriBaru = true })
                     }
                 }
                 DateField("Tanggal bon", tgl, { tgl = it }, clearable = false)

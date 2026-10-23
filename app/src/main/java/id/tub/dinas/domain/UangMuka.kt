@@ -10,8 +10,11 @@ enum class BonKategori(val label: String) {
     TIKET("Tiket Pesawat"), TRANSPORTASI("Transportasi"), KAPAL("Speedboat / Kapal"), HOTEL("Hotel"), MAKAN_PAGI("Makan Pagi"), MAKAN_SIANG("Makan Siang"),
     MAKAN_MALAM("Makan Malam"), UANG_SAKU("Uang Saku"), LAUNDRY("Laundry"), LAINNYA("Lainnya");
     companion object {
+        /** Kategori disimpan sebagai "GRUP" atau "GRUP:nama kustom" (kategori buatan pengguna yang masuk ke kolom grup tsb). */
+        fun encode(k: BonKategori, tag: String) = if (tag.isBlank()) k.name else "${k.name}:${tag.trim()}"
+        fun tagDari(s: String?): String = s?.substringAfter(':', "")?.trim().orEmpty()
         fun from(s: String?): BonKategori {
-            val t = s?.trim().orEmpty()
+            val t = s?.substringBefore(':')?.trim().orEmpty()
             entries.firstOrNull { it.name.equals(t, true) || it.label.equals(t, true) }?.let { return it }
             val l = t.lowercase()
             return when {
@@ -63,7 +66,9 @@ data class UangMukaModel(
 data class BonModel(
     val id: String, val umId: String, val tanggal: String = "", val kategori: BonKategori = BonKategori.LAINNYA,
     val uraian: String = "", val jumlah: Double = 0.0, val order: Int = 0, val createdAt: Long = 0L,
-)
+    /** Nama kategori kustom (kosong = kategori bawaan). */
+    val tag: String = "",
+) { val labelKat: String get() = tag.ifBlank { kategori.label } }
 
 data class BonFotoModel(val id: String, val bonId: String, val path: String, val order: Int)
 

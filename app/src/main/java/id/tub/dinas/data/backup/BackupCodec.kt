@@ -259,7 +259,7 @@ object BackupCodec {
             "tgl" to u.tglPengajuan, "diajukan" to u.jumlahDiajukan, "tglCair" to u.tglCair, "cair" to u.jumlahCair,
             "catatan" to u.catatan, "status" to u.status.name, "created" to u.createdAt, "updated" to u.updatedAt,
             "bon" to b.bons.map { bb ->
-                mapOf("id" to bb.bon.id, "tgl" to bb.bon.tanggal, "kat" to bb.bon.kategori.name, "uraian" to bb.bon.uraian, "jumlah" to bb.bon.jumlah,
+                mapOf("id" to bb.bon.id, "tgl" to bb.bon.tanggal, "kat" to BonKategori.encode(bb.bon.kategori, bb.bon.tag), "uraian" to bb.bon.uraian, "jumlah" to bb.bon.jumlah,
                     "order" to bb.bon.order, "created" to bb.bon.createdAt,
                     "foto" to bb.fotos.map { mapOf("id" to it.id, "path" to it.path, "order" to it.order) })
             },
@@ -275,7 +275,7 @@ object BackupCodec {
             s(o["catatan"]), UmStatus.from(sn(o["status"])), n(o["created"]) ?: 0L, n(o["updated"]) ?: 0L)
         UmBundle(u, l(o["bon"]).map { bx ->
             val q = m(bx); val bid = s(q["id"]).ifEmpty { throw IllegalArgumentException("id bon kosong") }
-            BonBundle(BonModel(bid, id, s(q["tgl"]), BonKategori.from(sn(q["kat"])), s(q["uraian"]), (q["jumlah"] as? Number)?.toDouble() ?: 0.0, i(q["order"]), n(q["created"]) ?: 0L),
+            BonBundle(BonModel(bid, id, s(q["tgl"]), BonKategori.from(sn(q["kat"])), s(q["uraian"]), (q["jumlah"] as? Number)?.toDouble() ?: 0.0, i(q["order"]), n(q["created"]) ?: 0L, BonKategori.tagDari(sn(q["kat"]))),
                 l(q["foto"]).map { fx -> val f = m(fx); BonFotoModel(s(f["id"]), bid, safePath(s(f["path"])), i(f["order"])) })
         })
     }

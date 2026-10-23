@@ -41,7 +41,7 @@ object UmTransfer {
             for (bb in b.bons) {
                 val x = bb.bon
                 w.beginObject()
-                w.name("id").value(x.id); w.name("tanggal").value(x.tanggal); w.name("kategori").value(x.kategori.name.lowercase())
+                w.name("id").value(x.id); w.name("tanggal").value(x.tanggal); w.name("kategori").value(BonKategori.encode(x.kategori, x.tag).let { e -> e.substringBefore(":").lowercase() + (if (e.contains(":")) ":" + e.substringAfter(":") else "") })
                 w.name("uraian").value(x.uraian); w.name("jumlah").value(x.jumlah)
                 w.name("foto").beginArray()
                 for (f in bb.fotos) baca(f.path)?.let { raw -> Imaging.jpeg(raw, 1400, 80)?.let { j -> w.value("data:image/jpeg;base64," + Base64.encodeToString(j, Base64.NO_WRAP)) } }
@@ -134,7 +134,7 @@ object UmTransfer {
             else { hasil.um++; repo.saveUm(m.copy(id = "")) }
         }
 
-        suspend fun bon(umId: String, tgl: String, kat: BonKategori, ur: String, jml: Double, id: String, foto: List<ByteArray>) {
+        suspend fun bon(umId: String, tgl: String, kat: BonKategori, ur: String, jml: Double, id: String, foto: List<ByteArray>, tag: String = "") {
             val u = repo.umBundles().first { it.um.id == umId }
             val sama = u.bons.firstOrNull { id.isNotEmpty() && it.bon.id == id } ?: u.bons.firstOrNull { key(it.bon.tanggal, it.bon.kategori, it.bon.uraian, it.bon.jumlah) == key(tgl, kat, ur, jml) }
             if (sama != null) {
@@ -142,7 +142,7 @@ object UmTransfer {
                 if (sama.fotos.isEmpty()) for (f in foto) { repo.addBonFoto(sama.bon.id, f); hasil.foto++ }
                 return
             }
-            val nid = repo.saveBon(BonModel("", umId, tgl, kat, ur, jml))
+            val nid = repo.saveBon(BonModel("", umId, tgl, kat, ur, jml, tag = tag))
             hasil.bon++
             for (f in foto) { repo.addBonFoto(nid, f); hasil.foto++ }
         }
@@ -156,7 +156,7 @@ object UmTransfer {
         else file.inputStream().use { s ->
             streamJson(s) { item ->
                 val id = g.simpanUm(item.m)
-                for (b in item.bon) g.bon(id, b.tanggal, BonKategori.from(b.kategori), b.uraian, b.jumlah, b.id, b.foto.mapNotNull { Imaging.jpeg(it, 1600, 85) })
+                for (b in item.bon) g.bon(id, b.tanggal, BonKategori.from(b.kategori), b.uraian, b.jumlah, b.id, b.foto.mapNotNull { Imaging.jpeg(it, 1600, 85) }, BonKategori.tagDari(b.kategori))
                 g.muat()
             }
         }
@@ -222,7 +222,7 @@ object UmTransfer {
         for (b in daftar) for (bb in b.bons) {
             val x = bb.bon
             bs.number(row, 0, (no++).toDouble(), CELL); bs.text(row, 1, b.um.nomor, CELL); bs.text(row, 2, fmtTgl(x.tanggal), CELL)
-            bs.text(row, 3, x.kategori.label, CELL); bs.text(row, 4, x.uraian, CELL); bs.number(row, 5, x.jumlah, NUM)
+            bs.text(row, 3, x.labelKat, CELL); bs.text(row, 4, x.uraian, CELL); bs.number(row, 5, x.jumlah, NUM)
             var hasImg = false
             bb.fotos.take(MAX_FOTO_COL).forEachIndexed { k, f ->
                 val t = baca(f.path)?.let { thumb(it) } ?: return@forEachIndexed
@@ -288,7 +288,10 @@ object UmTransfer {
                 val umId = nomorIdx[nomor] ?: g.simpanUm(UangMukaModel("", nomor, if (nomor == "UM-IMPOR") "Hasil impor" else nomor, null, "", todayIso(), 0.0, "", 0.0, "", UmStatus.DIAJUKAN)).also { nomorIdx[nomor] = it; g.muat() }
                 val tgl = AsetImport.parseTanggal(cT?.let { row[it] }).ifEmpty { todayIso() }
                 val fotos = imgs.mapNotNull { e -> XlsxReader.readImage(file, e)?.let { b -> Imaging.jpeg(b, 1600, 85) } }
-                g.bon(umId, tgl, BonKategori.from(cK?.let { row[it]?.text }), uraian, jml, "", fotos)
+                val katTeks = cK?.let { row[it]?.text }?.trim().orEmpty()
+                val katDasar = BonKategori.from(katTeks)
+                val katKustom = if (katTeks.isNotEmpty() && !katTeks.equals(katDasar.label, true) && !katTeks.equals(katDasar.name, true) && BonKategori.entries.none { it.label.equals(katTeks, true) }) katTeks else ""
+                g.bon(umId, tgl, katDasar, uraian, jml, "", fotos, katKustom)
                 any = true
             }
         }

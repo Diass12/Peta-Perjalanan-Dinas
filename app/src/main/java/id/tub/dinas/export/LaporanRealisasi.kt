@@ -28,7 +28,7 @@ object LaporanRealisasi {
         return "$d ${BLN.getOrElse(m - 1) { p[1] }} ${p[0]}"
     }
 
-    private class Bagian(val nama: String, val kolom: Int, val kat: Set<BonKategori>, val tanpaTanggal: Boolean = false)
+    private class Bagian(val nama: String, val kolom: Int, val kat: Set<BonKategori>, val tanpaTanggal: Boolean = false, val tag: String? = null)
     // kolom: 5 Akomodasi, 6 Transportasi, 7 Konsumsi, 8 Uang Saku, 9 Lain-lain
     private val BAGIAN = listOf(
         Bagian("Tiket Pesawat", 6, setOf(BonKategori.TIKET)),
@@ -87,12 +87,17 @@ object LaporanRealisasi {
         fun isiBaris(row: Int) { for (c in 0..11) sh.style(row, c, if (c in 2..4) tDalam else tKosong) }
         fun sum(row: Int, nilai: Double) = sh.formula(row, 10, "SUM(F${row + 1}:J${row + 1})", nilai, tAngka)
         val total = DoubleArray(5)
-        for (bg in BAGIAN) {
-            val items = b.bons.map { it.bon }.filter { it.kategori in bg.kat }.sortedWith(compareBy<BonModel> { it.tanggal }.thenBy { it.order })
+        val kustom = b.bons.map { it.bon }.filter { it.tag.isNotBlank() }.groupBy { it.tag.trim() }.map { (t, l) ->
+            val k = l.first().kategori
+            Bagian(t, when (k) { BonKategori.HOTEL -> 5; BonKategori.TIKET, BonKategori.TRANSPORTASI, BonKategori.KAPAL -> 6; BonKategori.MAKAN_PAGI, BonKategori.MAKAN_SIANG, BonKategori.MAKAN_MALAM -> 7; BonKategori.UANG_SAKU -> 8; else -> 9 }, setOf(k), tag = t)
+        }
+        val urut = BAGIAN.take(6) + kustom + BAGIAN.last()
+        for (bg in urut) {
+            val items = b.bons.map { it.bon }.filter { if (bg.tag != null) it.tag.trim() == bg.tag else it.kategori in bg.kat && it.tag.isBlank() }.sortedWith(compareBy<BonModel> { it.tanggal }.thenBy { it.order })
             if (items.isEmpty()) continue
             no++
             isiBaris(r); sh.number(r, 0, no.toDouble(), tNo); sh.merge(r, 2, r, 4, tTebal); sh.text(r, 2, bg.nama, tTebal); r++
-            if (bg.kolom == 7) {
+            if (bg.kolom == 7 && bg.tag == null) {
                 var abj = 'a'
                 for ((tg, grup) in items.groupBy { it.tanggal }) {
                     isiBaris(r); sh.text(r, 2, "${abj++}. ${tgl(tg)} :", tTeks); r++
