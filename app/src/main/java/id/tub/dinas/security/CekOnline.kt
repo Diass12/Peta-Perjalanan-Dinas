@@ -12,7 +12,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /** Info pembaruan dari server. [wajib] = versi terpasang di bawah batas minimum, aplikasi dikunci sampai diperbarui. */
-class InfoUpdate(val nama: String, val url: String, val wajib: Boolean)
+class InfoUpdate(val nama: String, val url: String, val wajib: Boolean, val catatan: String = "")
 
 /**
  * Pemeriksaan online (Cloudflare Worker): lisensi yang dicabut dan versi aplikasi terbaru.
@@ -60,6 +60,6 @@ object CekOnline {
         val r = panggil("/versi", "{}") ?: return
         val ada = try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).let { if (android.os.Build.VERSION.SDK_INT >= 28) it.longVersionCode.toInt() else @Suppress("DEPRECATION") it.versionCode } } catch (e: Exception) { return }
         val terbaru = r.optInt("kode", 0); val min = r.optInt("min", 0)
-        if (terbaru > ada || min > ada) update = InfoUpdate(r.optString("nama", ""), r.optString("url", ""), min > ada)
+        if (terbaru > ada || min > ada) update = InfoUpdate(r.optString("nama", ""), r.optString("url", ""), min > ada, r.optString("catatan", ""))
     }
 }

@@ -54,6 +54,10 @@ class Settings(ctx: Context) {
     var licenseCode: String
         get() = p.getString("licenseCode", "") ?: ""
         set(v) { p.edit().putString("licenseCode", v.trim()).apply() }
+    /** versionCode terakhir yang catatan rilisnya sudah dilihat. */
+    var versiDilihat: Int
+        get() = p.getInt("versiDilihat", 0)
+        set(v) { p.edit().putInt("versiDilihat", v).apply() }
     /** Kategori bon buatan pengguna: satu per baris "nama|GRUP" (GRUP = nama BonKategori yang menentukan kolom laporan). */
     var kategoriKustom: List<Pair<String, String>>
         get() = (p.getString("kategoriKustom", "") ?: "").lines().mapNotNull { l -> val i = l.lastIndexOf('|'); if (i <= 0) null else l.substring(0, i).trim() to l.substring(i + 1).trim() }.filter { it.first.isNotEmpty() }

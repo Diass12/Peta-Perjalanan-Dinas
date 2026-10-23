@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -46,6 +47,7 @@ class MainActivity : FragmentActivity() {
         id.tub.dinas.security.Lisensi.muat(this, vm.settings.licenseCode)
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch { id.tub.dinas.security.CekOnline.jalan(applicationContext, vm.settings) }
         id.tub.dinas.i18n.Tr.init(this)
+        if (vm.settings.versiDilihat < versiKode()) id.tub.dinas.ui.screens.ApaBaru.tampil = true
         id.tub.dinas.i18n.Tr.lang = id.tub.dinas.i18n.AppLang.from(vm.settings.lang)
         setContent {
             val gelap = id.tub.dinas.ui.theme.ThemeState.dark
@@ -55,6 +57,7 @@ class MainActivity : FragmentActivity() {
             }
             DinasTheme {
                 Root(vm, onUnlock = { requestUnlock() })
+                if (!vm.locked) id.tub.dinas.ui.screens.ApaBaruDialog(vm, versiKode(), versiNama())
             }
         }
     }
@@ -64,6 +67,9 @@ class MainActivity : FragmentActivity() {
         setIntent(intent)
         handleShare(intent)
     }
+
+    private fun versiKode(): Int = try { packageManager.getPackageInfo(packageName, 0).let { if (android.os.Build.VERSION.SDK_INT >= 28) it.longVersionCode.toInt() else @Suppress("DEPRECATION") it.versionCode } } catch (e: Exception) { 0 }
+    private fun versiNama(): String = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "" } catch (e: Exception) { "" }
 
     private fun handleShare(i: android.content.Intent?) {
         if (i?.action == android.content.Intent.ACTION_SEND && i.type?.startsWith("text/") == true) {
@@ -182,7 +188,7 @@ private fun PembaruanDialog() {
     } else if (u != null && !id.tub.dinas.security.CekOnline.abaikan) {
         androidx.compose.material3.AlertDialog(onDismissRequest = { id.tub.dinas.security.CekOnline.abaikan = true },
             title = { Text("Ada versi baru") },
-            text = { Text("Versi terbaru${if (u.nama.isNotBlank()) " ${u.nama}" else ""} tersedia. Unduh, lalu pasang untuk menimpa; data tetap aman.") },
+            text = { Column(Modifier.heightIn(max = 320.dp).verticalScroll(androidx.compose.foundation.rememberScrollState())) { Text("Versi terbaru${if (u.nama.isNotBlank()) " ${u.nama}" else ""} tersedia. Unduh, lalu pasang untuk menimpa; data tetap aman."); if (u.catatan.isNotBlank()) { Spacer(Modifier.height(8.dp)); Text("Yang berubah:", fontSize = 14.sp); Text(u.catatan, color = Color(0xFF64748B), fontSize = 14.sp) } } },
             confirmButton = { androidx.compose.material3.TextButton(onClick = { id.tub.dinas.security.CekOnline.abaikan = true; buka() }) { Text("Unduh") } },
             dismissButton = { androidx.compose.material3.TextButton(onClick = { id.tub.dinas.security.CekOnline.abaikan = true }) { Text("Nanti") } })
     }

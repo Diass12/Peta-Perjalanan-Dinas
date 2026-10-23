@@ -183,10 +183,12 @@ fun SettingsScreen(vm: MainViewModel) {
                     }
                 } else SoftButton("Kembali ke Staff Site", Modifier.fillMaxWidth()) { s.licenseCode = ""; id.tub.dinas.security.Lisensi.muat(ctx, ""); vm.toast("Kembali ke Staff Site") }
                 Spacer(Modifier.height(6.dp))
-                SoftButton("📜 Riwayat versi", Modifier.fillMaxWidth()) { riwayat = true }
-                if (riwayat) AlertDialog(onDismissRequest = { riwayat = false }, title = { Text("Riwayat versi") },
+                SoftButton("✨ Apa yang baru & panduan", Modifier.fillMaxWidth()) { ApaBaru.semua = true; ApaBaru.tampil = true }
+                Spacer(Modifier.height(6.dp))
+                SoftButton("📜 Riwayat perubahan semua versi", Modifier.fillMaxWidth()) { riwayat = true }
+                if (riwayat) AlertDialog(onDismissRequest = { riwayat = false }, title = { Text("Riwayat perubahan") },
                     text = { Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        RIWAYAT.forEach { (v, l) -> Column { Text(v, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold); l.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) } } }
+                        (ApaBaru.daftar.map { r -> "Versi ${r.nama}" to r.fitur.map { f -> "${f.ikon} ${f.judul}" } } + RIWAYAT).forEach { (v, l) -> Column { Text(v, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold); l.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) } } }
                     } },
                     confirmButton = { TextButton(onClick = { riwayat = false }) { Text("Tutup") } })
             }
@@ -231,7 +233,7 @@ fun SettingsScreen(vm: MainViewModel) {
                     SoftButton("Pulihkan") { openBackup.launch(arrayOf("*/*")) }
                 }
             }
-            Text("Versi 1.1.0 · tanpa analitik dan iklan. Data dinas tidak dikirim ke server; hanya kode lisensi dan ID perangkat diperiksa online.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+            Text("Versi 1.2.0 · tanpa analitik dan iklan. Data dinas tidak dikirim ke server; hanya kode lisensi dan ID perangkat diperiksa online.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
         }
     }
 
@@ -264,9 +266,7 @@ fun PasswordDialog(title: String, hint: String, confirmLabel: String, onDismiss:
 }
 
 private val RIWAYAT = listOf(
-    "Terbaru" to listOf(
-        "1.1.0: cek lisensi online (pencabutan berlaku), pengingat dan kunci versi lama",
-        "Laporan realisasi format LPBPD (ekspor Excel), kategori Tiket/Speedboat/Uang Saku, pencairan tambahan",
+    "1.0.x (sebelum 1.1.0)" to listOf(
         "Analisis AI (Gemini) dan Baca kode dari foto di editor aset",
         "Import Excel/JSON mendeteksi semua perubahan per kolom (mode Perbarui)",
         "Ekspor Excel: pilih sheet, kolom, dan mutu foto",
