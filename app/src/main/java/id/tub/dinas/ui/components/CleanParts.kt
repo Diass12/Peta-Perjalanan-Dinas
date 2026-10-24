@@ -26,8 +26,8 @@ fun CleanNav(items: List<Pair<String, String>>, selected: Int, onSelect: (Int) -
             items.forEachIndexed { i, (icon, label) ->
                 val on = i == selected
                 Column(Modifier.weight(1f).clickable { Sfx.click(); onSelect(i) }.padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.clip(RoundedCornerShape(14.dp)).background(if (on) C.BrandSoft else Color.Transparent).padding(horizontal = 18.dp, vertical = 3.dp)) { Text(icon, fontSize = 20.sp) }
-                    Text(label, fontSize = 12.sp, maxLines = 1, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, color = if (on) C.Brand else C.Muted)
+                    Box(Modifier.clip(RoundedCornerShape(16.dp)).background(if (on) C.AccentSoft else Color.Transparent).padding(horizontal = 20.dp, vertical = 4.dp)) { Text(icon, fontSize = 20.sp) }
+                    Text(label, fontSize = 12.sp, maxLines = 1, fontWeight = if (on) FontWeight.Bold else FontWeight.Medium, color = if (on) C.Ink else C.Muted)
                 }
             }
         }
@@ -53,7 +53,7 @@ fun StatCard(label: String, value: Int, max: Int, orange: Boolean, modifier: Mod
 /** Ubin menu: ikon emoji di kotak berwarna, judul, dan keterangan singkat. */
 @Composable
 fun MenuTile(icon: String, tint: Color, title: String, subtitle: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val shape = RoundedCornerShape(18.dp)
+    val shape = RoundedCornerShape(20.dp)
     Column(modifier.clip(shape).background(C.Surface, shape).border(1.dp, C.Line, shape).clickable { Sfx.menu(); onClick() }.padding(14.dp)) {
         Box(Modifier.size(44.dp).background(tint.copy(alpha = 0.14f), RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) { Text(icon, fontSize = 22.sp) }
         Spacer(Modifier.height(10.dp))
@@ -66,4 +66,23 @@ fun MenuTile(icon: String, tint: Color, title: String, subtitle: String, modifie
 @Composable
 fun RoundIcon(icon: String, onClick: () -> Unit) {
     Box(Modifier.size(44.dp).clip(CircleShape).background(C.Surface).border(1.dp, C.Line, CircleShape).clickable(onClick = onClick), contentAlignment = Alignment.Center) { Text(icon, fontSize = 20.sp) }
+}
+
+/** Aksi cepat bulat seperti beranda aplikasi travel: ikon emoji di lingkaran berwarna, label di bawah. */
+@Composable
+fun QuickAction(icon: String, label: String, tint: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Column(modifier.clip(RoundedCornerShape(16.dp)).clickable { Sfx.menu(); onClick() }.padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(54.dp).background(tint.copy(alpha = 0.14f), CircleShape).border(1.dp, tint.copy(alpha = 0.25f), CircleShape), contentAlignment = Alignment.Center) { Text(icon, fontSize = 24.sp) }
+        Spacer(Modifier.height(6.dp))
+        Text(label, fontSize = 12.sp, maxLines = 1, fontWeight = FontWeight.Medium, color = C.Ink)
+    }
+}
+
+/** Kolom cari besar bergaya travel: ikon kaca pembesar, sudut 18 dp. */
+@Composable
+fun SearchBar(value: String, onChange: (String) -> Unit, hint: String, modifier: Modifier = Modifier) {
+    androidx.compose.material3.OutlinedTextField(value, onChange, modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(18.dp),
+        placeholder = { Text(hint, color = C.Muted, fontSize = 15.sp) }, leadingIcon = { Text("🔍", fontSize = 18.sp) },
+        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(focusedBorderColor = C.Accent, unfocusedBorderColor = C.Line, cursorColor = C.Accent,
+            focusedContainerColor = C.Surface, unfocusedContainerColor = C.Surface, focusedTextColor = C.Ink, unfocusedTextColor = C.Ink))
 }

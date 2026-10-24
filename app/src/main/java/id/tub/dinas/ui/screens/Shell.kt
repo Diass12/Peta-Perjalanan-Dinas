@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -84,6 +85,8 @@ private fun DinasPicker(vm: MainViewModel, aktifId: String?) {
 fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
     val list by vm.dinasList.collectAsState()
     var creating by remember { mutableStateOf(false) }
+    var cari by rememberSaveable { mutableStateOf("") }
+    val tampil = list.filter { cari.isBlank() || it.name.contains(cari.trim(), ignoreCase = true) }
     val reg by vm.aset.register.collectAsState()
     val um by vm.um.bundles.collectAsState()
     val jd by vm.jadwal.daftar.collectAsState()
@@ -109,10 +112,32 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
                     }
                     Box(Modifier.size(44.dp).background(Color.White.copy(alpha = 0.16f), CircleShape).clickable { vm.push(Screen.Settings) }, contentAlignment = Alignment.Center) { Text("⚙️", fontSize = 20.sp) }
                 }
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(18.dp))
                 Text(java.text.SimpleDateFormat("EEEE, d MMMM yyyy", java.util.Locale("id", "ID")).format(java.util.Date()), color = Color(0xB3FFFFFF), fontSize = 13.sp)
-                Spacer(Modifier.height(4.dp))
-                Text(if (aktif == null) "Belum ada tugas aktif" else "Tugas aktif: ${aktif.name}", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(2.dp))
+                Text("Mau dinas ke mana?", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
+                Spacer(Modifier.height(12.dp))
+                SearchBar(cari, { cari = it }, "Cari dinas…")
+            }
+        }
+        // Kartu utama: dinas aktif
+        if (aktif != null && cari.isBlank()) item {
+            val counts by remember(aktif.id) { vm.repo.observeCounts(aktif.id) }.collectAsState(0 to 0)
+            val period = listOf(fmtDate(aktif.startMs), fmtDate(aktif.endMs)).filter { it.isNotEmpty() }.joinToString(" – ")
+            val shape = RoundedCornerShape(24.dp)
+            Column(Modifier.padding(horizontal = 16.dp).fillMaxWidth().clip(shape).background(Brush.linearGradient(listOf(C.Navy2, Color(0xFF12202B))), shape)
+                .clickable { vm.tab = DetailTab.PETA; vm.push(Screen.Detail(aktif.id)) }.padding(20.dp)) {
+                Text("DINAS AKTIF", color = C.Accent, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                Spacer(Modifier.height(6.dp))
+                Text(aktif.name, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 2, lineHeight = 28.sp)
+                if (period.isNotEmpty()) Text(period, color = Color(0xCCFFFFFF), fontSize = 14.sp, modifier = Modifier.padding(top = 2.dp))
+                Spacer(Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("📍 ${counts.first} titik", color = Color.White, fontSize = 13.sp, modifier = Modifier.background(Color.White.copy(alpha = 0.14f), RoundedCornerShape(12.dp)).padding(horizontal = 10.dp, vertical = 5.dp))
+                    Text("📝 ${counts.second} temuan", color = Color.White, fontSize = 13.sp, modifier = Modifier.background(Color.White.copy(alpha = 0.14f), RoundedCornerShape(12.dp)).padding(horizontal = 10.dp, vertical = 5.dp))
+                    Spacer(Modifier.weight(1f))
+                    Text("Buka ›", color = Color(0xFF12202B), fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.background(C.Accent, RoundedCornerShape(14.dp)).padding(horizontal = 16.dp, vertical = 8.dp))
+                }
             }
         }
         // Sisa anggaran
@@ -141,15 +166,22 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
             }
         }
         item {
-            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MenuTile("📦", C.Brand, "Aset & Scan", if (reg.isEmpty()) "Register, scan, audit" else "${reg.size} aset · $ditemukan ditemukan", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.Aset) }
-                    MenuTile("💵", C.Ok, "Uang Muka", if (um.isEmpty()) "Pengajuan & bon" else "${um.size} pengajuan · ${berjalan.size} berjalan", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.UangMuka) }
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                Row(Modifier.fillMaxWidth()) {
+                    QuickAction("📦", "Aset", C.lens(Lens.ASET), Modifier.weight(1f)) { vm.push(Screen.Aset) }
+                    QuickAction("💵", "Uang Muka", C.Ok, Modifier.weight(1f)) { vm.push(Screen.UangMuka) }
+                    QuickAction("🗓️", "Jadwal", C.Soft, Modifier.weight(1f)) { vm.push(Screen.Jadwal) }
+                    QuickAction("➕", "Dinas baru", C.Accent, Modifier.weight(1f)) { creating = true }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MenuTile("🗓️", C.Soft, "Jadwal", if (jd.isEmpty()) "Audit, meeting, tenggat" else "${depan.size} akan datang", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.Jadwal) }
-                    MenuTile("➕", C.Amber, "Dinas baru", "Titik & temuan lapangan", Modifier.weight(1f).fillMaxHeight()) { creating = true }
+                Row(Modifier.fillMaxWidth()) {
+                    QuickAction("🖼️", "Galeri", C.Foto, Modifier.weight(1f)) { vm.push(Screen.Galeri) }
+                    QuickAction("🧳", "Dokumen", C.Hotel, Modifier.weight(1f)) { vm.push(Screen.Dokumen) }
+                    QuickAction("🗺️", "Peta", C.Wisata, Modifier.weight(1f)) { vm.mainTab = 1 }
+                    QuickAction("📋", "Audit", C.Kuliner, Modifier.weight(1f)) { vm.mainTab = 2 }
                 }
+                if (reg.isNotEmpty() || um.isNotEmpty()) Text(
+                    listOfNotNull(if (reg.isNotEmpty()) "${reg.size} aset · $ditemukan ditemukan" else null, if (um.isNotEmpty()) "${um.size} pengajuan · ${berjalan.size} berjalan" else null).joinToString("   |   "),
+                    color = C.Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
             }
         }
         if (next != null) item {
@@ -160,9 +192,10 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
                 Text(listOf(id.tub.dinas.um.fmtTgl(next.tanggal), next.jamMulai, next.lokasi).filter { it.isNotBlank() }.joinToString(" · "), color = C.Muted, style = MaterialTheme.typography.bodyMedium)
             }
         }
-        item { SectionTitle("Dinas", Modifier.padding(horizontal = 16.dp)) }
+        item { SectionTitle(if (cari.isBlank()) "Dinas" else "Hasil pencarian “${cari.trim()}”", Modifier.padding(horizontal = 16.dp)) }
         if (list.isEmpty()) item { Empty("Belum ada dinas. Ketuk “Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan.") }
-        items(list, key = { it.id }) { d ->
+        else if (tampil.isEmpty()) item { Empty("Tidak ada dinas yang cocok dengan pencarian.") }
+        items(tampil, key = { it.id }) { d ->
             val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)
             Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.aktifId = d.id; vm.settings.lastDinasId = d.id; vm.tab = DetailTab.PETA; vm.push(Screen.Detail(d.id)) }) {
                 Text(d.name, style = MaterialTheme.typography.titleMedium)

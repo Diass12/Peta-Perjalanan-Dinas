@@ -30,29 +30,37 @@ object ThemeState {
 object C {
     private fun p(l: Long, d: Long) = Color(if (ThemeState.dark) d else l)
     /** Biru lembut untuk aksen sekunder. */
-    val Soft get() = p(0xFF2F6FDB, 0xFF8AB4FF)
-    val Navy2 get() = p(0xFF1E4278, 0xFF3B2D8F)
-    val Bg get() = p(0xFFF3F5F9, 0xFF0E0D22)
+    val Soft get() = p(0xFF2F5D8A, 0xFF8AB4FF)
+    val Navy2 get() = p(0xFF1F3342, 0xFF3B2D8F)
+    val Bg get() = p(0xFFF6F4EE, 0xFF0E0D22)
     /** Latar padat untuk dialog layar penuh. */
-    val Solid get() = p(0xFFF3F5F9, 0xFF0E0D22)
+    val Solid get() = p(0xFFF6F4EE, 0xFF0E0D22)
     val Card get() = p(0xFFFFFFFF, 0xFF1A1936)
     /** Permukaan kartu/bilah/dialog (putih di mode terang). */
     val Surface get() = p(0xFFFFFFFF, 0xFF1A1936)
     val HeaderBg get() = p(0xFFFFFFFF, 0xFF14132E)
-    val Ink get() = p(0xFF0F172A, 0xFFF3F2FF)
-    val Brand get() = p(0xFF15305A, 0xFF7C5CFA)
-    val BrandSoft get() = p(0xFFE4EAF4, 0xFF2A2655)
+    val Ink get() = p(0xFF12202B, 0xFFF3F2FF)
+    val Brand get() = p(0xFF12202B, 0xFF7C5CFA)
+    val BrandSoft get() = p(0xFFF8EBD2, 0xFF2A2655)
     val Amber get() = p(0xFFD97706, 0xFFFBBF24)
-    val Line get() = p(0xFFE2E8F0, 0xFF2E2C54)
-    val Muted get() = p(0xFF64748B, 0xFFA9A7CC)
+    val Line get() = p(0xFFDDD8CC, 0xFF2E2C54)
+    val Muted get() = p(0xFF5B6B78, 0xFFA9A7CC)
     val Danger get() = p(0xFFDC2626, 0xFFF87171)
     val Ok get() = p(0xFF059669, 0xFF34D399)
     val OkSoft get() = p(0xFFD1FAE5, 0xFF12382F)
-    val Chip get() = p(0xFFEDF1F7, 0xFF26244C)
+    val Chip get() = p(0xFFEFEBE0, 0xFF26244C)
+    /** Aksen emas-oranye untuk tombol utama (CTA) dan penanda aktif. */
+    val Accent get() = p(0xFFE9A23B, 0xFFFBBF24)
+    val AccentSoft get() = p(0xFFFBEFD7, 0xFF3A2E12)
+    /** Warna kategori: wisata, kuliner, hotel, foto. */
+    val Wisata = Color(0xFF0F766E)
+    val Kuliner = Color(0xFFB45309)
+    val Hotel = Color(0xFF4F46E5)
+    val Foto = Color(0xFFBE185D)
     val PinDok = Color(0xFFE9C23B)
     val PinLap = Color(0xFF14532D)
     /** Gradasi aksen: ungu → merah muda → jingga (mode gelap); biru tua polos (mode terang). */
-    val Grad: Brush get() = if (ThemeState.dark) Brush.horizontalGradient(listOf(Color(0xFF6C4DF6), Color(0xFFC94FE0), Color(0xFFF08A5D))) else Brush.horizontalGradient(listOf(Color(0xFF15305A), Color(0xFF15305A)))
+    val Grad: Brush get() = if (ThemeState.dark) Brush.horizontalGradient(listOf(Color(0xFF6C4DF6), Color(0xFFC94FE0), Color(0xFFF08A5D))) else Brush.horizontalGradient(listOf(Color(0xFF12202B), Color(0xFF1F3342)))
 
     fun lens(l: Lens): Color = if (ThemeState.dark) when (l) { Lens.ASET -> Color(0xFFFBBF24); Lens.OPS -> Color(0xFF5EEAD4); Lens.ADM -> Color(0xFFA5B4FC) }
         else when (l) { Lens.ASET -> Color(0xFFB45309); Lens.OPS -> Color(0xFF0F766E); Lens.ADM -> Color(0xFF4F46E5) }
@@ -87,7 +95,7 @@ private val type = Typography(
 )
 
 private val shapes = Shapes(
-    small = RoundedCornerShape(10.dp), medium = RoundedCornerShape(14.dp), large = RoundedCornerShape(20.dp), extraLarge = RoundedCornerShape(24.dp),
+    small = RoundedCornerShape(12.dp), medium = RoundedCornerShape(16.dp), large = RoundedCornerShape(22.dp), extraLarge = RoundedCornerShape(28.dp),
 )
 
 @Composable

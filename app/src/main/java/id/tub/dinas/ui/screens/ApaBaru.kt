@@ -26,6 +26,12 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(4, "1.3.0", listOf(
+            FiturBaru("🎨", "Tampilan baru", "Warna navy dan emas, kartu lebih bulat dengan bayangan lembut, dan tombol utama berwarna emas. Data dan fitur lama tidak berubah.",
+                listOf("Buka Beranda.", "Lihat kartu “Dinas aktif” dan deretan aksi cepat bulat."), null),
+            FiturBaru("🔍", "Cari dinas dan aksi cepat", "Beranda kini bertanya “Mau dinas ke mana?” dengan kolom cari untuk menyaring daftar dinas, serta pintasan ke Aset, Uang Muka, Jadwal, Galeri, Dokumen, Peta, dan Audit.",
+                listOf("Ketik sebagian nama dinas di kolom cari.", "Ketuk lingkaran aksi cepat untuk langsung pindah menu."), null),
+        )),
         RilisInfo(3, "1.2.0", listOf(
             FiturBaru("✨", "Catatan perubahan dan panduan fitur", "Setelah aplikasi diperbarui, daftar yang berubah muncul otomatis beserta panduan singkat. Bisa dibuka lagi kapan saja.",
                 listOf("Buka Profil lalu Pengaturan.", "Ketuk “Apa yang baru & panduan” atau “Riwayat perubahan semua versi”."), Screen.Settings),

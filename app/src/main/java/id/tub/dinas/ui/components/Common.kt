@@ -26,6 +26,7 @@ import id.tub.dinas.ui.theme.ThemeState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Shadow
@@ -54,18 +55,18 @@ fun PrimaryButton(text: String, modifier: Modifier = Modifier, enabled: Boolean 
 /** Tombol utama (nama lama dipertahankan). */
 @Composable
 fun AmberButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) =
-    Button({ Sfx.menu(); onClick() }, modifier.heightIn(min = 52.dp), enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Brand, contentColor = Color.White), shape = RoundedCornerShape(14.dp)) { Text(text, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
+    Button({ Sfx.menu(); onClick() }, modifier.heightIn(min = 52.dp), enabled = enabled, colors = ButtonDefaults.buttonColors(containerColor = C.Accent, contentColor = if (ThemeState.dark) Color(0xFF12202B) else C.Ink), shape = RoundedCornerShape(16.dp)) { Text(text, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
 
 @Composable
 fun SoftButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, danger: Boolean = false, onClick: () -> Unit) =
     OutlinedButton(onClick, modifier.heightIn(min = 46.dp), enabled = enabled, shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, if (danger) C.Danger.copy(alpha = 0.5f) else C.Line),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = if (danger) C.Danger else C.Ink)) { Text(text) }
 
-/** Kartu putih bersudut 16 dp dengan garis tipis. */
+/** Kartu putih bersudut 20 dp dengan garis tipis dan bayangan lembut. */
 @Composable
 fun Panel(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
-    val shape = RoundedCornerShape(16.dp)
-    val m = modifier.fillMaxWidth().clip(shape).background(C.Card, shape).border(1.dp, C.Line, shape)
+    val shape = RoundedCornerShape(20.dp)
+    val m = modifier.fillMaxWidth().shadow(2.dp, shape, clip = false, ambientColor = Color(0x14000000), spotColor = Color(0x14000000)).clip(shape).background(C.Card, shape).border(1.dp, C.Line, shape)
     Column((if (onClick != null) m.clickable(onClick = onClick) else m).padding(16.dp), content = content)
 }
 
