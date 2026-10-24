@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -27,7 +28,9 @@ import androidx.compose.ui.unit.sp
 import id.tub.dinas.MainViewModel
 import id.tub.dinas.domain.DinasModel
 import id.tub.dinas.panduan.Kota
+import id.tub.dinas.panduan.FotoLatar
 import id.tub.dinas.panduan.Kuliner
+import id.tub.dinas.panduan.PanduanWeb
 import id.tub.dinas.panduan.PanduanData
 import id.tub.dinas.panduan.Wisata
 import id.tub.dinas.ui.DetailTab
@@ -47,13 +50,24 @@ private fun norm(s: String) = s.lowercase().replace(Regex("\\bjogja(karta)?\\b|\
 private fun warnaKota(k: Kota) = WARNA[PanduanData.kota.indexOf(k).coerceAtLeast(0) % WARNA.size]
 
 @Composable
-private fun KartuMini(ikon: String, judul: String, sub: String, tint: Color, onClick: () -> Unit) {
+private fun KartuMini(ikon: String, judul: String, sub: String, tint: Color, kunci: String, query: String, nama: String, onClick: () -> Unit) {
     val shape = RoundedCornerShape(20.dp)
-    Column(Modifier.width(158.dp).clip(shape).background(Brush.linearGradient(listOf(tint, Color(0xFF12202B))), shape).clickable { Sfx.menu(); onClick() }.padding(14.dp)) {
-        Text(ikon, fontSize = 30.sp)
-        Spacer(Modifier.height(18.dp))
-        Text(judul, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 2)
-        Text(sub, color = Color(0xCCFFFFFF), fontSize = 12.sp, maxLines = 2)
+    FotoLatar(kunci, query, nama, tint, Modifier.width(168.dp).height(200.dp).clip(shape).clickable { Sfx.menu(); onClick() }) { f ->
+        if (f == null) Text(ikon, fontSize = 30.sp, modifier = Modifier.padding(14.dp))
+        Column(Modifier.align(Alignment.BottomStart).padding(14.dp)) {
+            Text(judul, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(sub, color = Color(0xE6FFFFFF), fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/** Foto lebar di dalam kartu, lengkap dengan atribusi yang bisa diketuk. */
+@Composable
+private fun FotoKartu(ikon: String, tint: Color, kunci: String, query: String, nama: String, ctx: Context) {
+    FotoLatar(kunci, query, nama, tint, Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(14.dp))) { f ->
+        if (f == null) Text(ikon, fontSize = 40.sp, modifier = Modifier.align(Alignment.Center))
+        else Text("📷 ${f.kredit} · Wikimedia Commons", color = Color(0xE6FFFFFF), fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.align(Alignment.BottomStart).clickable { buka(ctx, "https://commons.wikimedia.org/wiki/File:" + Uri.encode(f.berkas)) }.padding(8.dp))
     }
 }
 
@@ -91,7 +105,10 @@ private fun PanduanBeranda(q: String, onQ: (String) -> Unit, fav: Set<String>, b
             }
         }
         if (cari) {
-            if (kotaCocok.isEmpty() && wisata.isEmpty() && kuliner.isEmpty()) item { Empty("Belum ada panduan untuk “${q.trim()}”. Data awal baru mencakup 6 kota: Bali, Bandung, Yogyakarta, Jakarta, Lombok, dan Labuan Bajo.") }
+            if (kotaCocok.isEmpty() && wisata.isEmpty() && kuliner.isEmpty()) {
+                item { Empty("Belum ada “${q.trim()}” di data bawaan (${PanduanData.kota.size} daerah). Coba cari di internet di bawah.") }
+                item { CariInternet(q.trim()) }
+            }
             if (kotaCocok.isNotEmpty()) {
                 item { SectionTitle(if (hotel) "🏨 Hotel di…" else "🧭 Destinasi (${kotaCocok.size})", Modifier.padding(horizontal = 16.dp)) }
                 items(kotaCocok, key = { "k" + it.id }) { k ->
@@ -123,25 +140,25 @@ private fun PanduanBeranda(q: String, onQ: (String) -> Unit, fav: Set<String>, b
             item { SectionTitle("Destinasi populer", Modifier.padding(horizontal = 16.dp)) }
             item {
                 LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(PanduanData.kota, key = { it.id }) { k -> KartuMini(k.ikon, k.nama, k.tagline, warnaKota(k)) { bukaKota(k.id, 0) } }
+                    items(PanduanData.kota, key = { it.id }) { k -> KartuMini(k.ikon, k.nama, k.tagline, warnaKota(k), "w:${k.id}:${k.wisata.first().id}", "${k.wisata.first().nama} ${k.nama}", k.wisata.first().nama) { bukaKota(k.id, 0) } }
                 }
             }
             item { SectionTitle("Kuliner wajib coba", Modifier.padding(horizontal = 16.dp)) }
             item {
                 LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(PanduanData.kota, key = { "u" + it.id }) { k -> val u = k.kuliner.first(); KartuMini("🍜", u.nama, "${k.nama} · ${u.kategori}", C.Kuliner) { bukaKota(k.id, 2) } }
+                    items(PanduanData.kota, key = { "u" + it.id }) { k -> val u = k.kuliner.first(); KartuMini("🍜", u.nama, "${k.nama} · ${u.kategori}", C.Kuliner, "u:${k.id}:${u.id}", u.nama, u.nama) { bukaKota(k.id, 2) } }
                 }
             }
             item { SectionTitle("Wisata pilihan", Modifier.padding(horizontal = 16.dp)) }
             item {
                 LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(PanduanData.kota, key = { "w" + it.id }) { k -> val w = k.wisata.first(); KartuMini("🏞️", w.nama, "${k.nama} · ${w.kategori}", C.Wisata) { bukaKota(k.id, 1) } }
+                    items(PanduanData.kota, key = { "w" + it.id }) { k -> val w = k.wisata.first(); KartuMini("🏞️", w.nama, "${k.nama} · ${w.kategori}", C.Wisata, "w:${k.id}:${w.id}", "${w.nama} ${k.nama}", w.nama) { bukaKota(k.id, 1) } }
                 }
             }
             item { SectionTitle("Spot foto", Modifier.padding(horizontal = 16.dp)) }
             item {
                 LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(PanduanData.kota.flatMap { k -> k.wisata.filter { it.foto.isNotBlank() }.take(1).map { k to it } }, key = { "f" + it.first.id }) { (k, w) -> KartuMini("📸", w.nama, k.nama, C.Foto) { bukaKota(k.id, 4) } }
+                    items(PanduanData.kota.flatMap { k -> k.wisata.filter { it.foto.isNotBlank() }.take(1).map { k to it } }, key = { "f" + it.first.id }) { (k, w) -> KartuMini("📸", w.nama, k.nama, C.Foto, "w:${k.id}:${w.id}", "${w.nama} ${k.nama}", w.nama) { bukaKota(k.id, 4) } }
                 }
             }
             val favKota = PanduanData.kota.filter { "k:" + it.id in fav }
@@ -218,6 +235,8 @@ private fun PanduanKota(vm: MainViewModel, aktif: DinasModel?, k: Kota, bagian: 
 private fun KartuWisata(vm: MainViewModel, aktif: DinasModel?, k: Kota, w: Wisata, fav: Set<String>, ubahFav: (String) -> Unit, ctx: Context, fotoMode: Boolean) {
     val id = "w:${k.id}:${w.id}"
     Panel {
+        FotoKartu("🏞️", C.Wisata, id, "${w.nama} ${k.nama}", w.nama, ctx)
+        Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(w.nama, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             Text(if (id in fav) "♥" else "♡", color = C.Foto, fontSize = 26.sp, modifier = Modifier.clickable { ubahFav(id) }.padding(start = 8.dp))
@@ -242,6 +261,8 @@ private fun KartuWisata(vm: MainViewModel, aktif: DinasModel?, k: Kota, w: Wisat
 private fun KartuKuliner(k: Kota, u: Kuliner, fav: Set<String>, ubahFav: (String) -> Unit, ctx: Context) {
     val id = "u:${k.id}:${u.id}"
     Panel {
+        FotoKartu("🍜", C.Kuliner, id, u.nama, u.nama, ctx)
+        Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(u.nama, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             Text(if (id in fav) "♥" else "♡", color = C.Foto, fontSize = 26.sp, modifier = Modifier.clickable { ubahFav(id) }.padding(start = 8.dp))
@@ -250,5 +271,36 @@ private fun KartuKuliner(k: Kota, u: Kuliner, fav: Set<String>, ubahFav: (String
         Text(u.deskripsi, modifier = Modifier.padding(top = 8.dp), lineHeight = 21.sp)
         Text("🕌 ${u.halal}", color = C.Muted, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp))
         SoftButton("🔎 Cari tempatnya di Maps", Modifier.fillMaxWidth().padding(top = 10.dp)) { buka(ctx, mapsCari("${u.nama} di ${k.nama}")) }
+    }
+}
+
+@Composable
+private fun CariInternet(q: String) {
+    val ctx = LocalContext.current
+    var minta by remember(q) { mutableStateOf(false) }
+    var gagal by remember(q) { mutableStateOf(false) }
+    val hasil by produceState<PanduanWeb.Ringkas?>(null, q, minta) {
+        value = null; gagal = false
+        if (minta) value = try { PanduanWeb.ringkas(q) } catch (e: java.io.IOException) { gagal = true; null } catch (e: RuntimeException) { gagal = true; null }
+    }
+    Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (!minta) PrimaryButton("🌐 Cari “$q” di internet", Modifier.fillMaxWidth()) { minta = true }
+        else {
+            val h = hasil
+            if (h != null) Panel {
+                FotoKartu("🌐", C.Soft, "cari:" + q.lowercase(), q, q, ctx)
+                Spacer(Modifier.height(10.dp))
+                Text(h.judul, style = MaterialTheme.typography.titleMedium)
+                Text(h.isi, lineHeight = 21.sp, modifier = Modifier.padding(top = 6.dp))
+                Text("Sumber: Wikipedia (CC BY-SA). Cek ulang sebelum berangkat.", color = C.Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp))
+            } else if (gagal) {
+                Panel { Text("Tidak tersambung atau terlalu lama menunggu. Data bawaan tetap bisa dipakai.", color = C.Muted) }
+                SoftButton("Coba lagi", Modifier.fillMaxWidth()) { minta = false }
+            } else Panel { Text("Mencari…", color = C.Muted) }
+        }
+        SoftButton("🏞️ Wisata di $q (Maps)", Modifier.fillMaxWidth()) { buka(ctx, mapsCari("tempat wisata di $q")) }
+        SoftButton("🍜 Kuliner di $q (Maps)", Modifier.fillMaxWidth()) { buka(ctx, mapsCari("makanan khas di $q")) }
+        SoftButton("🏨 Hotel di $q (Maps)", Modifier.fillMaxWidth()) { buka(ctx, mapsCari("hotel di $q")) }
+        SoftButton("🏨 Cari di Traveloka", Modifier.fillMaxWidth()) { buka(ctx, "https://www.traveloka.com/id-id/hotel") }
     }
 }

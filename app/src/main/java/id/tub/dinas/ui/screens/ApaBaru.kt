@@ -26,6 +26,14 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(7, "1.5.0", listOf(
+            FiturBaru("📷", "Foto asli di Panduan", "Kartu destinasi, wisata, dan kuliner kini menampilkan foto asli dari Wikipedia/Wikimedia Commons lengkap dengan nama fotografer dan lisensinya. Foto disimpan di HP setelah dimuat. Bila sinyal lemah, kartu tetap tampil tanpa foto.",
+                listOf("Buka menu Panduan dengan internet aktif.", "Tunggu foto muncul; ketuk keterangan foto untuk melihat sumbernya."), null),
+            FiturBaru("🌏", "Data jauh lebih banyak", "Kini 14 daerah: ditambah Halmahera, Ternate, Batam, Aceh, serta Kalimantan Timur, Barat, Selatan, dan Tengah, dengan lebih banyak wisata dan kuliner (data sampel).",
+                listOf("Buka Panduan lalu geser Destinasi populer.", "Atau ketik nama daerah di kolom cari."), null),
+            FiturBaru("🌐", "Cari di internet", "Kalau kota yang diketik belum ada di data bawaan, ketuk Cari di internet untuk ringkasan dan foto dari Wikipedia, plus tombol wisata, kuliner, dan hotel di Maps.",
+                listOf("Ketik nama kota yang belum ada, misalnya Padang.", "Ketuk Cari di internet."), null),
+        )),
         RilisInfo(6, "1.4.0", listOf(
             FiturBaru("🧭", "Panduan Travel", "Menu baru untuk mencari kota tujuan: wisata, kuliner khas, spot foto, dan tombol pencarian hotel ke Traveloka, Google Maps, dan Booking.com. Data awal 6 kota (data sampel). Wisata bisa dijadikan titik dinas, dan kota bisa dijadikan dinas baru.",
                 listOf("Ketuk menu Panduan di bawah.", "Ketik kota atau makanan di kolom cari.", "Buka sebuah kota, lalu pilih tab Wisata, Kuliner, Hotel, atau Spot foto."), null),
