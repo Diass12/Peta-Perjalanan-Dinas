@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(6, "1.4.0", listOf(
+            FiturBaru("🧭", "Panduan Travel", "Menu baru untuk mencari kota tujuan: wisata, kuliner khas, spot foto, dan tombol pencarian hotel ke Traveloka, Google Maps, dan Booking.com. Data awal 6 kota (data sampel). Wisata bisa dijadikan titik dinas, dan kota bisa dijadikan dinas baru.",
+                listOf("Ketuk menu Panduan di bawah.", "Ketik kota atau makanan di kolom cari.", "Buka sebuah kota, lalu pilih tab Wisata, Kuliner, Hotel, atau Spot foto."), null),
+        )),
         RilisInfo(5, "1.3.1", listOf(
             FiturBaru("🔍", "Pencarian Beranda lebih pintar", "Ketik nama kota atau tempat di “Mau dinas ke mana?” dan hasilnya dikelompokkan: Dinas, Titik, Temuan, Aset, dan Jadwal. Ketuk hasilnya untuk langsung membuka. Kalau belum ada, tersedia tombol untuk membuat dinas baru dengan nama itu.",
                 listOf("Di Beranda ketik misalnya “Tobelo”.", "Ketuk salah satu hasil, atau “Buat dinas” bila belum ada."), null),

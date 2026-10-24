@@ -79,6 +79,10 @@ class Settings(ctx: Context) {
         get() = p.getString("lapPemeriksa", "Finance") ?: ""
         set(v) { p.edit().putString("lapPemeriksa", v.trim()).apply() }
     /** Waktu (ms) terakhir lisensi terverifikasi online. */
+    /** Favorit Panduan Travel: id seperti "k:bali", "w:bali:tanah-lot", "u:bali:ayam-betutu". */
+    var panduanFav: Set<String>
+        get() = (p.getString("panduanFav", "") ?: "").split("\n").filter { it.isNotBlank() }.toSet()
+        set(v) { p.edit().putString("panduanFav", v.joinToString("\n")).apply() }
     var cekOk: Long
         get() = p.getLong("cekOk", 0L)
         set(v) { p.edit().putLong("cekOk", v).apply() }

@@ -48,7 +48,7 @@ private suspend fun buatDinasOtomatis(vm: MainViewModel): String {
     return id
 }
 
-/** Cangkang aplikasi: 4 menu bawah — Beranda, Peta & GPS, Audit & Dokumen, Wawasan. */
+/** Cangkang aplikasi: 5 menu bawah — Beranda, Peta & GPS, Audit & Dokumen, Wawasan, Panduan Travel. */
 @Composable
 fun ShellScreen(vm: MainViewModel) {
     val list by vm.dinasList.collectAsState()
@@ -61,10 +61,11 @@ fun ShellScreen(vm: MainViewModel) {
                 0 -> BerandaTab(vm, aktif, s)
                 1 -> PetaGpsTab(vm, s)
                 2 -> AuditHubTab(vm, s)
-                else -> WawasanTab(vm)
+                3 -> WawasanTab(vm)
+                else -> PanduanTab(vm, aktif)
             }
         }
-        CleanNav(listOf("🏠" to "Beranda", "🗺️" to "Peta & GPS", "📋" to "Audit", "📰" to "Wawasan"), vm.mainTab) { vm.mainTab = it }
+        CleanNav(listOf("🏠" to "Beranda", "🗺️" to "Peta & GPS", "📋" to "Audit", "📰" to "Wawasan", "🧭" to "Panduan"), vm.mainTab) { vm.mainTab = it }
     }
     val ed = vm.editor
     if (ed != null && s != null) EditorHost(vm, s)
@@ -188,7 +189,7 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
                     QuickAction("🖼️", "Galeri", C.Foto, Modifier.weight(1f)) { vm.push(Screen.Galeri) }
                     QuickAction("🧳", "Dokumen", C.Hotel, Modifier.weight(1f)) { vm.push(Screen.Dokumen) }
                     QuickAction("🗺️", "Peta", C.Wisata, Modifier.weight(1f)) { vm.mainTab = 1 }
-                    QuickAction("📋", "Audit", C.Kuliner, Modifier.weight(1f)) { vm.mainTab = 2 }
+                    QuickAction("🧭", "Panduan", C.Kuliner, Modifier.weight(1f)) { vm.mainTab = 4 }
                 }
                 if (reg.isNotEmpty() || um.isNotEmpty()) Text(
                     listOfNotNull(if (reg.isNotEmpty()) "${reg.size} aset · $ditemukan ditemukan" else null, if (um.isNotEmpty()) "${um.size} pengajuan · ${berjalan.size} berjalan" else null).joinToString("   |   "),
