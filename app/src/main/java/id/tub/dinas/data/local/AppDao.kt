@@ -29,6 +29,8 @@ interface AppDao {
     @Query("SELECT * FROM titik WHERE dinasId = :id ORDER BY urutan, recordedAt")
     suspend fun titikList(id: String): List<TitikEntity>
     @Query("SELECT * FROM titik WHERE id = :id") suspend fun titikById(id: String): TitikEntity?
+    @Query("SELECT * FROM titik") suspend fun allTitik(): List<TitikEntity>
+    @Query("SELECT * FROM temuan") suspend fun allTemuan(): List<TemuanEntity>
     @Upsert suspend fun upsertTitik(e: TitikEntity)
     @Upsert suspend fun upsertTitikAll(e: List<TitikEntity>)
     @Query("DELETE FROM titik WHERE id = :id") suspend fun deleteTitik(id: String)

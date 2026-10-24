@@ -86,7 +86,11 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
     val list by vm.dinasList.collectAsState()
     var creating by remember { mutableStateOf(false) }
     var cari by rememberSaveable { mutableStateOf("") }
-    val tampil = list.filter { cari.isBlank() || it.name.contains(cari.trim(), ignoreCase = true) }
+    val q = cari.trim()
+    val tampil = list.filter { q.isBlank() || it.name.contains(q, ignoreCase = true) || it.note.contains(q, ignoreCase = true) }
+    var semuaTitik by remember { mutableStateOf<List<id.tub.dinas.data.local.TitikEntity>>(emptyList()) }
+    var semuaTemuan by remember { mutableStateOf<List<id.tub.dinas.data.local.TemuanEntity>>(emptyList()) }
+    LaunchedEffect(q.isNotBlank()) { if (q.isNotBlank()) { semuaTitik = vm.repo.semuaTitik(); semuaTemuan = vm.repo.semuaTemuan() } }
     val reg by vm.aset.register.collectAsState()
     val um by vm.um.bundles.collectAsState()
     val jd by vm.jadwal.daftar.collectAsState()
@@ -96,6 +100,12 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
     val ditemukan = reg.count { it.state == AuditState.FOUND }
     val berjalan = um.filter { it.um.status != UmStatus.SELESAI }
     val dana = berjalan.sumOf { it.dana }; val bon = berjalan.sumOf { it.totalBon }
+    val namaDinas = list.associate { it.id to it.name }
+    val hTitik = if (q.length >= 2) semuaTitik.filter { it.title.contains(q, true) || it.note.contains(q, true) } else emptyList()
+    val hTemuan = if (q.length >= 2) semuaTemuan.filter { it.title.contains(q, true) || it.code.contains(q, true) || it.description.contains(q, true) } else emptyList()
+    val hAset = if (q.length >= 2) reg.filter { it.name.contains(q, true) || it.code.contains(q, true) || it.location.contains(q, true) } else emptyList()
+    val hJadwal = if (q.length >= 2) jd.filter { it.judul.contains(q, true) || it.lokasi.contains(q, true) } else emptyList()
+    val adaHasil = tampil.isNotEmpty() || hTitik.isNotEmpty() || hTemuan.isNotEmpty() || hAset.isNotEmpty() || hJadwal.isNotEmpty()
 
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
@@ -140,6 +150,7 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
                 }
             }
         }
+        if (q.isBlank()) {
         // Sisa anggaran
         item {
             Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.push(Screen.UangMuka) }) {
@@ -192,9 +203,55 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
                 Text(listOf(id.tub.dinas.um.fmtTgl(next.tanggal), next.jamMulai, next.lokasi).filter { it.isNotBlank() }.joinToString(" · "), color = C.Muted, style = MaterialTheme.typography.bodyMedium)
             }
         }
-        item { SectionTitle(if (cari.isBlank()) "Dinas" else "Hasil pencarian “${cari.trim()}”", Modifier.padding(horizontal = 16.dp)) }
-        if (list.isEmpty()) item { Empty("Belum ada dinas. Ketuk “Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan.") }
-        else if (tampil.isEmpty()) item { Empty("Tidak ada dinas yang cocok dengan pencarian.") }
+        }
+        if (q.isNotBlank()) {
+            if (!adaHasil) item {
+                Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Empty("Belum ada yang cocok dengan “$q”. Kalau ini tujuan dinas baru, buat dinasnya sekarang.")
+                    PrimaryButton("➕ Buat dinas “$q”", Modifier.fillMaxWidth()) {
+                        vm.work { val id = vm.repo.createDinas(q, System.currentTimeMillis(), null, ""); vm.aktifId = id; vm.settings.lastDinasId = id; vm.tab = DetailTab.PETA; vm.push(Screen.Detail(id)) }
+                    }
+                }
+            }
+            if (hTitik.isNotEmpty()) {
+                item { SectionTitle("📍 Titik (${hTitik.size})", Modifier.padding(horizontal = 16.dp)) }
+                items(hTitik.take(8), key = { "t" + it.id }) { t ->
+                    Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.aktifId = t.dinasId; vm.tab = DetailTab.PETA; vm.push(Screen.Detail(t.dinasId)) }) {
+                        Text(t.title.ifBlank { "(tanpa judul)" }, style = MaterialTheme.typography.titleMedium)
+                        Text(listOfNotNull(namaDinas[t.dinasId], t.note.takeIf { it.isNotBlank() }).joinToString(" · "), color = C.Muted, fontSize = 13.sp, maxLines = 2)
+                    }
+                }
+            }
+            if (hTemuan.isNotEmpty()) {
+                item { SectionTitle("📝 Temuan (${hTemuan.size})", Modifier.padding(horizontal = 16.dp)) }
+                items(hTemuan.take(8), key = { "m" + it.id }) { t ->
+                    Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.aktifId = t.dinasId; vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(t.dinasId)) }) {
+                        Text(listOf(t.code, t.title).filter { it.isNotBlank() }.joinToString(" · ").ifBlank { "(tanpa judul)" }, style = MaterialTheme.typography.titleMedium)
+                        Text(namaDinas[t.dinasId].orEmpty(), color = C.Muted, fontSize = 13.sp)
+                    }
+                }
+            }
+            if (hAset.isNotEmpty()) {
+                item { SectionTitle("📦 Aset (${hAset.size})", Modifier.padding(horizontal = 16.dp)) }
+                items(hAset.take(8), key = { "a" + it.id }) { a ->
+                    Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.push(Screen.Aset) }) {
+                        Text(a.name.ifBlank { a.code }, style = MaterialTheme.typography.titleMedium)
+                        Text(listOf(a.code, a.location).filter { it.isNotBlank() }.joinToString(" · "), color = C.Muted, fontSize = 13.sp)
+                    }
+                }
+            }
+            if (hJadwal.isNotEmpty()) {
+                item { SectionTitle("🗓️ Jadwal (${hJadwal.size})", Modifier.padding(horizontal = 16.dp)) }
+                items(hJadwal.take(8), key = { "j" + it.id }) { j ->
+                    Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.push(Screen.Jadwal) }) {
+                        Text(j.judul, style = MaterialTheme.typography.titleMedium)
+                        Text(listOf(id.tub.dinas.um.fmtTgl(j.tanggal), j.lokasi).filter { it.isNotBlank() }.joinToString(" · "), color = C.Muted, fontSize = 13.sp)
+                    }
+                }
+            }
+        }
+        if (q.isBlank() || tampil.isNotEmpty()) item { SectionTitle(if (q.isBlank()) "Dinas" else "🧳 Dinas (${tampil.size})", Modifier.padding(horizontal = 16.dp)) }
+        if (list.isEmpty() && q.isBlank()) item { Empty("Belum ada dinas. Ketuk “Dinas baru” untuk mulai mencatat titik dokumentasi dan temuan.") }
         items(tampil, key = { it.id }) { d ->
             val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)
             Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.aktifId = d.id; vm.settings.lastDinasId = d.id; vm.tab = DetailTab.PETA; vm.push(Screen.Detail(d.id)) }) {

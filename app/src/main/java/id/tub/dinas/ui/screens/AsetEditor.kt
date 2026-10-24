@@ -167,7 +167,7 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                             else if (aiBusy == null) { aiBusy = "ai"; scope.launch {
                                 try {
                                     val b = vm.repo.asetFotoBytes(fotos.first().path) ?: throw java.io.IOException("Foto tidak terbaca")
-                                    val kecil = withContext(Dispatchers.IO) { id.tub.dinas.aset.AsetImport.toJpeg(b, 1280, 80) ?: b }
+                                    val kecil = withContext(Dispatchers.IO) { id.tub.dinas.aset.AsetImport.toJpeg(b, 1024, 75) ?: b }
                                     aiHasil = withContext(Dispatchers.IO) { id.tub.dinas.ai.Gemini.analisis(key, vm.settings.geminiModel, kecil) }
                                 } catch (e: Exception) { vm.toast(e.message ?: "Analisis gagal") } finally { aiBusy = null }
                             } }

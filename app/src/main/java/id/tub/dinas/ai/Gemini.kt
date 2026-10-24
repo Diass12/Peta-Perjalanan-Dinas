@@ -48,17 +48,20 @@ object Gemini {
         }.sorted()
     }
 
+    /** Gangguan sementara di sisi Gemini (sibuk/habis waktu); aman dicoba ulang. */
+    class Sibuk(msg: String) : IOException(msg)
+
     private fun call(url: String, key: String, post: String?): String {
         val c = URL(url).openConnection() as HttpURLConnection
         try {
-            c.connectTimeout = 15000; c.readTimeout = 60000
+            c.connectTimeout = 15000; c.readTimeout = 45000
             c.setRequestProperty("x-goog-api-key", key.trim())
             if (post != null) { c.requestMethod = "POST"; c.doOutput = true; c.setRequestProperty("Content-Type", "application/json"); c.outputStream.use { it.write(post.toByteArray()) } }
             val code = c.responseCode
             val body = (if (code in 200..299) c.inputStream else c.errorStream)?.use { it.readBytes().toString(Charsets.UTF_8) }.orEmpty()
             if (code !in 200..299) {
                 val msg = runCatching { ((MiniJson.parse(body) as Map<*, *>)["error"] as Map<*, *>)["message"] as String }.getOrNull()
-                throw IOException(when (code) { 400, 403 -> "Kunci/model ditolak ($code): ${msg ?: ""}"; 429 -> "Kuota gratis habis, coba lagi nanti"; else -> "Gemini error $code ${msg ?: ""}" })
+                throw IOException(when (code) { 400, 403 -> "Kunci/model ditolak ($code): ${msg ?: ""}"; 429 -> "Kuota gratis habis, coba lagi nanti"; 500, 502, 503, 504 -> throw Sibuk("Server Gemini sedang sibuk ($code)"); else -> "Gemini error $code ${msg ?: ""}" })
             }
             return body
         } finally { c.disconnect() }
@@ -72,7 +75,19 @@ object Gemini {
             ))),
             "generationConfig" to mapOf("responseMimeType" to "application/json", "temperature" to 0.1),
         )
-        return parseHasil(call("$BASE/models/${model.trim().ifBlank { "gemini-flash-latest" }}:generateContent", key, MiniJson.write(req)))
+        val utama = model.trim().ifBlank { "gemini-flash-latest" }
+        // Coba model pilihan 2x (jeda 2 dtk), lalu model ringan sebagai cadangan; gangguan sementara tidak langsung gagal.
+        val cadangan = "gemini-flash-lite-latest"
+        val urutan = if (utama == cadangan) listOf(utama, utama) else listOf(utama, utama, cadangan)
+        val body = MiniJson.write(req)
+        var terakhir: IOException? = null
+        for ((i, m) in urutan.withIndex()) {
+            try { return parseHasil(call("$BASE/models/$m:generateContent", key, body)) }
+            catch (e: java.net.SocketTimeoutException) { terakhir = Sibuk("Koneksi ke Gemini terlalu lama. Cek sinyal lalu coba lagi.") }
+            catch (e: Sibuk) { terakhir = e }
+            if (i < urutan.lastIndex) Thread.sleep(2000)
+        }
+        throw terakhir ?: IOException("Analisis gagal")
     }
 
     fun modelTersedia(key: String): List<String> = parseModel(call("$BASE/models?pageSize=100", key, null))

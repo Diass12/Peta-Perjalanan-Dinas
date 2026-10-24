@@ -26,6 +26,12 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(5, "1.3.1", listOf(
+            FiturBaru("🔍", "Pencarian Beranda lebih pintar", "Ketik nama kota atau tempat di “Mau dinas ke mana?” dan hasilnya dikelompokkan: Dinas, Titik, Temuan, Aset, dan Jadwal. Ketuk hasilnya untuk langsung membuka. Kalau belum ada, tersedia tombol untuk membuat dinas baru dengan nama itu.",
+                listOf("Di Beranda ketik misalnya “Tobelo”.", "Ketuk salah satu hasil, atau “Buat dinas” bila belum ada."), null),
+            FiturBaru("✨", "Analisis AI Gemini lebih andal", "Saat server Gemini sibuk atau lambat, aplikasi mencoba ulang sendiri dan beralih ke model cadangan, sehingga lebih jarang gagal atau habis waktu.",
+                listOf("Buka sebuah aset dengan foto.", "Ketuk “Analisis AI (Gemini)”. Tunggu beberapa detik bila server sibuk."), null),
+        )),
         RilisInfo(4, "1.3.0", listOf(
             FiturBaru("🎨", "Tampilan baru", "Warna navy dan emas, kartu lebih bulat dengan bayangan lembut, dan tombol utama berwarna emas. Data dan fitur lama tidak berubah.",
                 listOf("Buka Beranda.", "Lihat kartu “Dinas aktif” dan deretan aksi cepat bulat."), null),
