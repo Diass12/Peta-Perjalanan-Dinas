@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(23, "1.7.13", listOf(
+            FiturBaru("🛠", "Perbaikan Gemini error 404", "Jika nama model Gemini di Pengaturan sudah tidak tersedia (error 404), aplikasi kini otomatis mencoba model terbaru. Disarankan mengosongkan kolom model agar memakai bawaan.",
+                listOf("Pengaturan, kosongkan kolom model Gemini."), null),
+        )),
         RilisInfo(22, "1.7.12", listOf(
             FiturBaru("🧾", "Bon di web & APK kini sama", "Isian bon di versi web/PC kini bergaya kartu seperti di APK (kategori berupa pilihan, terbilang otomatis). Label foto dan berkas di form Aset dan Bon juga dirapikan serta diterjemahkan.",
                 listOf("Buka Uang Muka, lalu Tambah bon."), null),

@@ -109,13 +109,15 @@ object Gemini {
         val utama = model.trim().ifBlank { "gemini-flash-latest" }
         // Coba model pilihan 2x (jeda 2 dtk), lalu model ringan sebagai cadangan; gangguan sementara tidak langsung gagal.
         val cadangan = "gemini-flash-lite-latest"
-        val urutan = if (utama == cadangan) listOf(utama, utama) else listOf(utama, utama, cadangan)
+        // Nama model buatan sendiri yang sudah dipensiunkan (404) otomatis diganti alias terbaru.
+        val urutan = listOf(utama, "gemini-flash-latest", cadangan).distinct().let { if (it.size == 1) it + it else it }
         val body = MiniJson.write(req)
         var terakhir: IOException? = null
         for ((i, m) in urutan.withIndex()) {
             try { return parse(call("$BASE/models/$m:generateContent", key, body)) }
             catch (e: java.net.SocketTimeoutException) { terakhir = Sibuk("Koneksi ke Gemini terlalu lama. Cek sinyal lalu coba lagi.") }
             catch (e: Sibuk) { terakhir = e }
+            catch (e: IOException) { terakhir = e }
             if (i < urutan.lastIndex) Thread.sleep(2000)
         }
         throw terakhir ?: IOException("Analisis gagal")
