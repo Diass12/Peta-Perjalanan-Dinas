@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(17, "1.7.7", listOf(
+            FiturBaru("🧾", "Layar bon baru, terbilang, dan baca otomatis (OCR)", "Isian bon kini bergaya baru: kategori, tanggal, jumlah dengan terbilang otomatis (mis. “Satu Juta Empat Ratus Lima Puluh Ribu Rupiah”), uraian maksimal 200 karakter, dan foto bon. Di tiap foto ada tombol Baca otomatis (OCR) yang mengusulkan jumlah, tanggal, dan nama toko dari foto bon. Pembacaan berjalan di perangkat tanpa internet, dan hasilnya selalu Anda periksa dulu sebelum dipakai.",
+                listOf("Buka Uang Muka, lalu ketuk bon atau tambah bon.", "Lampirkan foto bon, lalu ketuk Baca otomatis (OCR) di bawah foto.", "Pilih jumlah yang benar, lalu ketuk Pakai hasil."), null),
+        )),
         RilisInfo(16, "1.7.6", listOf(
             FiturBaru("🧩", "Widget lebih ringkas", "Tampilan widget dipadatkan agar tombol Kunci GPS dan Kamera tidak lagi terpotong pada ukuran standar.",
                 listOf("Bila widget lama masih terpotong, hapus lalu pasang ulang."), null),

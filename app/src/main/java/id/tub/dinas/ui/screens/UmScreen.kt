@@ -24,6 +24,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
@@ -36,6 +40,7 @@ import id.tub.dinas.ui.theme.C
 import id.tub.dinas.um.*
 import java.io.File
 import java.util.UUID
+import kotlinx.coroutines.launch
 
 private val Ok = Color(0xFF1B8A5A)
 
@@ -285,6 +290,22 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(20)) { uris -> if (uris.isNotEmpty()) c.tambahFoto(bonId, uris) }
 
+    val scope = rememberCoroutineScope()
+    var ocrBusy by remember { mutableStateOf(false) }
+    var ocr by remember { mutableStateOf<BonParse.Hasil?>(null) }
+    var ocrPilih by remember { mutableStateOf<Long?>(null) }
+    fun bacaFoto(path: String) {
+        if (ocrBusy) return
+        ocrBusy = true
+        scope.launch {
+            try {
+                val hasil = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { runCatching { BonOcr.baca(vm.repo.vault.read(path)) }.getOrNull() }
+                if (hasil == null || (hasil.total == null && hasil.tanggal == null && hasil.toko == null)) vm.toast("Teks bon tidak terbaca. Coba foto yang lebih jelas dan terang.")
+                else { ocr = hasil; ocrPilih = hasil.total }
+            } finally { ocrBusy = false }
+        }
+    }
+
     fun simpan() = c.simpanBon(b.copy(kategori = kat, tag = tagK, tanggal = tgl.ifEmpty { b.tanggal }, uraian = ur.trim(), jumlah = AsetImport.parseAngka(jml) ?: 0.0))
 
     if (kategoriBaru) {
@@ -311,26 +332,83 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
             dismissButton = { TextButton(onClick = { kategoriBaru = false }) { Text("Tutup") } })
     }
 
+    ocr?.let { h ->
+        AlertDialog(onDismissRequest = { ocr = null }, title = { Text("Hasil baca bon") },
+            text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Hasil otomatis bisa keliru. Periksa dulu sebelum dipakai.", color = C.Muted, fontSize = 12.sp)
+                if (h.kandidat.isNotEmpty()) {
+                    Text("Jumlah (pilih yang benar):", fontWeight = FontWeight.SemiBold)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        h.kandidat.forEach { n -> Chip(rupiah(n.toDouble()), ocrPilih == n, onClick = { ocrPilih = n }) }
+                    }
+                }
+                if (h.tanggal != null) Text("Tanggal: ${h.tanggal}")
+                if (h.toko != null) Text("Nama di bon: ${h.toko}")
+            } },
+            confirmButton = { TextButton(onClick = {
+                ocrPilih?.let { jml = it.toString() }
+                h.tanggal?.let { tgl = it }
+                if (ur.isBlank() && h.toko != null) ur = h.toko.take(200)
+                ocr = null
+            }) { Text("Pakai hasil") } },
+            dismissButton = { TextButton(onClick = { ocr = null }) { Text("Abaikan") } })
+    }
+    val hijau = androidx.compose.ui.graphics.Color(0xFF16A36B)
+    val angka = jml.filter { it.isDigit() }
+    val nilai = angka.take(15).toLongOrNull() ?: 0L
+    fun titik(d: String) = d.reversed().chunked(3).joinToString(".").reversed()
+    @Composable fun Label(ikon: String, t: String, kanan: (@Composable () -> Unit)? = null) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(ikon, fontSize = 13.sp)
+            Text(t, Modifier.padding(start = 6.dp).weight(1f), fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = C.Muted, letterSpacing = 0.8.sp)
+            kanan?.invoke()
+        }
+        Spacer(Modifier.height(8.dp))
+    }
+
     Dialog(onDismissRequest = { c.tutupBon(bonId) }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         BackHandler { c.tutupBon(bonId) }
         Column(Modifier.fillMaxSize().background(C.Bg)) {
             Header("Bon realisasi", onBack = { c.tutupBon(bonId) }) { HeaderAction("Simpan") { if (tglOk) simpan() } }
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding().imePadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding().imePadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Panel {
-                    Text("TAG", style = MaterialTheme.typography.labelSmall, color = C.Muted)
-                    Spacer(Modifier.height(6.dp))
+                    Label("🏷️", "KATEGORI")
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         BonKategori.entries.forEach { k -> Chip(k.label, kat == k && tagK.isBlank(), onClick = { kat = k; tagK = "" }) }
                         kustom.forEach { (n, g) -> Chip(n, tagK == n, onClick = { kat = BonKategori.from(g); tagK = n }) }
-                        Chip("+ Kategori baru", false, onClick = { kategoriBaru = true })
+                        Chip("＋ Kategori baru", false, onClick = { kategoriBaru = true })
                     }
                 }
-                DateField("Tanggal bon", tgl, { tgl = it }, clearable = false)
-                Field(jml, { jml = it }, "Jumlah (Rp)", singleLine = true)
-                Field(ur, { ur = it }, "Uraian (mis. Taksi Tobelo–Ternate, Hotel 2 malam)", minLines = 2)
                 Panel {
-                    Text("FOTO BON (${bb.fotos.size})", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                    Label("📅", "TANGGAL BON")
+                    DateField("Tanggal bon", tgl, { tgl = it }, clearable = false)
+                }
+                Panel {
+                    Label("💵", "JUMLAH (RP)")
+                    Row(Modifier.fillMaxWidth().background(C.Chip, RoundedCornerShape(14.dp)).padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Rp", color = C.Muted, fontSize = 16.sp)
+                        Spacer(Modifier.width(10.dp))
+                        androidx.compose.foundation.text.BasicTextField(
+                            value = titik(angka.take(15)), onValueChange = { jml = it.filter { ch -> ch.isDigit() }.take(15).trimStart('0') }, singleLine = true,
+                            textStyle = androidx.compose.ui.text.TextStyle(color = C.Ink, fontSize = 24.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                            cursorBrush = androidx.compose.ui.graphics.SolidColor(hijau), modifier = Modifier.fillMaxWidth(),
+                            decorationBox = { inner -> Box { if (angka.isEmpty()) Text("0", color = C.Muted, fontSize = 24.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold); inner() } })
+                    }
                     Spacer(Modifier.height(6.dp))
+                    if (nilai > 0) Text("Terbilang: " + id.tub.dinas.um.Terbilang.rupiah(nilai), color = hijau, fontSize = 12.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, lineHeight = 17.sp)
+                    else Text("Nominal sesuai bon fisik", color = C.Muted, fontSize = 12.sp)
+                }
+                Panel {
+                    Label("📝", "URAIAN")
+                    Field(ur, { ur = it.take(200) }, "Uraian (mis. Taksi Tobelo–Ternate, Hotel 2 malam)", minLines = 3)
+                    Text("${ur.length}/200 karakter", Modifier.fillMaxWidth().padding(top = 4.dp), color = C.Muted, fontSize = 11.sp, textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                }
+                Panel {
+                    Label("📷", "FOTO BON") {
+                        Text("${bb.fotos.size} foto", color = hijau, fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            modifier = Modifier.background(hijau.copy(alpha = 0.14f), CircleShape).padding(horizontal = 10.dp, vertical = 3.dp))
+                    }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         IconTextButton(id.tub.dinas.R.drawable.ic_kamera, "Foto bon") {
                             if (androidx.core.content.ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) launchCamera()
@@ -348,13 +426,21 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
                                     TextButton(onClick = { c.viewer = bonId to i }) { Text("Lihat") }
                                     TextButton(onClick = { c.hapusFoto(f.id) }) { Text("Hapus", color = C.Danger) }
                                 }
+                                TextButton(enabled = !ocrBusy, onClick = { bacaFoto(f.path) }) { Text(if (ocrBusy) "Membaca…" else "🔍 Baca otomatis (OCR)", color = hijau) }
                             }
                         }
                     }
+                    Text("Lampirkan foto bon/invoice asli yang jelas agar lolos verifikasi finance.", color = C.Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp))
                 }
-                SoftButton("Hapus bon ini", Modifier.fillMaxWidth(), danger = true) { hapus = true }
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(androidx.compose.ui.graphics.Color(0xFFFDE8EC)).clickable { hapus = true }.padding(14.dp), horizontalArrangement = Arrangement.Center) {
+                    Text("🗑️  Hapus bon ini", color = androidx.compose.ui.graphics.Color(0xFFD02050), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 14.sp)
+                }
             }
-            Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) { AmberButton("Simpan bon", Modifier.fillMaxWidth(), enabled = tglOk) { simpan() } }
+            Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp)) {
+                Box(Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(16.dp)).background(if (tglOk) hijau else hijau.copy(alpha = 0.4f)).clickable(enabled = tglOk) { simpan() }, contentAlignment = Alignment.Center) {
+                    Text("✔  Simpan bon", color = androidx.compose.ui.graphics.Color.White, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 16.sp)
+                }
+            }
         }
         if (hapus) Confirm("Hapus bon?", "Bon dan ${bb.fotos.size} fotonya dihapus permanen.", onConfirm = { hapus = false; c.hapusBon(bonId) }, onDismiss = { hapus = false })
     }
