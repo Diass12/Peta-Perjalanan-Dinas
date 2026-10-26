@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(11, "1.7.1", listOf(
+            FiturBaru("📦", "Tampilan Register Aset baru", "Dasbor aset bergaya baru: header biru tua dengan tanggal, kartu progres audit dengan tombol Mulai Scan Audit, empat kartu ringkasan, bagian Per Kategori, Departemen, Status Barcode, PT, dan Kualitas Data yang lebih rapi, serta tombol Scan bulat di menu bawah. Data dan cara kerja aset tidak berubah.",
+                listOf("Buka Aset dari Beranda.", "Ketuk kartu atau baris mana pun untuk memfilter daftar aset."), null),
+        )),
         RilisInfo(10, "1.7.0", listOf(
             FiturBaru("🌊", "Tampilan Beranda baru", "Beranda bergaya aplikasi travel: header pemandangan, kolom cari dengan tombol panah, kartu dinas aktif biru, kartu anggaran, tombol Kunci GPS dan Kamera audit yang lebih jelas, ikon menu pastel, dan menu bawah dengan garis biru. Semua data dan cara kerja tetap sama.",
                 listOf("Buka Beranda.", "Ketik di kolom cari untuk mencari dinas, titik, temuan, aset, atau jadwal."), null),

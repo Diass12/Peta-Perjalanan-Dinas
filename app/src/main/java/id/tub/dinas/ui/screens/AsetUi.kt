@@ -43,20 +43,20 @@ import id.tub.dinas.media.EncryptedImage
 /** Palet modul Aset: meniru tampilan AsetScan (ungu–magenta–oranye, kartu gelap). */
 object A {
     private fun p(l: Long, d: Long) = Color(if (ThemeState.dark) d else l)
-    val Bg get() = p(0xFFF5F7FB, 0xFF0E0D22)
+    val Bg get() = p(0xFFF2F7FE, 0xFF0E0D22)
     val Card get() = p(0xFFFFFFFF, 0xFF1A1936)
     val Card2 get() = p(0xFFEEF1F6, 0xFF26244C)
     val Line get() = p(0xFFE5E7EB, 0xFF2E2C54)
     val Ink get() = p(0xFF0F172A, 0xFFF3F2FF)
     val Muted get() = p(0xFF6B7280, 0xFFA9A7CC)
-    val Accent get() = p(0xFF15305A, 0xFF9B82FF)
+    val Accent get() = p(0xFF1E5BC6, 0xFF9B82FF)
     val Green get() = p(0xFF059669, 0xFF34D399)
     val Amber get() = p(0xFFD97706, 0xFFFBBF24)
     val Red get() = p(0xFFDC2626, 0xFFF87171)
     val Blue get() = p(0xFF2563EB, 0xFF60A5FA)
     val Pink get() = p(0xFFC026D3, 0xFFE879F9)
-    val Grad: Brush get() = if (ThemeState.dark) Brush.horizontalGradient(listOf(Color(0xFF6C4DF6), Color(0xFFC94FE0), Color(0xFFF08A5D))) else Brush.horizontalGradient(listOf(Color(0xFF15305A), Color(0xFF15305A)))
-    val Head: Brush get() = if (ThemeState.dark) Brush.linearGradient(listOf(Color(0xFF5B3FE0), Color(0xFFB04FE6), Color(0xFFF08A5D))) else Brush.linearGradient(listOf(Color.White, Color.White))
+    val Grad: Brush get() = if (ThemeState.dark) Brush.horizontalGradient(listOf(Color(0xFF6C4DF6), Color(0xFFC94FE0), Color(0xFFF08A5D))) else Brush.horizontalGradient(listOf(Color(0xFF1E6FE8), Color(0xFF3B8EF0)))
+    val Head: Brush get() = if (ThemeState.dark) Brush.linearGradient(listOf(Color(0xFF5B3FE0), Color(0xFFB04FE6), Color(0xFFF08A5D))) else Brush.linearGradient(listOf(Color(0xFF0F2A55), Color(0xFF1B3F7A)))
     private val cat = listOf(Color(0xFFD97706), Color(0xFF2563EB), Color(0xFF0D9488), Color(0xFF7C3AED), Color(0xFFDB2777))
     fun cat(k: String): Color = cat[KodeAset.KATEGORI.indexOf(k).coerceAtLeast(0) % cat.size]
     fun state(s: AuditState): Color = when (s) { AuditState.FOUND -> Green; AuditState.MISSING -> Red; AuditState.DAMAGED -> Amber; AuditState.PENDING -> Muted }
@@ -66,10 +66,10 @@ object A {
 fun AHeader(title: String, sub: String, onBack: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}, extra: @Composable ColumnScope.() -> Unit = {}) {
     Column(Modifier.fillMaxWidth().background(A.Head).statusBarsPadding().padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (onBack != null) Text("‹", color = A.Ink, fontSize = 34.sp, modifier = Modifier.clickable { onBack() }.padding(end = 8.dp))
+            if (onBack != null) Text("‹", color = Color.White, fontSize = 34.sp, modifier = Modifier.clickable { onBack() }.padding(end = 8.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, color = A.Ink, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-                Text(sub, color = A.Muted, fontSize = 13.sp, maxLines = 1)
+                Text(title, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(sub, color = Color(0xCCFFFFFF), fontSize = 13.sp, maxLines = 1)
             }
             actions()
         }
@@ -86,7 +86,19 @@ fun IconBtn(glyph: String, active: Boolean = false, onClick: () -> Unit) {
 
 @Composable
 fun ACard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) =
-    Column(modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(16.dp)).border(1.dp, A.Line, RoundedCornerShape(16.dp)).padding(16.dp), content = content)
+    Column(modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(22.dp)).border(1.dp, A.Line, RoundedCornerShape(22.dp)).padding(16.dp), content = content)
+
+/** Kartu bagian dasbor: lencana ikon, judul, keterangan, dan pil jumlah. */
+@Composable
+fun ASection(glyph: String, title: String, sub: String, badge: String? = null, content: @Composable ColumnScope.() -> Unit) = ACard {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 10.dp)) {
+        Box(Modifier.size(44.dp).background(Color(0xFFE3EFFE), CircleShape), contentAlignment = Alignment.Center) { Text(glyph, fontSize = 20.sp) }
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) { Text(title, color = A.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold); Text(sub, color = A.Muted, fontSize = 12.sp) }
+        if (badge != null) Text(badge, color = Color(0xFF1E6FE8), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.background(Color(0xFFE3EFFE), RoundedCornerShape(12.dp)).padding(horizontal = 10.dp, vertical = 4.dp))
+    }
+    content()
+}
 
 @Composable
 fun ATitle(glyph: String, text: String) = Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
@@ -164,17 +176,18 @@ fun ANav(page: Int, onPage: (Int) -> Unit, onScan: () -> Unit) {
     @Composable
     fun RowScope.Item(glyph: String, label: String, on: Boolean, click: () -> Unit) = Column(Modifier.weight(1f).clickable(onClick = click).padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(glyph, fontSize = 22.sp, modifier = Modifier.alpha(if (on) 1f else 0.55f))
-        Text(label, fontSize = 12.sp, fontWeight = if (on) FontWeight.ExtraBold else FontWeight.Medium, color = if (on) A.Accent else A.Muted)
+        Text(label, fontSize = 12.sp, fontWeight = if (on) FontWeight.ExtraBold else FontWeight.Medium, color = if (on) Color(0xFF1E6FE8) else A.Muted)
+        Box(Modifier.padding(top = 2.dp).width(28.dp).height(3.dp).clip(CircleShape).background(if (on) Color(0xFF1E6FE8) else Color.Transparent))
     }
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().background(A.Card).navigationBarsPadding().padding(top = 10.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Item("🏠", "Home", page == 0) { onPage(0) }
             Item("📦", "Aset", page == 1) { onPage(1) }
-            Spacer(Modifier.weight(1f))
+            Box(Modifier.weight(1f).height(36.dp)) { Text("Scan", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = A.Muted, modifier = Modifier.align(Alignment.BottomCenter)) }
             Item("✅", "Audit", page == 2) { onPage(2) }
             Item("☰", "Menu", page == 3) { onPage(3) }
         }
-        Box(Modifier.align(Alignment.TopCenter).offset(y = (-26).dp).size(70.dp).clip(RoundedCornerShape(24.dp)).background(A.Grad).clickable(onClick = onScan), contentAlignment = Alignment.Center) { ScanGlyph() }
+        Box(Modifier.align(Alignment.TopCenter).offset(y = (-26).dp).size(68.dp).clip(CircleShape).background(Brush.linearGradient(listOf(Color(0xFF1E6FE8), Color(0xFF3B8EF0)))).clickable(onClick = onScan), contentAlignment = Alignment.Center) { ScanGlyph() }
     }
 }
 
@@ -187,9 +200,13 @@ private fun rupiah(d: Double): String = when {
 
 @Composable
 private fun StatTile(value: String, label: String, glyph: String, c1: Color, c2: Color, modifier: Modifier, onClick: () -> Unit) =
-    Box(modifier.clip(RoundedCornerShape(24.dp)).background(c1).clickable(onClick = onClick).padding(16.dp)) {
-        Text(glyph, fontSize = 26.sp, modifier = Modifier.align(Alignment.TopEnd).alpha(0.5f))
-        Column { Text(value, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold); Text(label, color = Color(0xE6FFFFFF), fontSize = 14.sp) }
+    Column(modifier.clip(RoundedCornerShape(20.dp)).background(A.Card).border(1.dp, A.Line, RoundedCornerShape(20.dp)).clickable(onClick = onClick).padding(start = 12.dp, end = 12.dp, top = 12.dp)) {
+        Box(Modifier.size(38.dp).background(c1, CircleShape), contentAlignment = Alignment.Center) { Text(glyph, fontSize = 16.sp, color = Color.White) }
+        Spacer(Modifier.height(6.dp))
+        Text(value, color = A.Ink, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
+        Text(label, color = A.Muted, fontSize = 12.sp, lineHeight = 15.sp, minLines = 2, maxLines = 2)
+        Spacer(Modifier.height(8.dp))
+        Box(Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)).background(c1))
     }
 
 @Composable
@@ -214,37 +231,35 @@ fun AHome(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Aset
     val dup = vm.aset.duplikat(list)
     val frac = if (n == 0) 0f else done.toFloat() / n
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        AHeader("Register Aset", "Audit & register aset", onBack = { vm.pop() })
+        AHeader("Register Aset", "Dasbor Audit", onBack = { vm.pop() }, extra = {
+            Text("📅 " + java.text.SimpleDateFormat("EEEE, d MMMM yyyy", java.util.Locale("id", "ID")).format(java.util.Date()), color = Color(0xE6FFFFFF), fontSize = 13.sp, modifier = Modifier.padding(start = 4.dp, top = 6.dp))
+        })
         Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             ACard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ARing(frac, 112.dp, 14.dp, A.Card2, A.Grad) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("${Math.round(frac * 100)}%", color = A.Ink, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
-                            Text("teraudit", color = A.Muted, fontSize = 12.sp)
-                        }
+                    ARing(frac, 100.dp, 12.dp, A.Card2, A.Grad) {
+                        Text("${Math.round(frac * 100)}%", color = A.Ink, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
                     }
-                    Spacer(Modifier.width(18.dp))
-                    Column {
-                        Text("Progres Audit", color = A.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(16.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("📋 Progres Audit", color = A.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         Text("$done dari $n", color = A.Muted, fontSize = 15.sp)
-                        Spacer(Modifier.height(4.dp))
-                        if (id.tub.dinas.security.Lisensi.ho) Row { Text("Total NBV: ", color = A.Ink, fontSize = 15.sp); Text(rupiah(list.sumOf { it.nbv ?: 0.0 }), color = A.Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
-                        Spacer(Modifier.height(10.dp))
-                        AGradButton("Mulai Scan Audit", onClick = onScanAudit)
+                        Spacer(Modifier.height(6.dp))
+                        Box(Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(A.Card2)) { Box(Modifier.fillMaxHeight().fillMaxWidth(frac.coerceIn(0f, 1f)).background(A.Grad)) }
+                        Spacer(Modifier.height(6.dp))
+                        if (id.tub.dinas.security.Lisensi.ho) Row { Text("🪙 Total NBV: ", color = A.Ink, fontSize = 14.sp); Text(rupiah(list.sumOf { it.nbv ?: 0.0 }), color = A.Accent, fontSize = 14.sp, fontWeight = FontWeight.Bold) }
                     }
                 }
+                Spacer(Modifier.height(12.dp))
+                AGradButton("▦  Mulai Scan Audit  ›", Modifier.fillMaxWidth(), onClick = onScanAudit)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatTile("$n", "Total Aset", "📦", Color(0xFF2563EB), Color(0xFF2563EB), Modifier.weight(1f)) { go { } }
-                StatTile("${list.count { it.state == AuditState.FOUND }}", "Ditemukan", "✔", Color(0xFF15803D), Color(0xFF15803D), Modifier.weight(1f)) { go { auditFilter = AuditState.FOUND } }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatTile("$n", "Total Aset", "▣", Color(0xFF2563EB), Color(0xFF2563EB), Modifier.weight(1f)) { go { } }
+                StatTile("${list.count { it.state == AuditState.FOUND }}", "Ditemukan", "✔", Color(0xFF16A34A), Color(0xFF16A34A), Modifier.weight(1f)) { go { auditFilter = AuditState.FOUND } }
+                StatTile("${list.count { it.state == AuditState.MISSING || it.state == AuditState.DAMAGED }}", "Hilang / Rusak", "!", Color(0xFFF59E0B), Color(0xFFF59E0B), Modifier.weight(1f)) { go { auditFilter = AuditState.MISSING } }
+                StatTile("${list.count { it.state == AuditState.PENDING }}", "Belum Diaudit", "≡", Color(0xFF6B7280), Color(0xFF6B7280), Modifier.weight(1f)) { go { auditFilter = AuditState.PENDING } }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatTile("${list.count { it.state == AuditState.MISSING || it.state == AuditState.DAMAGED }}", "Hilang / Rusak", "⚠", Color(0xFFDC2626), Color(0xFFDC2626), Modifier.weight(1f)) { go { auditFilter = AuditState.MISSING } }
-                StatTile("${list.count { it.state == AuditState.PENDING }}", "Belum Diaudit", "🏷", Color(0xFF6B7280), Color(0xFF6B7280), Modifier.weight(1f)) { go { auditFilter = AuditState.PENDING } }
-            }
-            ACard {
-                ATitle("🏷", "Per Kategori")
+            ASection("🗂️", "Per Kategori", "Distribusi aset berdasarkan kategori", "$n aset") {
                 KodeAset.KATEGORI.forEach { k ->
                     val tot = list.count { it.category == k }
                     if (tot > 0) BarRow(KodeAset.labelKategori(k), tot.toFloat() / n, "${list.count { it.category == k && it.state == AuditState.FOUND }}/$tot", Brush.horizontalGradient(listOf(A.cat(k), A.cat(k))), A.cat(k)) { go { kategori = k } }
@@ -252,21 +267,25 @@ fun AHome(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Aset
                 if (n == 0) Text("Belum ada aset.", color = A.Muted)
             }
             val depts = list.map { it.dept.trim() }.filter { it.isNotEmpty() }.groupingBy { it }.eachCount().entries.sortedByDescending { it.value }.take(8)
-            if (depts.isNotEmpty()) ACard {
-                ATitle("🏢", "Per Departemen")
+            if (depts.isNotEmpty()) ASection("👥", "Per Departemen", "Distribusi aset berdasarkan departemen", "${depts.sumOf { it.value }} aset") {
                 depts.forEach { (d, m) -> BarRow(d, m.toFloat() / depts.first().value, "$m", A.Grad) { go { deptFilter = d } } }
             }
-            ACard {
-                ATitle("🏷", "Status Barcode")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AChip("Tagged  ${list.count { it.barcode == StatusBarcode.TAGGED }}", false, A.Green) { go { barcode = StatusBarcode.TAGGED } }
-                    AChip("Untagged  ${list.count { it.barcode == StatusBarcode.UNTAGGED }}", false, A.Amber) { go { barcode = StatusBarcode.UNTAGGED } }
+            ASection("▥", "Status Barcode", "Status pembacaan barcode aset", "$n aset") {
+                val tg = list.count { it.barcode == StatusBarcode.TAGGED }; val ut = list.count { it.barcode == StatusBarcode.UNTAGGED }; val nn = list.count { it.barcode == StatusBarcode.NONASSET || it.barcode == null }
+                @Composable
+                fun Kol(angka: Int, label: String, warna: Color, m: Modifier, klik: () -> Unit) = Column(m.clip(RoundedCornerShape(12.dp)).clickable(onClick = klik).padding(6.dp)) {
+                    Text(label, color = A.Muted, fontSize = 12.sp, maxLines = 1)
+                    Text("$angka", color = A.Ink, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+                    Spacer(Modifier.height(4.dp))
+                    Box(Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(3.dp)).background(A.Card2)) { Box(Modifier.fillMaxHeight().fillMaxWidth(if (n == 0) 0f else (angka.toFloat() / n).coerceIn(0.03f, 1f)).background(warna)) }
                 }
-                Spacer(Modifier.height(8.dp))
-                AChip("Non Aset  ${list.count { it.barcode == StatusBarcode.NONASSET || it.barcode == null }}", false, A.Muted) { go { barcode = StatusBarcode.NONASSET } }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Kol(tg, "Tagged", A.Green, Modifier.weight(1f)) { go { barcode = StatusBarcode.TAGGED } }
+                    Kol(ut, "Untagged", A.Amber, Modifier.weight(1f)) { go { barcode = StatusBarcode.UNTAGGED } }
+                    Kol(nn, "Non Aset", A.Muted, Modifier.weight(1f)) { go { barcode = StatusBarcode.NONASSET } }
+                }
             }
-            ACard {
-                ATitle("🏢", "Per PT & Kepemilikan")
+            ASection("💼", "Per PT & Kepemilikan", "Distribusi aset berdasarkan perusahaan dan kepemilikan", "$n aset") {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     AChip("Milik  ${list.count { it.tenure != "lease" }}", false, A.Green) { }
                     AChip("Sewa  ${list.count { it.tenure == "lease" }}", false, A.Amber) { }
@@ -274,8 +293,7 @@ fun AHome(vm: MainViewModel, list: List<AsetModel>, fotos: Map<String, List<Aset
                 val pts = list.map { it.owner.trim() }.filter { it.isNotEmpty() }.groupingBy { it }.eachCount().entries.sortedByDescending { it.value }
                 pts.forEach { (pt, m) -> Row(Modifier.fillMaxWidth().clickable { go { ownerFilter = pt } }.padding(top = 10.dp)) { Text(pt, color = A.Ink, modifier = Modifier.weight(1f)); Text("$m", color = A.Muted) } }
             }
-            ACard {
-                ATitle("🧹", "Kualitas Data")
+            ASection("🛡️", "Kualitas Data", "Kualitas dan kelengkapan data aset", "$n aset") {
                 @OptIn(ExperimentalLayoutApi::class)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     @Composable
