@@ -84,6 +84,17 @@ fun IconBtn(glyph: String, active: Boolean = false, onClick: () -> Unit) {
     }
 }
 
+/** Tombol aksi dengan ikon dan nama di bawahnya, agar fungsinya jelas tanpa ditebak. */
+@Composable
+fun AksiLabel(ikon: String, label: String, aktif: Boolean, modifier: Modifier = Modifier, utama: Boolean = false, onClick: () -> Unit) {
+    val bg = when { aktif || utama -> A.Accent; else -> A.Card2 }
+    val fg = if (aktif || utama) Color.White else A.Ink
+    Column(modifier.clip(RoundedCornerShape(14.dp)).background(bg).clickable(onClick = onClick).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(ikon, fontSize = 20.sp, color = fg, fontWeight = FontWeight.Bold)
+        Text(label, fontSize = 11.sp, color = fg, maxLines = 1, fontWeight = FontWeight.SemiBold)
+    }
+}
+
 @Composable
 fun ACard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) =
     Column(modifier.fillMaxWidth().background(A.Card, RoundedCornerShape(22.dp)).border(1.dp, A.Line, RoundedCornerShape(22.dp)).padding(16.dp), content = content)
@@ -367,14 +378,16 @@ fun AAssets(vm: MainViewModel, all: List<AsetModel>, shown: List<AsetModel>, fot
     val depts = remember(all) { all.map { it.dept.trim() }.filter { it.isNotEmpty() }.distinct().sorted() }
     val pts = remember(all) { all.map { it.owner.trim() }.filter { it.isNotEmpty() }.distinct().sorted() }
     Column(Modifier.fillMaxSize()) {
-        AHeader("Aset", "${shown.size} / ${all.size}", actions = {
-            IconBtn("✓", c.selMode) { if (c.selMode) c.selesaiPilih() else c.selMode = true }
-            IconBtn("🖼", false, onGallery)
-            IconBtn("⬇", false, onExport)
-            IconBtn("▦", false, onLabels)
-            IconBtn("+", false) { c.baru() }
-        }, extra = {
-            Spacer(Modifier.height(14.dp))
+        AHeader("Aset", "${shown.size} / ${all.size}", extra = {
+            Spacer(Modifier.height(12.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AksiLabel("☑", if (c.selMode) "Selesai" else "Pilih", c.selMode, Modifier.weight(1f)) { if (c.selMode) c.selesaiPilih() else c.selMode = true }
+                AksiLabel("🖼", "Galeri", false, Modifier.weight(1f), onClick = onGallery)
+                AksiLabel("📤", "Ekspor", false, Modifier.weight(1f), onClick = onExport)
+                AksiLabel("🏷", "Label QR", false, Modifier.weight(1f), onClick = onLabels)
+                AksiLabel("＋", "Tambah", false, Modifier.weight(1f), utama = true) { c.baru() }
+            }
+            Spacer(Modifier.height(10.dp))
             OutlinedTextField(c.query, { c.query = it }, Modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(20.dp),
                 placeholder = { Text("Cari kode, nama, lokasi…") }, leadingIcon = { Text("🔍", fontSize = 16.sp) },
                 colors = OutlinedTextFieldDefaults.colors(
