@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(13, "1.7.3", listOf(
+            FiturBaru("📰", "Insights berwarna dengan gambar & lebih banyak sumber", "Menu Insights kini bergaya baru: berita utama bergambar, kolom TERKINI, penyaring kategori (Nasional, Ekonomi, Teknologi, Internasional, Olahraga, Hiburan) dan penerbit, daftar berita dengan gambar kecil, serta Info penting BMKG. Sumber bertambah: CNN Indonesia, CNBC Indonesia, Antara, Tempo, Detik, dan BBC Indonesia. Sumber yang sedang tidak bisa dimuat dilewati otomatis.",
+                listOf("Buka Insights di menu bawah.", "Ketuk kategori atau penerbit untuk menyaring; ketuk ＋ untuk menambah sumber RSS sendiri."), null),
+        )),
         RilisInfo(12, "1.7.2", listOf(
             FiturBaru("📋", "Tampilan menu Audit baru", "Menu Audit & Dokumen kini memiliki ringkasan di atas (jumlah aset, discrepancy, biaya terpakai), kartu Temuan lapangan dengan kotak status berwarna, kartu Verifikasi aset dengan bar progres, Ringkasan biaya dengan persentase terpakai, dan Akses cepat berwarna ke Dokumen, Galeri, Jadwal, dan Ringkasan.",
                 listOf("Buka menu Audit di bawah.", "Ketuk kotak status atau kartu mana pun untuk membuka daftarnya."), null),
