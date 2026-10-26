@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(16, "1.7.6", listOf(
+            FiturBaru("🧩", "Widget lebih ringkas", "Tampilan widget dipadatkan agar tombol Kunci GPS dan Kamera tidak lagi terpotong pada ukuran standar.",
+                listOf("Bila widget lama masih terpotong, hapus lalu pasang ulang."), null),
+        )),
         RilisInfo(15, "1.7.5", listOf(
             FiturBaru("🧩", "Widget layar utama", "Widget baru menampilkan dinas aktif, sisa anggaran, biaya yang sudah keluar, serta tombol cepat Kunci GPS dan Kamera. Bila kunci aplikasi aktif, nominal disembunyikan kecuali Anda menyalakan “Tampilkan nominal di widget” di Pengaturan.",
                 listOf("Tekan lama layar utama HP, pilih Widget, lalu cari Dokumentasi Dinas.", "Ketuk Kunci GPS atau Kamera di widget untuk langsung membuka aplikasi di aksi itu."), null),
