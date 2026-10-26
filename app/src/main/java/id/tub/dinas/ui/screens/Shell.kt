@@ -354,78 +354,151 @@ fun AuditHubTab(vm: MainViewModel, s: DinasSnapshot?) {
     val dana = um.sumOf { it.dana }; val bon = um.sumOf { it.totalBon }
     val kat = um.flatMap { it.perKategori().entries }.groupBy({ it.key }, { it.value }).mapValues { it.value.sum() }.entries.sortedByDescending { it.value }
 
+    val nAset = reg.size
+    val rp = id.tub.dinas.um.rupiah(bon)
+    val pct = if (dana <= 0) 0.0 else bon / dana * 100
+    fun ikonKat(l: String): String { val x = l.lowercase(); return when { "transport" in x || "taksi" in x || "bensin" in x -> "🚗"; "makan" in x || "dinner" in x || "lunch" in x || "breakfast" in x || "konsumsi" in x -> "🍽️"; "hotel" in x || "akomodasi" in x -> "🏨"; "saku" in x -> "💵"; else -> "🧾" } }
+
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            Column(Modifier.statusBarsPadding().padding(top = 10.dp)) {
-                Text("Audit & Dokumen", style = MaterialTheme.typography.titleLarge)
-                Text("Temuan lapangan, verifikasi aset, dan administrasi biaya", color = C.Muted, fontSize = 13.sp)
+            Row(Modifier.statusBarsPadding().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Audit & Dokumen", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = C.Ink)
+                    Text("Temuan lapangan, verifikasi aset, dan administrasi biaya", color = C.Muted, fontSize = 13.sp)
+                }
+                Box(Modifier.size(46.dp).background(Color(0xFFE3EFFE), CircleShape).clickable { vm.push(Screen.Profil) }, contentAlignment = Alignment.Center) { Text("👤", fontSize = 20.sp) }
+            }
+        }
+        item {
+            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(C.Surface).padding(horizontal = 10.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                @Composable
+                fun Ring(ikon: String, bg: Color, angka: String, label: String, m: Modifier, klik: () -> Unit) = Row(m.clickable(onClick = klik), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(40.dp).background(bg, CircleShape), contentAlignment = Alignment.Center) { Text(ikon, fontSize = 18.sp) }
+                    Spacer(Modifier.width(6.dp))
+                    Column { Text(angka, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, color = C.Ink, maxLines = 1); Text(label, color = C.Muted, fontSize = 11.sp, maxLines = 1) }
+                }
+                Ring("🗂️", Color(0xFFD9F5E8), "$nAset", "Aset", Modifier.weight(0.8f)) { vm.push(Screen.Aset) }
+                Box(Modifier.width(1.dp).height(34.dp).background(C.Line))
+                Ring("⚠️", Color(0xFFFDE3E3), "${aSel + sel}", "Discrepancy", Modifier.weight(1f).padding(start = 8.dp)) { vm.push(Screen.Aset) }
+                Box(Modifier.width(1.dp).height(34.dp).background(C.Line))
+                Ring("👛", Color(0xFFDCEBFD), rp, "Terpakai", Modifier.weight(1.3f).padding(start = 8.dp)) { vm.push(Screen.UangMuka) }
             }
         }
         item {
             Panel {
-                Text("Temuan lapangan", style = MaterialTheme.typography.titleMedium)
-                Text(s?.dinas?.name ?: "Belum ada dinas aktif", color = C.Muted, fontSize = 13.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(48.dp).background(Color(0xFFD9F5E8), CircleShape), contentAlignment = Alignment.Center) { Text("📋", fontSize = 22.sp) }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("Temuan lapangan", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = C.Ink)
+                        Text(s?.dinas?.name ?: "Belum ada dinas aktif", color = C.Muted, fontSize = 13.sp)
+                    }
+                }
                 Spacer(Modifier.height(10.dp))
                 if (s != null) {
                     DinasPickerInline(vm, s.dinas.id)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TagPill("VERIFIED", ok, C.Ok) { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }
-                        TagPill("PENDING", pend, C.Amber) { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }
-                        TagPill("DISCREPANCY", sel, C.Danger) { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }
+                        StatusBox("VERIFIED", ok, C.Ok, "✔", Modifier.weight(1f)) { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }
+                        StatusBox("PENDING", pend, C.Amber, "🕒", Modifier.weight(1f)) { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }
+                        StatusBox("DISCREPANCY", sel, C.Danger, "⚠", Modifier.weight(1f)) { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }
                     }
                     Spacer(Modifier.height(12.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        PrimaryButton("📷 Temuan baru", Modifier.weight(1f)) { vm.work { val id = vm.repo.newTemuan(s.dinas.id, null); vm.editor = Editor.Temuan(id, true) } }
-                        SoftButton("Buka daftar", Modifier.weight(1f)) { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(16.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF0F766E), Color(0xFF1E4FB0)))).clickable { vm.work { val id = vm.repo.newTemuan(s.dinas.id, null); vm.editor = Editor.Temuan(id, true) } }, contentAlignment = Alignment.Center) {
+                            Text("＋  Temuan baru", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+                        Box(Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, C.Line, RoundedCornerShape(16.dp)).clickable { vm.tab = DetailTab.TEMUAN; vm.push(Screen.Detail(s.dinas.id)) }, contentAlignment = Alignment.Center) {
+                            Text("Lihat semua  ›", color = C.Ink, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                        }
                     }
                     Text("Kategori: Aset Korporat · Teknis Operasional · Administrasi (ketuk temuan untuk memilih).", color = C.Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                 } else Text("Buat dinas dari Beranda untuk mulai mencatat temuan.", color = C.Muted)
             }
         }
         item {
-            Panel(onClick = { vm.push(Screen.Aset) }) {
-                Text("Verifikasi aset", style = MaterialTheme.typography.titleMedium)
-                Text("${reg.size} aset terdaftar", color = C.Muted, fontSize = 13.sp)
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TagPill("VERIFIED", aOk, C.Ok) { vm.push(Screen.Aset) }
-                    TagPill("PENDING", aPend, C.Amber) { vm.push(Screen.Aset) }
-                    TagPill("DISCREPANCY", aSel, C.Danger) { vm.push(Screen.Aset) }
+            val shape = RoundedCornerShape(22.dp)
+            Column(Modifier.fillMaxWidth().clip(shape).background(Brush.linearGradient(listOf(Color(0xFFFFFBF1), Color(0xFFFFF1D6)))).border(1.dp, C.Line, shape).clickable { vm.push(Screen.Aset) }.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(48.dp).background(Color(0xFFD9F5E8), CircleShape), contentAlignment = Alignment.Center) { Text("📦", fontSize = 22.sp) }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("Verifikasi aset", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF12202B))
+                        Text("$nAset aset terdaftar", color = Color(0xFF5B6B78), fontSize = 13.sp)
+                    }
                 }
+                Spacer(Modifier.height(12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.weight(1f).height(12.dp).clip(RoundedCornerShape(6.dp)).background(Color(0xFFE9E5DA))) {
+                        Box(Modifier.fillMaxHeight().fillMaxWidth(if (nAset == 0) 0f else (aPend.toFloat() / nAset).coerceIn(0.03f, 1f)).background(Brush.horizontalGradient(listOf(Color(0xFFF59E0B), Color(0xFFFBBF24)))))
+                    }
+                    Text("$aPend PENDING", color = Color(0xFFD97706), fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, modifier = Modifier.padding(start = 12.dp))
+                }
+                Text("✔ $aOk terverifikasi   ·   ⚠ $aSel selisih", color = Color(0xFF5B6B78), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }
         item {
             Panel(onClick = { vm.push(Screen.UangMuka) }) {
-                Text("Expense Ledger", style = MaterialTheme.typography.titleMedium)
-                if (um.isEmpty()) Text("Belum ada uang muka. Ketuk untuk membuat pengajuan dan mengunggah bon.", color = C.Muted, modifier = Modifier.padding(top = 4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(48.dp).background(Color(0xFFDCEBFD), CircleShape), contentAlignment = Alignment.Center) { Text("👛", fontSize = 22.sp) }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("Ringkasan biaya", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = C.Ink)
+                        if (um.isNotEmpty()) Text("${id.tub.dinas.um.rupiah(bon)} dari ${id.tub.dinas.um.rupiah(dana)}", color = C.Muted, fontSize = 13.sp)
+                    }
+                    if (um.isNotEmpty()) Text(String.format(java.util.Locale("id", "ID"), "%.1f%% terpakai", pct), color = Color(0xFF0F766E), fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.background(Color(0xFFD9F5EE), RoundedCornerShape(14.dp)).padding(horizontal = 10.dp, vertical = 6.dp))
+                }
+                if (um.isEmpty()) Text("Belum ada uang muka. Ketuk untuk membuat pengajuan dan mengunggah bon.", color = C.Muted, modifier = Modifier.padding(top = 8.dp))
                 else {
-                    Text("${id.tub.dinas.um.rupiah(bon)} dari ${id.tub.dinas.um.rupiah(dana)} terpakai", color = C.Muted, fontSize = 13.sp)
-                    Spacer(Modifier.height(6.dp))
-                    SegBar(if (dana <= 0) 0f else (bon / dana).toFloat().coerceIn(0f, 1f), if (bon > dana) C.Danger else C.Ok)
+                    Spacer(Modifier.height(10.dp))
+                    SegBar(if (dana <= 0) 0f else (bon / dana).toFloat().coerceIn(0f, 1f), if (bon > dana) C.Danger else Color(0xFF14B8A6))
                     Spacer(Modifier.height(8.dp))
                     val top = kat.firstOrNull()?.value ?: 1.0
                     kat.take(6).forEach { (k, v) ->
-                        Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(k.label, Modifier.width(96.dp), fontSize = 13.sp)
-                            Box(Modifier.weight(1f).height(8.dp).background(C.Chip, RoundedCornerShape(4.dp))) { Box(Modifier.fillMaxHeight().fillMaxWidth((v / top).toFloat().coerceIn(0.03f, 1f)).background(C.Soft, RoundedCornerShape(4.dp))) }
-                            Text(id.tub.dinas.um.rupiah(v), Modifier.width(96.dp), fontSize = 12.sp, color = C.Muted, textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                        Row(Modifier.padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(ikonKat(k.label), fontSize = 18.sp, modifier = Modifier.width(30.dp))
+                            Text(k.label, Modifier.width(80.dp), fontSize = 13.sp, maxLines = 1)
+                            Box(Modifier.weight(1f).height(10.dp).background(C.Chip, RoundedCornerShape(5.dp))) { Box(Modifier.fillMaxHeight().fillMaxWidth((v / top).toFloat().coerceIn(0.03f, 1f)).background(Brush.horizontalGradient(listOf(Color(0xFF1E6FE8), Color(0xFF3B8EF0))), RoundedCornerShape(5.dp))) }
+                            Text(id.tub.dinas.um.rupiah(v), Modifier.width(92.dp), fontSize = 12.sp, color = C.Muted, textAlign = androidx.compose.ui.text.style.TextAlign.End)
                         }
                     }
                 }
             }
         }
+        item { Text("Akses cepat", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = C.Ink, modifier = Modifier.padding(top = 4.dp)) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                MenuTile("🧳", C.Brand, "Dokumen & Tiket", "Surat tugas, tiket, ID", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.Dokumen) }
-                MenuTile("🖼️", C.Soft, "Galeri Lapangan", "Foto audit + GPS", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.Galeri) }
+                AksesTile("📄", "Dokumen", Color(0xFFEDE6FB), Color(0xFFDCD0F6), Modifier.weight(1f)) { vm.push(Screen.Dokumen) }
+                AksesTile("🖼️", "Galeri Lapangan", Color(0xFFDDF6EA), Color(0xFFC9F0DD), Modifier.weight(1f)) { vm.push(Screen.Galeri) }
             }
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                MenuTile("🗓️", C.Amber, "Jadwal", "Audit, meeting, tenggat", Modifier.weight(1f).fillMaxHeight()) { vm.push(Screen.Jadwal) }
-                MenuTile("📊", C.Ok, "Ringkasan", "Tindak lanjut & statistik", Modifier.weight(1f).fillMaxHeight()) { if (s != null) { vm.tab = DetailTab.RINGKASAN; vm.push(Screen.Detail(s.dinas.id)) } else vm.toast("Pilih atau buat dinas dulu") }
+                AksesTile("🗓️", "Jadwal", Color(0xFFFFF3DA), Color(0xFFFFE7B8), Modifier.weight(1f)) { vm.push(Screen.Jadwal) }
+                AksesTile("📊", "Ringkasan", Color(0xFFFDE4E8), Color(0xFFFBD0D8), Modifier.weight(1f)) { if (s != null) { vm.tab = DetailTab.RINGKASAN; vm.push(Screen.Detail(s.dinas.id)) } else vm.toast("Pilih atau buat dinas dulu") }
             }
         }
+    }
+}
+
+@Composable
+private fun StatusBox(label: String, n: Int, color: Color, ikon: String, modifier: Modifier, onClick: () -> Unit) {
+    Box(modifier.clip(RoundedCornerShape(16.dp)).background(color.copy(alpha = 0.12f)).clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 10.dp)) {
+        Column {
+            Text("$n", color = color, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
+            Text(label, color = color, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        }
+        Text(ikon, color = color.copy(alpha = 0.55f), fontSize = 20.sp, modifier = Modifier.align(Alignment.TopEnd))
+    }
+}
+
+@Composable
+private fun AksesTile(ikon: String, judul: String, a: Color, b: Color, modifier: Modifier, onClick: () -> Unit) {
+    Row(modifier.clip(RoundedCornerShape(20.dp)).background(Brush.linearGradient(listOf(a, b))).clickable { Sfx.menu(); onClick() }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(44.dp).background(Color.White.copy(alpha = 0.75f), CircleShape), contentAlignment = Alignment.Center) { Text(ikon, fontSize = 22.sp) }
+        Spacer(Modifier.width(10.dp))
+        Text(judul, color = Color(0xFF12202B), fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 2, modifier = Modifier.weight(1f))
+        Text("›", color = Color(0xFF5B6B78), fontSize = 22.sp)
     }
 }
 
