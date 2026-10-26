@@ -32,9 +32,9 @@ object C {
     /** Biru lembut untuk aksen sekunder. */
     val Soft get() = p(0xFF2F5D8A, 0xFF8AB4FF)
     val Navy2 get() = p(0xFF1F3342, 0xFF3B2D8F)
-    val Bg get() = p(0xFFF6F4EE, 0xFF0E0D22)
+    val Bg get() = p(0xFFF2F7FE, 0xFF0E0D22)
     /** Latar padat untuk dialog layar penuh. */
-    val Solid get() = p(0xFFF6F4EE, 0xFF0E0D22)
+    val Solid get() = p(0xFFF2F7FE, 0xFF0E0D22)
     val Card get() = p(0xFFFFFFFF, 0xFF1A1936)
     /** Permukaan kartu/bilah/dialog (putih di mode terang). */
     val Surface get() = p(0xFFFFFFFF, 0xFF1A1936)
@@ -43,12 +43,12 @@ object C {
     val Brand get() = p(0xFF12202B, 0xFF7C5CFA)
     val BrandSoft get() = p(0xFFF8EBD2, 0xFF2A2655)
     val Amber get() = p(0xFFD97706, 0xFFFBBF24)
-    val Line get() = p(0xFFDDD8CC, 0xFF2E2C54)
+    val Line get() = p(0xFFD9E4F5, 0xFF2E2C54)
     val Muted get() = p(0xFF5B6B78, 0xFFA9A7CC)
     val Danger get() = p(0xFFDC2626, 0xFFF87171)
     val Ok get() = p(0xFF059669, 0xFF34D399)
     val OkSoft get() = p(0xFFD1FAE5, 0xFF12382F)
-    val Chip get() = p(0xFFEFEBE0, 0xFF26244C)
+    val Chip get() = p(0xFFE8F0FC, 0xFF26244C)
     /** Aksen emas-oranye untuk tombol utama (CTA) dan penanda aktif. */
     val Accent get() = p(0xFFE9A23B, 0xFFFBBF24)
     val AccentSoft get() = p(0xFFFBEFD7, 0xFF3A2E12)

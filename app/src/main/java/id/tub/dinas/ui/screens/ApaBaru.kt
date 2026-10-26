@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(10, "1.7.0", listOf(
+            FiturBaru("🌊", "Tampilan Beranda baru", "Beranda bergaya aplikasi travel: header pemandangan, kolom cari dengan tombol panah, kartu dinas aktif biru, kartu anggaran, tombol Kunci GPS dan Kamera audit yang lebih jelas, ikon menu pastel, dan menu bawah dengan garis biru. Semua data dan cara kerja tetap sama.",
+                listOf("Buka Beranda.", "Ketik di kolom cari untuk mencari dinas, titik, temuan, aset, atau jadwal."), null),
+        )),
         RilisInfo(9, "1.6.1", listOf(
             FiturBaru("🧭", "Panduan Travel dengan tampilan baru", "Daftar wisata dan kuliner bawaan dihapus. Sekarang ketik nama kota atau tempat, lalu ketuk panah: aplikasi mengambil ringkasan dan foto dari Wikipedia, dan menyediakan tombol langsung ke Google Maps (wisata, kuliner, hotel), Traveloka, Booking.com, dan Wikivoyage. Destinasi bisa disimpan, dijadikan dinas baru, atau ditambahkan sebagai titik dinas.",
                 listOf("Buka menu Panduan.", "Ketik kota, misalnya Purwakarta, lalu ketuk panah biru.", "Ketuk Cari di internet atau salah satu kartu di bawahnya."), null),

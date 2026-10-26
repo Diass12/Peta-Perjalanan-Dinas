@@ -82,6 +82,23 @@ private fun DinasPicker(vm: MainViewModel, aktifId: String?) {
 
 // ---------------------------------------------------------------- BERANDA
 
+/** Kartu aksi besar di beranda: ikon dalam lingkaran, judul, keterangan, dan panah. [gelap] = biru tua. */
+@Composable
+private fun AksiKartu(ikon: String, judul: String, sub: String, gelap: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(22.dp)
+    val teks = if (gelap) Color.White else C.Ink
+    Row(modifier.clip(shape).then(if (gelap) Modifier.background(Brush.linearGradient(listOf(Color(0xFF1D4FA8), Color(0xFF173C82)))) else Modifier.background(Color(0xFFEAF1FD)).border(1.dp, C.Line, shape))
+        .clickable { Sfx.menu(); onClick() }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(46.dp).background(if (gelap) Color(0xFF2F86E6) else Color(0xFFD6E5FB), CircleShape), contentAlignment = Alignment.Center) { Text(ikon, fontSize = 22.sp) }
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(judul, color = teks, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1)
+            Text(sub, color = if (gelap) Color(0xCCFFFFFF) else C.Muted, fontSize = 12.sp, lineHeight = 15.sp, maxLines = 2)
+        }
+        Text("›", color = teks, fontSize = 22.sp)
+    }
+}
+
 @Composable
 fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
     val list by vm.dinasList.collectAsState()
@@ -110,25 +127,30 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
 
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            // Kartu profil navy
-            Column(Modifier.fillMaxWidth().background(C.Grad, RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)).statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 16.dp, bottom = 22.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(52.dp).background(Color.White.copy(alpha = 0.16f), CircleShape).clickable { vm.push(Screen.Profil) }, contentAlignment = Alignment.Center) {
-                        Text(ThemeState.playerName.take(1).uppercase().ifEmpty { "A" }, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            // Header pemandangan
+            val bentuk = RoundedCornerShape(bottomStart = 36.dp, bottomEnd = 36.dp)
+            Box(Modifier.fillMaxWidth().clip(bentuk)) {
+                Pemandangan(Modifier.matchParentSize())
+                Column(Modifier.statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 16.dp, bottom = 22.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(56.dp).background(Color(0xFF1B3358), CircleShape).border(3.dp, Color.White.copy(alpha = 0.85f), CircleShape).clickable { vm.push(Screen.Profil) }, contentAlignment = Alignment.Center) {
+                            Text(ThemeState.playerName.take(1).uppercase().ifEmpty { "A" }, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f).clickable { vm.push(Screen.Profil) }) {
+                            Text(ThemeState.playerName, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(vm.settings.jabatan, color = Color(0xE6FFFFFF), fontSize = 15.sp)
+                        }
+                        Box(Modifier.size(46.dp).background(Color.White, CircleShape).clickable { vm.push(Screen.Settings) }, contentAlignment = Alignment.Center) { Text("⚙️", fontSize = 22.sp) }
                     }
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f).clickable { vm.push(Screen.Profil) }) {
-                        Text(ThemeState.playerName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-                        Text(vm.settings.jabatan, color = Color(0xCCFFFFFF), fontSize = 14.sp)
-                    }
-                    Box(Modifier.size(44.dp).background(Color.White.copy(alpha = 0.16f), CircleShape).clickable { vm.push(Screen.Settings) }, contentAlignment = Alignment.Center) { Text("⚙️", fontSize = 20.sp) }
+                    Spacer(Modifier.height(14.dp))
+                    Text("📅 " + java.text.SimpleDateFormat("EEEE, d MMMM yyyy", java.util.Locale("id", "ID")).format(java.util.Date()), color = Color.White, fontSize = 14.sp)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Mau dinas ke mana?", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 36.sp)
+                    Text("Rencanakan perjalanan, catat temuan, kelola anggaran dengan mudah.", color = Color(0xF2FFFFFF), fontSize = 14.sp, lineHeight = 19.sp, modifier = Modifier.padding(top = 2.dp, end = 60.dp))
+                    Spacer(Modifier.height(16.dp))
+                    PillSearch(cari, { cari = it }, "Cari dinas…")
                 }
-                Spacer(Modifier.height(18.dp))
-                Text(java.text.SimpleDateFormat("EEEE, d MMMM yyyy", java.util.Locale("id", "ID")).format(java.util.Date()), color = Color(0xB3FFFFFF), fontSize = 13.sp)
-                Spacer(Modifier.height(2.dp))
-                Text("Mau dinas ke mana?", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
-                Spacer(Modifier.height(12.dp))
-                SearchBar(cari, { cari = it }, "Cari dinas…")
             }
         }
         // Kartu utama: dinas aktif
@@ -136,9 +158,12 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
             val counts by remember(aktif.id) { vm.repo.observeCounts(aktif.id) }.collectAsState(0 to 0)
             val period = listOf(fmtDate(aktif.startMs), fmtDate(aktif.endMs)).filter { it.isNotEmpty() }.joinToString(" – ")
             val shape = RoundedCornerShape(24.dp)
-            Column(Modifier.padding(horizontal = 16.dp).fillMaxWidth().clip(shape).background(Brush.linearGradient(listOf(C.Navy2, Color(0xFF12202B))), shape)
+            Column(Modifier.padding(horizontal = 16.dp).fillMaxWidth().clip(shape).background(Brush.linearGradient(listOf(Color(0xFF1A4FB0), Color(0xFF2F86E6))), shape)
                 .clickable { vm.tab = DetailTab.PETA; vm.push(Screen.Detail(aktif.id)) }.padding(20.dp)) {
-                Text("DINAS AKTIF", color = C.Accent, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("📅  DINAS AKTIF", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, modifier = Modifier.weight(1f))
+                    Text("✈️", fontSize = 26.sp)
+                }
                 Spacer(Modifier.height(6.dp))
                 Text(aktif.name, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 2, lineHeight = 28.sp)
                 if (period.isNotEmpty()) Text(period, color = Color(0xCCFFFFFF), fontSize = 14.sp, modifier = Modifier.padding(top = 2.dp))
@@ -155,30 +180,37 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
         // Sisa anggaran
         item {
             Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.push(Screen.UangMuka) }) {
-                Text("Sisa anggaran perjalanan", style = MaterialTheme.typography.labelSmall, color = C.Muted)
-                if (berjalan.isEmpty()) Text("Belum ada uang muka berjalan.", color = C.Muted, modifier = Modifier.padding(top = 6.dp))
-                else {
-                    val sisa = dana - bon
-                    Text(id.tub.dinas.um.rupiah(sisa), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = if (sisa < 0) C.Danger else C.Ink)
-                    Spacer(Modifier.height(6.dp))
-                    SegBar(if (dana <= 0) 0f else (bon / dana).toFloat().coerceIn(0f, 1f), if (sisa < 0) C.Danger else C.Ok)
-                    Text("Terpakai ${id.tub.dinas.um.rupiah(bon)} dari ${id.tub.dinas.um.rupiah(dana)}", color = C.Muted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(64.dp).background(Color(0xFFDDF6EA), RoundedCornerShape(18.dp)), contentAlignment = Alignment.Center) { Text("👛", fontSize = 32.sp) }
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("Sisa Anggaran Perjalanan", color = C.Muted, fontSize = 14.sp)
+                        if (berjalan.isEmpty()) Text("Belum ada uang muka berjalan.", color = C.Muted, modifier = Modifier.padding(top = 6.dp))
+                        else {
+                            val sisa = dana - bon
+                            Text(id.tub.dinas.um.rupiah(sisa), fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = if (sisa < 0) C.Danger else C.Ink)
+                            Spacer(Modifier.height(6.dp))
+                            SegBar(if (dana <= 0) 0f else (bon / dana).toFloat().coerceIn(0f, 1f), if (sisa < 0) C.Danger else C.Ok)
+                            Text("Terpakai ${id.tub.dinas.um.rupiah(bon)} dari ${id.tub.dinas.um.rupiah(dana)}", color = C.Muted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+                        }
+                    }
+                    Text("›", color = C.Muted, fontSize = 28.sp, modifier = Modifier.padding(start = 6.dp))
                 }
             }
         }
         // Aksi cepat
         item {
             Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                PrimaryButton("📍 Kunci GPS", Modifier.weight(1f)) {
+                AksiKartu("📍", "Kunci GPS", "Mulai tracking lokasi", true, Modifier.weight(1f)) {
                     vm.work { val did = aktif?.id ?: buatDinasOtomatis(vm); val id = vm.repo.saveTitik(did, null, "", "", null); vm.aktifId = did; vm.mainTab = 1; vm.editor = Editor.Titik(id) }
                 }
-                SoftButton("📷 Kamera audit", Modifier.weight(1f)) {
+                AksiKartu("📷", "Kamera audit", "Ambil foto / video", false, Modifier.weight(1f)) {
                     vm.work { val did = aktif?.id ?: buatDinasOtomatis(vm); val id = vm.repo.newTemuan(did, null); vm.aktifId = did; vm.mainTab = 2; vm.editor = Editor.Temuan(id, true) }
                 }
             }
         }
         item {
-            Column(Modifier.padding(horizontal = 16.dp)) {
+            Column(Modifier.padding(horizontal = 16.dp).fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(C.Surface).padding(horizontal = 8.dp, vertical = 12.dp)) {
                 Row(Modifier.fillMaxWidth()) {
                     QuickAction("📦", "Aset", C.lens(Lens.ASET), Modifier.weight(1f)) { vm.push(Screen.Aset) }
                     QuickAction("💵", "Uang Muka", C.Ok, Modifier.weight(1f)) { vm.push(Screen.UangMuka) }
@@ -191,9 +223,12 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
                     QuickAction("🗺️", "Peta", C.Wisata, Modifier.weight(1f)) { vm.mainTab = 1 }
                     QuickAction("🧭", "Panduan", C.Kuliner, Modifier.weight(1f)) { vm.mainTab = 4 }
                 }
-                if (reg.isNotEmpty() || um.isNotEmpty()) Text(
-                    listOfNotNull(if (reg.isNotEmpty()) "${reg.size} aset · $ditemukan ditemukan" else null, if (um.isNotEmpty()) "${um.size} pengajuan · ${berjalan.size} berjalan" else null).joinToString("   |   "),
-                    color = C.Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+                if (reg.isNotEmpty() || um.isNotEmpty()) Row(Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(C.Chip).clickable { vm.push(Screen.Aset) }.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("📋", fontSize = 18.sp)
+                    Text(listOfNotNull(if (reg.isNotEmpty()) "${reg.size} aset · $ditemukan ditemukan" else null, if (um.isNotEmpty()) "${um.size} pengajuan · ${berjalan.size} berjalan" else null).joinToString("   |   "),
+                        color = C.Muted, fontSize = 12.sp, modifier = Modifier.weight(1f).padding(horizontal = 8.dp))
+                    Text("›", color = C.Muted, fontSize = 22.sp)
+                }
             }
         }
         if (next != null) item {
@@ -256,13 +291,19 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
         items(tampil, key = { it.id }) { d ->
             val counts by remember(d.id) { vm.repo.observeCounts(d.id) }.collectAsState(0 to 0)
             Panel(Modifier.padding(horizontal = 16.dp), onClick = { vm.aktifId = d.id; vm.settings.lastDinasId = d.id; vm.tab = DetailTab.PETA; vm.push(Screen.Detail(d.id)) }) {
-                Text(d.name, style = MaterialTheme.typography.titleMedium)
-                val period = listOf(fmtDate(d.startMs), fmtDate(d.endMs)).filter { it.isNotEmpty() }.joinToString(" – ")
-                if (period.isNotEmpty()) Text(period, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Chip("📍 ${counts.first} titik", false)
-                    Chip("📝 ${counts.second} temuan", false)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(64.dp).clip(RoundedCornerShape(14.dp)).background(Brush.linearGradient(listOf(Color(0xFF2B7BE4), Color(0xFF3AA6E8)))), contentAlignment = Alignment.Center) { Text("🏔️", fontSize = 30.sp) }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(d.name, style = MaterialTheme.typography.titleMedium, maxLines = 2)
+                        val period = listOf(fmtDate(d.startMs), fmtDate(d.endMs)).filter { it.isNotEmpty() }.joinToString(" – ")
+                        if (period.isNotEmpty()) Text(period, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(6.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Chip("📍 ${counts.first} titik", false)
+                            Chip("📝 ${counts.second} temuan", false)
+                        }
+                    }
                 }
             }
         }
