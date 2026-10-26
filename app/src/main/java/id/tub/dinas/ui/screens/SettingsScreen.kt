@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -202,10 +203,20 @@ fun SettingsScreen(vm: MainViewModel) {
                     confirmButton = { TextButton(onClick = { riwayat = false }) { Text("Tutup") } })
             }
             PtPanel(vm)
-            Panel {
+            var bawaanBuka by remember { mutableStateOf(false) }
+            Panel(onClick = { bawaanBuka = !bawaanBuka }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(if (bawaanBuka) "▾" else "▸", color = C.Muted); Spacer(Modifier.width(8.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("Identitas bawaan laporan", style = MaterialTheme.typography.titleSmall)
+                        Text("Dipakai bila pengajuan tanpa PT", color = C.Muted, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+            if (bawaanBuka) Panel {
                 var lp by remember { mutableStateOf(s.lapPerusahaan) }; var lk by remember { mutableStateOf(s.lapKota) }
                 var ln by remember { mutableStateOf(s.lapPenyiap) }; var lj by remember { mutableStateOf(s.lapJabatan) }; var lc by remember { mutableStateOf(s.lapPemeriksa) }
-                Text("Laporan realisasi (LPBPD) — identitas bawaan", style = MaterialTheme.typography.titleMedium)
+                Text("Kepala laporan realisasi (LPBPD)", style = MaterialTheme.typography.titleMedium)
                 Text("Kepala dan tanda tangan pada laporan biaya perjalanan dinas hasil ekspor.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(6.dp))
                 var logoVer by remember { mutableStateOf(0) }
@@ -301,8 +312,11 @@ private fun PtPanel(vm: MainViewModel) {
     var edit by remember { mutableStateOf<Pair<Int, PtProfil>?>(null) }
     var ver by remember { mutableStateOf(0) }
     fun logoFile(id: String) = java.io.File(ctx.filesDir, "logo_pt_$id.png")
-    Panel {
-        Text("Daftar PT & logo", style = MaterialTheme.typography.titleMedium)
+    Box(Modifier.border(2.dp, C.Accent, androidx.compose.foundation.shape.RoundedCornerShape(22.dp)).padding(2.dp)) { Panel {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("🏢 Daftar PT & logo", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            Chip("${daftar.size} PT", true)
+        }
         Text("Tambah semua PT pemberi uang muka. Tiap PT punya logo dan tanda tangan sendiri untuk laporan LPBPD. Pengajuan uang muka tinggal memilih PT dari daftar ini.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(8.dp))
         if (daftar.isEmpty()) Text("Belum ada PT. Laporan memakai identitas bawaan di bawah.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
@@ -317,8 +331,20 @@ private fun PtPanel(vm: MainViewModel) {
         }
         Spacer(Modifier.height(6.dp))
         PrimaryButton("+ Tambah PT") { edit = -1 to PtProfil("", s.lapKota, "", "", s.lapPemeriksa, java.util.UUID.randomUUID().toString().take(8)) }
-    }
+    } }
     edit?.let { (idx, p0) ->
+        PtEditDialog(vm, idx, p0, onSelesai = { hasil -> if (hasil != null) { daftar = s.ptDaftar; ver++ }; edit = null })
+    }
+}
+
+/** Dialog tambah/ubah PT (dipakai di Pengaturan dan langsung dari form pengajuan). onSelesai(nama) bila disimpan, onSelesai(null) bila dibatalkan. */
+@Composable
+fun PtEditDialog(vm: MainViewModel, idx: Int, p0: PtProfil, onSelesai: (String?) -> Unit) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val s = vm.settings
+    val daftar = remember { s.ptDaftar }
+    fun logoFile(id: String) = java.io.File(ctx.filesDir, "logo_pt_$id.png")
+    var ver by remember { mutableStateOf(0) }
         var p by remember(idx, p0.logoId) { mutableStateOf(p0) }
         var lv by remember { mutableStateOf(0) }
         val pilih = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -330,7 +356,7 @@ private fun PtPanel(vm: MainViewModel) {
                 lv++; ver++
             }.onFailure { vm.toast("Gambar tidak dapat dibaca") }
         }
-        AlertDialog(onDismissRequest = { edit = null }, title = { Text(if (idx >= 0) "Ubah PT" else "Tambah PT") },
+        AlertDialog(onDismissRequest = { onSelesai(null) }, title = { Text(if (idx >= 0) "Ubah PT" else "Tambah PT") },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -349,9 +375,9 @@ private fun PtPanel(vm: MainViewModel) {
                 val dup = daftar.withIndex().any { (j, x) -> j != idx && x.nama.trim().equals(p.nama.trim(), true) }
                 if (dup) vm.toast("Nama PT sudah ada") else {
                     val l = daftar.toMutableList(); val np = p.copy(nama = p.nama.trim()); if (idx >= 0) l[idx] = np else l.add(np)
-                    daftar = l; s.ptDaftar = l; edit = null
+                    s.ptDaftar = l; onSelesai(np.nama)
                 }
             }) { Text("Simpan") } },
-            dismissButton = { TextButton(onClick = { edit = null }) { Text("Batal") } })
-    }
+            dismissButton = { TextButton(onClick = { onSelesai(null) }) { Text("Batal") } })
+    
 }

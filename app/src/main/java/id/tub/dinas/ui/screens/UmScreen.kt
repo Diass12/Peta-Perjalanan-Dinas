@@ -246,7 +246,10 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
     var dinasId by remember(ex.id) { mutableStateOf(ex.dinasId) }
     var ptNama by remember(ex.id) { mutableStateOf(ex.pt) }
     val bundlesAda by c.bundles.collectAsState()
-    val ptPilihan = remember(ex.id) { (vm.settings.ptDaftar.map { it.nama } + listOfNotNull(ex.pt.ifBlank { null })).distinctBy { it.lowercase() } }
+    var ptVer by remember(ex.id) { mutableStateOf(0) }
+    var ptBaru by remember(ex.id) { mutableStateOf(false) }
+    val ptPilihan = remember(ex.id, ptVer) { (vm.settings.ptDaftar.map { it.nama } + listOfNotNull(ex.pt.ifBlank { null })).distinctBy { it.lowercase() } }
+    if (ptBaru) id.tub.dinas.ui.screens.PtEditDialog(vm, -1, id.tub.dinas.data.PtProfil("", vm.settings.lapKota, "", "", vm.settings.lapPemeriksa, java.util.UUID.randomUUID().toString().take(8))) { n -> ptBaru = false; if (n != null) { ptNama = n; ptVer++ } }
     AlertDialog(
         onDismissRequest = { c.editUm = null },
         title = { Text(if (ex.id.isEmpty()) "Pengajuan uang muka" else "Ubah pengajuan") },
@@ -259,7 +262,10 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
                     Chip("Bawaan / tanpa PT", ptNama.isBlank(), onClick = { ptNama = "" })
                     ptPilihan.forEach { n -> Chip(n, ptNama.equals(n, true), onClick = { ptNama = n }) }
                 }
-                if (ptPilihan.isEmpty()) Text("Tambah PT di Pengaturan, Daftar PT.", style = MaterialTheme.typography.bodySmall, color = C.Muted)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SoftButton("＋ Tambah PT / logo") { ptBaru = true }
+                    Text("Daftar lengkap ada di Pengaturan → Daftar PT", style = MaterialTheme.typography.bodySmall, color = C.Muted, modifier = Modifier.weight(1f))
+                }
                 val bentrok = nomor.isNotBlank() && bundlesAda.any { it.um.id != ex.id && it.um.nomor.equals(nomor.trim(), true) && it.um.pt.equals(ptNama.trim(), true) }
                 if (bentrok) Text("Nomor pengajuan ini sudah dipakai${if (ptNama.isNotBlank()) " untuk $ptNama" else ""}. Pakai nomor lain atau ubah PT.", style = MaterialTheme.typography.bodySmall, color = C.Danger)
                 Field(pemohon, { pemohon = it }, "Pemohon", singleLine = true)
