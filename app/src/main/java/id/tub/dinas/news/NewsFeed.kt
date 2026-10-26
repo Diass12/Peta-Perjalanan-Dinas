@@ -38,7 +38,7 @@ object NewsFeed {
         r("Ekonomi", "Tempo", "https://rss.tempo.co/bisnis"),
         r("Internasional", "Tempo", "https://rss.tempo.co/dunia"),
         r("Teknologi", "Tempo", "https://rss.tempo.co/tekno"),
-        r("Terkini", "Detik", "https://rss.detik.com/index.php/detikcom", true),
+        r("Terkini", "Detik", "https://news.detik.com/rss", true),
         r("Terkini", "BBC Indonesia", "https://feeds.bbci.co.uk/indonesia/rss.xml", true),
     )
     val GEMPA = Sumber("Gempa · BMKG", "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.xml", Tipe.BMKG_GEMPA, "Gempa", "BMKG")
@@ -120,6 +120,7 @@ object NewsFeed {
             val gambar = t.startsWith("image") || medium == "image" || nm == "media:thumbnail" || Regex("\\.(jpe?g|png|webp)(\\?|$)").containsMatchIn(u.lowercase())
             if (u.startsWith("http") && gambar) return https(u)
         }
+        e.text("img").takeIf { it.startsWith("http") }?.let { return https(it) } // format Tempo: <img>alamat</img>
         val html = e.text("description") + " " + e.text("content:encoded") + " " + e.text("content")
         return Regex("<img[^>]+src=[\"']([^\"']+)").find(html)?.groupValues?.get(1)?.takeIf { it.startsWith("http") }?.let { https(it) }.orEmpty()
     }
