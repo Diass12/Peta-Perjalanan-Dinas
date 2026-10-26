@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
@@ -106,14 +107,22 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
     Dialog(onDismissRequest = { close() }, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
         Column(Modifier.fillMaxSize().background(C.Solid)) {
             Header(if (isSaved) "Aset" else "Aset baru", onBack = { close() }, actions = {
+                if (isSaved) Box {
+                    var menu by remember { mutableStateOf(false) }
+                    TextButton(onClick = { menu = true }) { Text("⋯", color = C.Ink, fontSize = 22.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) }
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                        DropdownMenuItem(text = { Text("Unduh kartu aset (PDF)") }, onClick = { menu = false; kartu.launch("Aset ${(existing?.code ?: "").ifEmpty { "tanpa-kode" }}.pdf") })
+                        DropdownMenuItem(text = { Text("Hapus aset", color = C.Danger) }, onClick = { menu = false; delAsk = true })
+                    }
+                }
                 HeaderAction("Simpan") {
                     c.simpan(m.copy(nbv = parseNum(nbvTxt), harga = parseNum(hargaTxt), masa = masaTxt.trim().toIntOrNull())) { close() }
                 }
             })
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding().imePadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                // foto
+                // media & lampiran (foto, baca kode/AI, video, dokumen)
                 Panel {
-                    Text("FOTO (${fotos.size})", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                    SecTitle("📎", "MEDIA & LAMPIRAN", "${fotos.size} foto · ${medias.size} berkas")
                     if (!isSaved) Text("Simpan aset dulu untuk menambah foto.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                     else {
                         Spacer(Modifier.height(6.dp))
@@ -139,11 +148,10 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                             }
                         }
                     }
-                }
-
-                // baca kode & analisis AI
-                if (isSaved && fotos.isNotEmpty()) Panel {
-                    Text("BACA KODE & ANALISIS", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                    if (isSaved && fotos.isNotEmpty()) {
+                        Spacer(Modifier.height(10.dp))
+                        Box(Modifier.fillMaxWidth().height(1.dp).background(C.Line))
+                        Spacer(Modifier.height(10.dp))
                     Spacer(Modifier.height(6.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         SoftButton(if (aiBusy == "ocr") "Membaca…" else "🔍 Baca kode dari foto", Modifier.weight(1f)) {
@@ -174,32 +182,11 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                         }
                     }
                     Text("Baca kode berjalan di perangkat tanpa internet. Analisis AI mengirim foto utama ke Google Gemini.", color = C.Muted, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 4.dp))
-                }
-                aiHasil?.let { h ->
-                    AlertDialog(onDismissRequest = { aiHasil = null }, title = { Text("Hasil analisis AI") },
-                        text = { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("Nama: ${h.nama.ifBlank { "-" }}"); Text("Jenis: ${h.jenis.ifBlank { "-" }}")
-                            Text("Kode terbaca: ${h.kode.joinToString(", ").ifBlank { "-" }}"); Text("Stiker: ${h.barcode.ifBlank { "-" }}")
-                            if (h.catatan.isNotBlank()) Text("Catatan: ${h.catatan}")
-                            Text("Hasil AI bisa keliru; periksa sebelum menyimpan.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
-                        } },
-                        confirmButton = { TextButton(onClick = {
-                            var n = m
-                            if (h.nama.isNotBlank() && (n.name.isBlank() || n.name != h.nama)) n = n.copy(name = h.nama)
-                            if (h.kode.isNotEmpty()) { n = n.copy(pcodes = (n.pcodes + h.kode).distinct()); if (n.code.isBlank() && h.kode.size == 1) n = n.copy(code = h.kode.first()) }
-                            if (h.catatan.isNotBlank() && n.remarks.isBlank()) n = n.copy(remarks = h.catatan)
-                            val kelas = KodeAset.kelasDariKode(n.code)
-                            if (kelas != null && n.classif.isBlank()) n = n.copy(classif = kelas.nama, category = kelas.kategori)
-                            else if (n.classif.isBlank() && h.jenis.isNotBlank()) n = n.copy(category = KodeAset.tebakKategori(n.code, h.nama + " " + h.jenis))
-                            val (st, src) = KodeAset.hitungStatusBarcode(n.code, n.pcodes, n.pcodes.isNotEmpty(), n.barcode, n.barcodeSrc)
-                            m = n.copy(barcode = st, barcodeSrc = src); aiHasil = null
-                        }) { Text("Terapkan") } },
-                        dismissButton = { TextButton(onClick = { aiHasil = null }) { Text("Tutup") } })
-                }
-
-                // video & dokumen
-                if (isSaved) Panel {
-                    Text("VIDEO & DOKUMEN (${medias.size})", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                    }
+                    if (isSaved) {
+                        Spacer(Modifier.height(10.dp))
+                        Box(Modifier.fillMaxWidth().height(1.dp).background(C.Line))
+                        Spacer(Modifier.height(10.dp))
                     Spacer(Modifier.height(6.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         PrimaryButton("🎬 Rekam video") {
@@ -223,10 +210,33 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                             TextButton({ delMedia = m.id }) { Text("Hapus", color = C.Danger) }
                         }
                     }
+                    }
+                }
+                aiHasil?.let { h ->
+                    AlertDialog(onDismissRequest = { aiHasil = null }, title = { Text("Hasil analisis AI") },
+                        text = { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Nama: ${h.nama.ifBlank { "-" }}"); Text("Jenis: ${h.jenis.ifBlank { "-" }}")
+                            Text("Kode terbaca: ${h.kode.joinToString(", ").ifBlank { "-" }}"); Text("Stiker: ${h.barcode.ifBlank { "-" }}")
+                            if (h.catatan.isNotBlank()) Text("Catatan: ${h.catatan}")
+                            Text("Hasil AI bisa keliru; periksa sebelum menyimpan.", color = C.Muted, style = MaterialTheme.typography.labelSmall)
+                        } },
+                        confirmButton = { TextButton(onClick = {
+                            var n = m
+                            if (h.nama.isNotBlank() && (n.name.isBlank() || n.name != h.nama)) n = n.copy(name = h.nama)
+                            if (h.kode.isNotEmpty()) { n = n.copy(pcodes = (n.pcodes + h.kode).distinct()); if (n.code.isBlank() && h.kode.size == 1) n = n.copy(code = h.kode.first()) }
+                            if (h.catatan.isNotBlank() && n.remarks.isBlank()) n = n.copy(remarks = h.catatan)
+                            val kelas = KodeAset.kelasDariKode(n.code)
+                            if (kelas != null && n.classif.isBlank()) n = n.copy(classif = kelas.nama, category = kelas.kategori)
+                            else if (n.classif.isBlank() && h.jenis.isNotBlank()) n = n.copy(category = KodeAset.tebakKategori(n.code, h.nama + " " + h.jenis))
+                            val (st, src) = KodeAset.hitungStatusBarcode(n.code, n.pcodes, n.pcodes.isNotEmpty(), n.barcode, n.barcodeSrc)
+                            m = n.copy(barcode = st, barcodeSrc = src); aiHasil = null
+                        }) { Text("Terapkan") } },
+                        dismissButton = { TextButton(onClick = { aiHasil = null }) { Text("Tutup") } })
                 }
 
-                // identitas
+                // informasi utama
                 Panel {
+                    SecTitle("🏷️", "INFORMASI UTAMA")
                     Field(m.code, { m = m.copy(code = it.uppercase().filter { ch -> !ch.isWhitespace() }, barcodeSrc = m.barcodeSrc) }, "Kode aset (mis. TUBOE250018)", singleLine = true)
                     if (m.pcodes.isNotEmpty()) Text("Terbaca di foto: ${m.pcodes.joinToString(", ")}", color = C.Muted, style = MaterialTheme.typography.labelSmall)
                     Spacer(Modifier.height(6.dp))
@@ -235,34 +245,29 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                     FlowChips(KodeAset.KATEGORI.map { it to KodeAset.labelKategori(it) }, m.category) { m = m.copy(category = it) }
                     Spacer(Modifier.height(6.dp))
                     MasterPick("Klasifikasi (otomatis dari kode)", m.classif, c.opsi(id.tub.dinas.aset.MasterField.KLASIF, list)) { m = m.copy(classif = it) }
-                    Spacer(Modifier.height(6.dp))
+                }
+
+                // kepemilikan & distribusi
+                Panel {
+                    SecTitle("🏢", "KEPEMILIKAN & DISTRIBUSI")
                     MasterPick("PT pemilik", m.owner, c.opsi(id.tub.dinas.aset.MasterField.PT, list)) { m = m.copy(owner = it) }
                     Label("Kepemilikan")
                     FlowChips(listOf("own" to "Milik Sendiri", "lease" to "Sewa"), m.tenure) { m = m.copy(tenure = it) }
-                }
-
-                Panel {
+                    Spacer(Modifier.height(6.dp))
                     MasterPick("Departemen", m.dept, c.opsi(id.tub.dinas.aset.MasterField.DEPT, list)) { m = m.copy(dept = it) }
                     Spacer(Modifier.height(6.dp))
                     MasterPick("Lokasi", m.location, c.opsi(id.tub.dinas.aset.MasterField.LOKASI, list)) { m = m.copy(location = it) }
                     Spacer(Modifier.height(6.dp))
-                    Field(m.user, { m = m.copy(user = it) }, "User / pengguna", singleLine = true)
-                    Label("Kondisi")
-                    FlowChips(c.opsi(id.tub.dinas.aset.MasterField.KONDISI, list).map { it to it }, m.cond) { m = m.copy(cond = if (m.cond == it) "" else it) }
-                    Spacer(Modifier.height(6.dp))
-                    DateField("Tgl pembelian", m.acq, { m = m.copy(acq = it) })
-                    Spacer(Modifier.height(6.dp))
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        DateField("Tgl cek fisik", m.checkDate, { m = m.copy(checkDate = it) }, Modifier.weight(1f))
-                        TextButton(onClick = { m = m.copy(checkDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())) }) { Text("Hari ini") }
-                    }
-                    Spacer(Modifier.height(6.dp))
-                    Field(m.remarks, { m = m.copy(remarks = it) }, "Keterangan / remarks", minLines = 2)
+                    Field(m.user, { m = m.copy(user = it) }, "Pengguna", singleLine = true)
                 }
 
+                // status & kondisi
                 Panel {
+                    SecTitle("✅", "STATUS & KONDISI")
+                    Label("Kondisi")
+                    FlowChips(c.opsi(id.tub.dinas.aset.MasterField.KONDISI, list).map { it to (if (it.equals("Damaged", true)) "Rusak" else it) }, m.cond, { tintKondisi(it) }) { m = m.copy(cond = if (m.cond == it) "" else it) }
                     Label("Status barcode")
-                    FlowChips(StatusBarcode.entries.map { it.name to it.label }, m.barcode?.name.orEmpty()) {
+                    FlowChips(StatusBarcode.entries.map { it.name to it.label }, m.barcode?.name.orEmpty(), { tintBarcode(it) }) {
                         m = m.copy(barcode = StatusBarcode.from(it), barcodeSrc = SumberBarcode.MANUAL)
                     }
                     Text(when (m.barcodeSrc) {
@@ -273,10 +278,19 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                         m = m.copy(barcode = st, barcodeSrc = src)
                     }) { Text("↻ Hitung otomatis") }
                     Label("Status audit")
-                    FlowChips(AuditState.entries.map { it.name to it.label }, m.state.name) {
+                    FlowChips(AuditState.entries.map { it.name to it.label }, m.state.name, { tintAudit(it) }) {
                         val s = AuditState.from(it)
                         m = m.copy(state = s, auditedAt = if (s == AuditState.PENDING) null else System.currentTimeMillis())
                     }
+                    Spacer(Modifier.height(10.dp))
+                    DateField("Tgl pembelian", m.acq, { m = m.copy(acq = it) })
+                    Spacer(Modifier.height(6.dp))
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        DateField("Tgl cek fisik", m.checkDate, { m = m.copy(checkDate = it) }, Modifier.weight(1f))
+                        TextButton(onClick = { m = m.copy(checkDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())) }) { Text("Hari ini") }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Field(m.remarks, { m = m.copy(remarks = it) }, "Keterangan / remarks", minLines = 2)
                 }
 
                 if (id.tub.dinas.security.Lisensi.ho) {
@@ -309,12 +323,13 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
                     }
                 }
 
-                if (isSaved) {
-                    AmberButton(if (existing?.temuanId != null) "Buat temuan lagi di dinas…" else "Buat temuan lensa Aset di dinas…", Modifier.fillMaxWidth()) { temuanDlg = true }
-                    SoftButton("Unduh kartu aset (PDF)", Modifier.fillMaxWidth()) { kartu.launch("Aset ${(existing?.code ?: "").ifEmpty { "tanpa-kode" }}.pdf") }
-                    SoftButton("Hapus aset", Modifier.fillMaxWidth(), danger = true) { delAsk = true }
+                Spacer(Modifier.height(8.dp))
+            }
+            Row(Modifier.fillMaxWidth().background(C.Surface).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (isSaved) SoftButton(if (existing?.temuanId != null) "Temuan lagi…" else "Buat temuan…", Modifier.weight(1f)) { temuanDlg = true }
+                AmberButton("Simpan", Modifier.weight(1f)) {
+                    c.simpan(m.copy(nbv = parseNum(nbvTxt), harga = parseNum(hargaTxt), masa = masaTxt.trim().toIntOrNull())) { close() }
                 }
-                Spacer(Modifier.height(24.dp))
             }
         }
     }
@@ -342,9 +357,35 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
 
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun FlowChips(options: List<Pair<String, String>>, selected: String, onPick: (String) -> Unit) {
+private fun FlowChips(options: List<Pair<String, String>>, selected: String, tint: (String) -> androidx.compose.ui.graphics.Color? = { null }, onPick: (String) -> Unit) {
     androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        options.forEach { (k, l) -> Chip(l, k == selected, onClick = { onPick(k) }) }
+        options.forEach { (k, l) ->
+            val t = tint(k)
+            if (t == null) Chip(l, k == selected, onClick = { onPick(k) })
+            else Chip(l, k == selected, color = t, bg = t.copy(alpha = 0.14f), onClick = { onPick(k) })
+        }
+    }
+}
+
+private val HIJAU = androidx.compose.ui.graphics.Color(0xFF16A36B)
+private val KUNING = androidx.compose.ui.graphics.Color(0xFFD97706)
+private val MERAH = androidx.compose.ui.graphics.Color(0xFFDC2626)
+private fun tintKondisi(k: String) = when (k.trim().lowercase()) {
+    "baik", "good" -> HIJAU
+    "cukup", "fair" -> KUNING
+    "rusak", "damaged", "buruk", "poor" -> MERAH
+    else -> null
+}
+private fun tintBarcode(k: String) = when (k.uppercase()) { "TAGGED" -> HIJAU; "UNTAGGED" -> KUNING; "NONASSET" -> MERAH; else -> null }
+private fun tintAudit(k: String) = when (k.uppercase()) { "FOUND" -> HIJAU; "MISSING" -> KUNING; "DAMAGED" -> MERAH; else -> null }
+
+/** Judul kelompok kartu: ikon, judul kapital kecil, dan keterangan di kanan. */
+@Composable
+private fun SecTitle(ikon: String, judul: String, kanan: String = "") {
+    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(ikon, fontSize = 14.sp)
+        Text(judul, Modifier.padding(start = 6.dp).weight(1f), style = MaterialTheme.typography.labelSmall, color = C.Muted, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+        if (kanan.isNotEmpty()) Text(kanan, style = MaterialTheme.typography.labelSmall, color = C.Muted)
     }
 }
 
