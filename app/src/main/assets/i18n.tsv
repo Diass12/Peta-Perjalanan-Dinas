@@ -928,3 +928,9 @@ Sisa anggaran semua pengajuan berjalan|Remaining budget of all active requests|�
 ~untuk|for|用于|用|용
 ~bon dalam berkas|receipts in file|文件中的单据|ファイル内の領収書|파일 내 영수증
 ~bon, total|receipts, total|张单据，合计|件の領収書、合計|건의 영수증, 합계
+＋ Tambah PT / logo|＋ Add company / logo|＋ 添加公司 / 标志|＋ 会社 / ロゴを追加|＋ 회사 / 로고 추가
+Daftar lengkap ada di Pengaturan → Daftar PT|Full list is in Settings → Company list|完整列表在“设置 → 公司列表”|一覧は「設定 → 会社リスト」にあります|전체 목록은 '설정 → 회사 목록'에 있습니다
+🏢 Daftar PT & logo|🏢 Company list & logos|🏢 公司列表与标志|🏢 会社リストとロゴ|🏢 회사 목록 및 로고
+Identitas bawaan laporan|Default report identity|报告默认信息|レポートの既定の情報|보고서 기본 정보
+Dipakai bila pengajuan tanpa PT|Used when a request has no company|申请未选公司时使用|申請に会社がない場合に使用|신청에 회사가 없을 때 사용
+Kepala laporan realisasi (LPBPD)|Realization report (LPBPD) header|实报报告（LPBPD）抬头|実績報告（LPBPD）のヘッダー|실적 보고서(LPBPD) 머리글

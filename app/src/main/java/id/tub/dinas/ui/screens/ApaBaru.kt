@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(25, "1.7.15", listOf(
+            FiturBaru("🏢", "Tambah PT langsung dari pengajuan", "Di form pengajuan uang muka ada tombol Tambah PT / logo, jadi PT baru bisa dibuat tanpa meninggalkan form (isian tidak hilang). Daftar PT di Pengaturan kini lebih menonjol, sedangkan identitas bawaan laporan dilipat karena hanya dipakai bila pengajuan tanpa PT.",
+                listOf("Uang Muka, Pengajuan baru, ketuk Tambah PT / logo."), Screen.UangMuka),
+        )),
         RilisInfo(24, "1.7.14", listOf(
             FiturBaru("🏢", "Daftar PT, logo & impor aman", "Pengaturan kini punya Daftar PT dengan logo dan tanda tangan sendiri-sendiri; laporan LPBPD memakai PT yang dipilih di pengajuan. Nomor pengajuan yang sama di PT berbeda tidak lagi saling menimpa. Impor menampilkan pilihan Lewati / Timpa / Simpan sebagai baru bila data sudah ada, dan bon yang diedit memperbarui bon yang sama (tidak menggandakan). Ekspor Aset bisa dipilih per PT, dan aset PT berbeda dengan kode sama tidak saling menimpa.",
                 listOf("Pengaturan, Daftar PT, tambah PT dan logonya.", "Uang Muka, Ubah pengajuan, pilih Nama PT."), Screen.UangMuka),
