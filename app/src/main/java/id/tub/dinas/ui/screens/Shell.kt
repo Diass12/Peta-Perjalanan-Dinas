@@ -37,15 +37,25 @@ import id.tub.dinas.ui.fmtDate
 import id.tub.dinas.ui.components.*
 import id.tub.dinas.ui.theme.C
 import id.tub.dinas.ui.theme.ThemeState
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /** Bila belum ada dinas, aksi cepat membuat satu otomatis (bernama tanggal hari ini) supaya pengguna tidak tersangkut. */
-private suspend fun buatDinasOtomatis(vm: MainViewModel): String {
+suspend fun buatDinasOtomatis(vm: MainViewModel): String {
     val now = System.currentTimeMillis()
     val nama = "Dinas " + java.text.SimpleDateFormat("d MMM yyyy", java.util.Locale("id", "ID")).format(java.util.Date(now))
     val id = vm.repo.createDinas(nama, now, null, "")
     vm.settings.lastDinasId = id
     return id
+}
+
+/** Menjalankan aksi dari widget layar utama: sama seperti kartu Kunci GPS / Kamera audit di Beranda. */
+suspend fun jalankanAksiWidget(vm: MainViewModel, aksi: String) {
+    while (vm.pop()) { }
+    val dinas = vm.repo.observeDinas().first()
+    val did = dinas.firstOrNull { it.id == (vm.aktifId ?: vm.settings.lastDinasId) }?.id ?: dinas.firstOrNull()?.id ?: buatDinasOtomatis(vm)
+    if (aksi == "gps") { val id = vm.repo.saveTitik(did, null, "", "", null); vm.aktifId = did; vm.mainTab = 1; vm.editor = Editor.Titik(id) }
+    else { val id = vm.repo.newTemuan(did, null); vm.aktifId = did; vm.mainTab = 2; vm.editor = Editor.Temuan(id, true) }
 }
 
 /** Cangkang aplikasi: 5 menu bawah — Beranda, Peta & GPS, Audit & Dokumen, Wawasan, Panduan Travel. */

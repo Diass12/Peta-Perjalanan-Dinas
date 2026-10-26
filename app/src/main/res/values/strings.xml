@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Dokumentasi Dinas</string>
+    <string name="widget_desc">Dinas aktif, sisa anggaran, dan tombol cepat Kamera / Kunci GPS</string>
 </resources>

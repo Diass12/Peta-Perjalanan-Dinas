@@ -16,6 +16,10 @@ class Settings(ctx: Context) {
     var lockTimeoutSec: Int
         get() = p.getInt("lockTimeout", 60)
         set(v) { p.edit().putInt("lockTimeout", v).apply() }
+    /** Tampilkan nominal anggaran di widget meski kunci aplikasi aktif. */
+    var widgetNominal: Boolean
+        get() = p.getBoolean("widgetNominal", false)
+        set(v) { p.edit().putBoolean("widgetNominal", v).apply() }
     var secureAlways: Boolean
         get() = p.getBoolean("secureAlways", false)
         set(v) { p.edit().putBoolean("secureAlways", v).apply() }

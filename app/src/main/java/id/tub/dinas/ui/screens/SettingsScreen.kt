@@ -30,6 +30,7 @@ fun SettingsScreen(vm: MainViewModel) {
     var lock by remember { mutableStateOf(s.lockEnabled) }
     var timeout by remember { mutableIntStateOf(s.lockTimeoutSec) }
     var secure by remember { mutableStateOf(s.secureAlways) }
+    var wNominal by remember { mutableStateOf(s.widgetNominal) }
     var preset by remember { mutableStateOf(s.photoPreset) }
     var sat by remember { mutableStateOf(s.satellite) }
     var gpsHigh by remember { mutableStateOf(s.gpsHigh) }
@@ -82,6 +83,13 @@ fun SettingsScreen(vm: MainViewModel) {
                         Text("Tampilan “aplikasi terbaru” selalu disamarkan saat kunci aktif.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                     }
                     Switch(secure, { secure = it; s.secureAlways = it })
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Tampilkan nominal di widget")
+                        Text("Bila kunci aplikasi aktif, nominal anggaran di widget layar utama disembunyikan kecuali ini dinyalakan.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Switch(wNominal, { wNominal = it; s.widgetNominal = it; id.tub.dinas.widget.DinasWidget.perbarui(ctx) })
                 }
                 Text("Foto, PDF, dan database dienkripsi di perangkat. Kunci disimpan di Android Keystore.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
             }

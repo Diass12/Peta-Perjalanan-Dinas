@@ -72,6 +72,7 @@ class MainActivity : FragmentActivity() {
     private fun versiNama(): String = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "" } catch (e: Exception) { "" }
 
     private fun handleShare(i: android.content.Intent?) {
+        i?.getStringExtra(id.tub.dinas.widget.DinasWidget.EXTRA)?.takeIf { it == "gps" || it == "kamera" }?.let { vm.aksiWidget = it; i.removeExtra(id.tub.dinas.widget.DinasWidget.EXTRA) }
         if (i?.action == android.content.Intent.ACTION_SEND && i.type?.startsWith("text/") == true) {
             i.getStringExtra(android.content.Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() }?.let { vm.sharedText = it.take(2000) }
             i.action = null
@@ -107,6 +108,7 @@ class MainActivity : FragmentActivity() {
     override fun onStop() {
         super.onStop()
         stoppedAt = SystemClock.elapsedRealtime()
+        id.tub.dinas.widget.DinasWidget.perbarui(this)
         vm.tracker.stop()
     }
 
@@ -127,6 +129,10 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
     LaunchedEffect(Unit) {
         ThemeState.playerName = vm.settings.playerName
         id.tub.dinas.ui.components.Sfx.init(appCtx); id.tub.dinas.ui.components.Sfx.enabled = vm.settings.sfx
+    }
+    val aksiW = vm.aksiWidget
+    LaunchedEffect(aksiW) {
+        if (aksiW != null) { vm.aksiWidget = null; vm.work { jalankanAksiWidget(vm, aksiW) } }
     }
     SkyBackground {
     BackHandler(enabled = vm.stack.size > 1 || vm.editor != null || vm.mainTab != 0) {

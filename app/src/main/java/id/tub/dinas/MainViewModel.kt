@@ -36,6 +36,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var editor by mutableStateOf<Editor?>(null)
     /** Teks yang dibagikan dari aplikasi lain (mis. tautan Google Maps). */
     var sharedText by mutableStateOf<String?>(null)
+    /** Aksi dari widget layar utama ("gps" atau "kamera") yang menunggu dijalankan setelah aplikasi terbuka. */
+    var aksiWidget by mutableStateOf<String?>(null)
     var locked by mutableStateOf(settings.lockEnabled)
     var busy by mutableStateOf(false)
     /** Hasil operasi yang ditampilkan sebagai dialog (ekspor, impor, gagal, dll.). */
