@@ -67,10 +67,41 @@ object Gemini {
         } finally { c.disconnect() }
     }
 
-    fun analisis(key: String, model: String, jpeg: ByteArray): AiHasil {
+    fun analisis(key: String, model: String, jpeg: ByteArray): AiHasil = kirimFoto(key, model, PROMPT, jpeg, ::parseHasil)
+
+    private const val PROMPT_BON = "Ini foto bon/struk/nota/kwitansi pembayaran (bisa dicetak atau tulisan tangan). " +
+        "Jawab HANYA JSON: {\"total\":angka rupiah total akhir yang harus dibayar, hanya digit tanpa titik, atau null bila tidak jelas," +
+        "\"tanggal\":\"yyyy-MM-dd\" atau null,\"toko\":\"nama toko/penyedia/maskapai/hotel\"," +
+        "\"uraian\":\"ringkasan singkat barang atau jasa yang dibayar, maksimal 80 huruf, bahasa Indonesia\"," +
+        "\"kategori\":\"salah satu dari TIKET, TRANSPORTASI, KAPAL, HOTEL, MAKAN_PAGI, MAKAN_SIANG, MAKAN_MALAM, UANG_SAKU, LAUNDRY, LAINNYA\"," +
+        "\"rincian\":[{\"item\":\"nama\",\"jumlah\":angka}]}. Bila ada rincian lalu total, pakai total. Jangan menebak angka yang tidak terlihat jelas."
+
+    /** Hasil baca bon oleh Gemini (mendukung tulisan tangan). */
+    fun bon(key: String, model: String, jpeg: ByteArray): id.tub.dinas.um.BonParse.Hasil = kirimFoto(key, model, PROMPT_BON, jpeg) { body ->
+        val j = jsonJawaban(body)
+        fun angka(v: Any?): Long? = when (v) { is Number -> v.toLong(); is String -> v.filter { it.isDigit() }.toLongOrNull(); else -> null }
+        val total = angka(j["total"])?.takeIf { it > 0 }
+        val rincian = (j["rincian"] as? List<*>).orEmpty().mapNotNull { angka((it as? Map<*, *>)?.get("jumlah")) }.filter { it > 0 }
+        val kandidat = (listOfNotNull(total) + listOf(rincian.sum()).filter { it > 0 }).distinct()
+        val tgl = (j["tanggal"] as? String)?.trim()?.takeIf { Regex("""\d{4}-\d{2}-\d{2}""").matches(it) }
+        id.tub.dinas.um.BonParse.Hasil(total ?: kandidat.firstOrNull(), kandidat, tgl, (j["toko"] as? String)?.trim()?.takeIf { it.isNotEmpty() },
+            (j["uraian"] as? String)?.trim()?.takeIf { it.isNotEmpty() }, id.tub.dinas.domain.BonKategori.entries.firstOrNull { it.name == (j["kategori"] as? String)?.trim()?.uppercase() })
+    }
+
+    private fun jsonJawaban(body: String): Map<*, *> {
+        val root = MiniJson.parse(body) as? Map<*, *> ?: throw IOException("Balasan tidak dikenali")
+        (root["error"] as? Map<*, *>)?.let { throw IOException((it["message"] as? String) ?: "Kesalahan dari Gemini") }
+        val parts = (((root["candidates"] as? List<*>)?.firstOrNull() as? Map<*, *>)?.get("content") as? Map<*, *>)?.get("parts") as? List<*>
+        val text = parts?.mapNotNull { (it as? Map<*, *>)?.get("text") as? String }?.joinToString("")?.trim()
+            ?: throw IOException("Gemini tidak memberi jawaban (foto mungkin diblokir)")
+        val clean = text.removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+        return MiniJson.parse(clean) as? Map<*, *> ?: throw IOException("Jawaban Gemini bukan JSON")
+    }
+
+    private fun <T> kirimFoto(key: String, model: String, prompt: String, jpeg: ByteArray, parse: (String) -> T): T {
         val req = mapOf(
             "contents" to listOf(mapOf("parts" to listOf(
-                mapOf("text" to PROMPT),
+                mapOf("text" to prompt),
                 mapOf("inline_data" to mapOf("mime_type" to "image/jpeg", "data" to Base64.encodeToString(jpeg, Base64.NO_WRAP))),
             ))),
             "generationConfig" to mapOf("responseMimeType" to "application/json", "temperature" to 0.1),
@@ -82,7 +113,7 @@ object Gemini {
         val body = MiniJson.write(req)
         var terakhir: IOException? = null
         for ((i, m) in urutan.withIndex()) {
-            try { return parseHasil(call("$BASE/models/$m:generateContent", key, body)) }
+            try { return parse(call("$BASE/models/$m:generateContent", key, body)) }
             catch (e: java.net.SocketTimeoutException) { terakhir = Sibuk("Koneksi ke Gemini terlalu lama. Cek sinyal lalu coba lagi.") }
             catch (e: Sibuk) { terakhir = e }
             if (i < urutan.lastIndex) Thread.sleep(2000)

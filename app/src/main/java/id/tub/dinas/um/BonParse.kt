@@ -2,7 +2,7 @@ package id.tub.dinas.um
 
 /** Mengambil jumlah, tanggal, dan nama toko dari teks hasil baca (OCR) foto bon. Murni teks, tanpa Android. */
 object BonParse {
-    class Hasil(val total: Long?, val kandidat: List<Long>, val tanggal: String?, val toko: String?)
+    class Hasil(val total: Long?, val kandidat: List<Long>, val tanggal: String?, val toko: String?, val uraian: String? = null, val kategori: id.tub.dinas.domain.BonKategori? = null)
 
     private val ANGKA = Regex("""(?i)(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d{4,9})(?:[.,]\d{1,2})?(?!\d)""")
     private val BULAN = mapOf("jan" to 1, "feb" to 2, "mar" to 3, "apr" to 4, "mei" to 5, "may" to 5, "jun" to 6, "jul" to 7,

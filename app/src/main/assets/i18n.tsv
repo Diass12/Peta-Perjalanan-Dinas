@@ -875,3 +875,11 @@ Tidak ada berita yang cocok.|No matching news.|没有匹配的新闻。|一致�
 Berita belum bisa dimuat. Periksa sambungan internet lalu coba muat ulang.|News could not be loaded. Check your internet connection and reload.|无法加载新闻。请检查网络连接后重新加载。|ニュースを読み込めません。インターネット接続を確認して再読み込みしてください。|뉴스를 불러올 수 없습니다. 인터넷 연결을 확인하고 새로고침하세요.
 Cari berita…|Search news…|搜索新闻…|ニュースを検索…|뉴스 검색…
 Nonaktifkan|Disable|停用|無効化|비활성화
+Nama di bon:|Name on receipt:|单据上的名称：|領収書の名称：|영수증 이름:
+Uraian:|Description:|说明：|内容：|설명:
+Kategori:|Category:|类别：|カテゴリ：|카테고리:
+🔍 Baca otomatis (Gemini)|🔍 Read automatically (Gemini)|🔍 自动识别 (Gemini)|🔍 自動読み取り (Gemini)|🔍 자동 읽기 (Gemini)
+🔍 Baca otomatis (OCR)|🔍 Read automatically (OCR)|🔍 自动识别 (OCR)|🔍 自動読み取り (OCR)|🔍 자동 읽기 (OCR)
+Membaca…|Reading…|识别中…|読み取り中…|읽는 중…
+Isi kunci Gemini di Pengaturan agar tulisan tangan dan struk sulit terbaca lebih akurat.|Enter your Gemini key in Settings for more accurate reading of handwriting and hard-to-read receipts.|请在设置中填写 Gemini 密钥，以更准确地识别手写和难辨认的单据。|設定にGeminiキーを入力すると、手書きや読みにくいレシートをより正確に読み取れます。|설정에 Gemini 키를 입력하면 손글씨와 읽기 어려운 영수증을 더 정확하게 읽습니다.
+~foto bon|receipt photo|收据照片|領収書の写真|영수증 사진

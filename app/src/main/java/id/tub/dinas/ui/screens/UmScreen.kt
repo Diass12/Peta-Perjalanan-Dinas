@@ -299,8 +299,21 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
         ocrBusy = true
         scope.launch {
             try {
-                val hasil = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { runCatching { BonOcr.baca(vm.repo.vault.read(path)) }.getOrNull() }
-                if (hasil == null || (hasil.total == null && hasil.tanggal == null && hasil.toko == null)) vm.toast("Teks bon tidak terbaca. Coba foto yang lebih jelas dan terang.")
+                val key = vm.settings.geminiKey
+                var pesan: String? = null
+                val hasil = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    val bytes = runCatching { vm.repo.vault.read(path) }.getOrNull() ?: return@withContext null
+                    if (key.isNotBlank()) {
+                        val kecil = id.tub.dinas.aset.AsetImport.toJpeg(bytes, 1280, 80) ?: bytes
+                        runCatching { id.tub.dinas.ai.Gemini.bon(key, vm.settings.geminiModel, kecil) }
+                            .getOrElse { e -> pesan = "Gemini gagal (${e.message ?: "?"}). Memakai pembacaan di perangkat."; runCatching { BonOcr.baca(bytes) }.getOrNull() }
+                    } else {
+                        pesan = "Isi kunci Gemini di Pengaturan agar tulisan tangan dan struk sulit terbaca lebih akurat."
+                        runCatching { BonOcr.baca(bytes) }.getOrNull()
+                    }
+                }
+                pesan?.let { vm.toast(it) }
+                if (hasil == null || (hasil.total == null && hasil.tanggal == null && hasil.toko == null && hasil.uraian == null)) vm.toast("Teks bon tidak terbaca. Coba foto yang lebih jelas dan terang.")
                 else { ocr = hasil; ocrPilih = hasil.total }
             } finally { ocrBusy = false }
         }
@@ -344,11 +357,14 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
                 }
                 if (h.tanggal != null) Text("Tanggal: ${h.tanggal}")
                 if (h.toko != null) Text("Nama di bon: ${h.toko}")
+                if (h.uraian != null) Text("Uraian: ${h.uraian}")
+                if (h.kategori != null) Text("Kategori: ${h.kategori.label}")
             } },
             confirmButton = { TextButton(onClick = {
                 ocrPilih?.let { jml = it.toString() }
                 h.tanggal?.let { tgl = it }
-                if (ur.isBlank() && h.toko != null) ur = h.toko.take(200)
+                if (ur.isBlank()) (h.uraian ?: h.toko)?.let { ur = it.take(200) }
+                h.kategori?.let { kat = it; tagK = "" }
                 ocr = null
             }) { Text("Pakai hasil") } },
             dismissButton = { TextButton(onClick = { ocr = null }) { Text("Abaikan") } })
@@ -426,7 +442,7 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
                                     TextButton(onClick = { c.viewer = bonId to i }) { Text("Lihat") }
                                     TextButton(onClick = { c.hapusFoto(f.id) }) { Text("Hapus", color = C.Danger) }
                                 }
-                                TextButton(enabled = !ocrBusy, onClick = { bacaFoto(f.path) }) { Text(if (ocrBusy) "Membaca…" else "🔍 Baca otomatis (OCR)", color = hijau) }
+                                TextButton(enabled = !ocrBusy, onClick = { bacaFoto(f.path) }) { Text(if (ocrBusy) "Membaca…" else if (vm.settings.geminiKey.isNotBlank()) "🔍 Baca otomatis (Gemini)" else "🔍 Baca otomatis (OCR)", color = hijau) }
                             }
                         }
                     }
