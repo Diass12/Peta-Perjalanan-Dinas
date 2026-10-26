@@ -1,0 +1,2282 @@
+{
+ "versi": 1,
+ "sumber": "Data sampel disusun manual untuk demo; belum diverifikasi sumber resmi. Jam buka, tiket, dan aturan kunjungan bisa berubah, cek langsung sebelum berangkat.",
+ "kota": [
+  {
+   "id": "bali",
+   "nama": "Bali",
+   "wilayah": "Provinsi Bali",
+   "ikon": "🏝️",
+   "tagline": "Pura, pantai, dan sawah terasering",
+   "ringkas": "Pulau dengan budaya Hindu yang hidup, pantai untuk berselancar dan menikmati senja, serta lanskap sawah dan pegunungan di Ubud.",
+   "waktu": "Sekitar April sampai Oktober (musim kemarau)",
+   "durasi": "4 sampai 5 hari",
+   "wisata": [
+    {
+     "id": "tanah-lot",
+     "nama": "Pura Tanah Lot",
+     "kategori": "Budaya",
+     "deskripsi": "Pura laut di atas batu karang di Tabanan, terkenal dengan pemandangan matahari terbenam.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "budaya",
+      "alam"
+     ],
+     "foto": "Datang menjelang sore untuk senja; periksa kondisi pasang surut."
+    },
+    {
+     "id": "uluwatu",
+     "nama": "Pura Luhur Uluwatu",
+     "kategori": "Budaya",
+     "deskripsi": "Pura di tebing tinggi di ujung selatan Bali dengan pemandangan Samudra Hindia. Pertunjukan tari Kecak biasanya digelar sore hari.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya",
+      "alam"
+     ],
+     "foto": "Tepi tebing saat senja. Kera di area ini sering merebut barang, simpan kacamata dan ponsel."
+    },
+    {
+     "id": "pantai-kuta",
+     "nama": "Pantai Kuta",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai berpasir luas dekat bandara, populer untuk belajar berselancar dan menikmati senja.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "tegallalang",
+     "nama": "Sawah Terasering Tegallalang",
+     "kategori": "Alam",
+     "deskripsi": "Sawah berundak di utara Ubud dengan pemandangan lembah hijau.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Pagi hari saat belum ramai dan cahaya lembut."
+    },
+    {
+     "id": "monkey-forest",
+     "nama": "Monkey Forest Ubud",
+     "kategori": "Alam",
+     "deskripsi": "Hutan kecil di Ubud berisi pura dan kera ekor panjang. Simpan barang kecil dan makanan dengan aman.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "besakih",
+     "nama": "Pura Besakih",
+     "kategori": "Budaya",
+     "deskripsi": "Kompleks pura terbesar di Bali di lereng Gunung Agung, sering disebut Pura Agung.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "ulun-danu-beratan",
+     "nama": "Pura Ulun Danu Beratan",
+     "kategori": "Budaya",
+     "deskripsi": "Pura di tepi Danau Beratan, Bedugul, dengan udara sejuk dan pemandangan danau.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "budaya",
+      "alam"
+     ],
+     "foto": "Pagi hari saat kabut tipis di danau."
+    },
+    {
+     "id": "tirta-empul",
+     "nama": "Pura Tirta Empul",
+     "kategori": "Budaya",
+     "deskripsi": "Pura dengan kolam pemandian suci berair mata air di Tampaksiring.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pantai-sanur",
+     "nama": "Pantai Sanur",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai yang relatif tenang di timur Bali, cocok untuk berjalan pagi dan melihat matahari terbit.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga",
+      "gratis"
+     ],
+     "foto": "Saat matahari terbit."
+    },
+    {
+     "id": "pantai-jimbaran",
+     "nama": "Pantai Jimbaran",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai di selatan Bali yang dikenal dengan makan malam seafood di tepi pantai.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "malam"
+     ],
+     "foto": "Senja saat meja pantai mulai dipasang."
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "ayam-betutu",
+     "nama": "Ayam Betutu",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ayam atau bebek berbumbu rempah khas Bali, dibungkus dan dimasak lama hingga empuk.",
+     "halal": "Umumnya tanpa babi; tanyakan penjual."
+    },
+    {
+     "id": "babi-guling",
+     "nama": "Babi Guling",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Babi panggang berbumbu rempah, disajikan dengan nasi dan lawar.",
+     "halal": "Tidak halal (mengandung babi)."
+    },
+    {
+     "id": "sate-lilit",
+     "nama": "Sate Lilit",
+     "kategori": "Jajanan",
+     "deskripsi": "Daging atau ikan cincang berbumbu yang dililitkan pada batang serai atau bambu lalu dibakar.",
+     "halal": "Bervariasi; tanyakan isinya."
+    },
+    {
+     "id": "lawar",
+     "nama": "Lawar",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Campuran sayur, kelapa parut, dan daging cincang dengan bumbu khas.",
+     "halal": "Sering mengandung babi; tanyakan."
+    },
+    {
+     "id": "nasi-campur-bali",
+     "nama": "Nasi Campur Bali",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nasi dengan aneka lauk seperti ayam suwir, sate lilit, dan sambal matah.",
+     "halal": "Bervariasi; tanyakan."
+    },
+    {
+     "id": "tipat-cantok",
+     "nama": "Tipat Cantok",
+     "kategori": "Jajanan",
+     "deskripsi": "Ketupat dengan sayur rebus dan bumbu kacang yang diulek.",
+     "halal": "Umumnya halal; tanyakan penjual."
+    },
+    {
+     "id": "sambal-matah",
+     "nama": "Sambal Matah",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sambal mentah dari irisan bawang merah, serai, cabai, dan minyak kelapa.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "serombotan",
+     "nama": "Serombotan",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sayur rebus dengan bumbu kelapa parut pedas, khas Bali.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "es-daluman",
+     "nama": "Es Daluman",
+     "kategori": "Minuman",
+     "deskripsi": "Minuman cincau hijau dengan santan dan gula merah cair.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "bandung",
+   "nama": "Bandung",
+   "wilayah": "Jawa Barat",
+   "ikon": "⛰️",
+   "tagline": "Kawah, kota kolonial, dan jajanan",
+   "ringkas": "Kota sejuk di dataran tinggi dengan kawah belerang, bangunan kolonial, dan banyak jajanan.",
+   "waktu": "Sekitar Mei sampai September (lebih jarang hujan)",
+   "durasi": "2 sampai 3 hari",
+   "wisata": [
+    {
+     "id": "kawah-putih",
+     "nama": "Kawah Putih",
+     "kategori": "Alam",
+     "deskripsi": "Danau kawah belerang berair kehijauan di Ciwidey, Bandung Selatan, dengan udara sejuk.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Pagi hari saat kabut tipis. Bau belerang menyengat, bawa masker bila perlu."
+    },
+    {
+     "id": "tangkuban-parahu",
+     "nama": "Gunung Tangkuban Parahu",
+     "kategori": "Alam",
+     "deskripsi": "Gunung berapi di Lembang dengan kawah yang bisa dikunjungi.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "gedung-sate",
+     "nama": "Gedung Sate",
+     "kategori": "Sejarah",
+     "deskripsi": "Bangunan ikonik berarsitektur kolonial, kini kantor Gubernur Jawa Barat dan memiliki museum.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": "Pagi hari agar cahaya bagus dan belum ramai."
+    },
+    {
+     "id": "braga",
+     "nama": "Jalan Braga",
+     "kategori": "Sejarah",
+     "deskripsi": "Jalan bersejarah berarsitektur kolonial, kini deretan kafe dan galeri.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "sejarah",
+      "malam",
+      "gratis"
+     ],
+     "foto": "Malam hari saat lampu jalan menyala."
+    },
+    {
+     "id": "bosscha",
+     "nama": "Observatorium Bosscha",
+     "kategori": "Edukasi",
+     "deskripsi": "Observatorium astronomi di Lembang yang membuka kunjungan untuk umum. Cek jadwal dan aturan sebelum datang.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "keluarga",
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "situ-patenggang",
+     "nama": "Situ Patenggang",
+     "kategori": "Alam",
+     "deskripsi": "Danau di kawasan perkebunan teh Ciwidey dengan pemandangan sejuk.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": "Pagi hari saat kabut."
+    },
+    {
+     "id": "ranca-upas",
+     "nama": "Ranca Upas",
+     "kategori": "Alam",
+     "deskripsi": "Area perkemahan dan penangkaran rusa di Ciwidey.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "saung-angklung-udjo",
+     "nama": "Saung Angklung Udjo",
+     "kategori": "Budaya",
+     "deskripsi": "Sanggar yang menggelar pertunjukan angklung dan budaya Sunda.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "museum-kaa",
+     "nama": "Museum Konferensi Asia Afrika",
+     "kategori": "Sejarah",
+     "deskripsi": "Museum di gedung tempat Konferensi Asia Afrika 1955 digelar.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "floating-market",
+     "nama": "Floating Market Lembang",
+     "kategori": "Keluarga",
+     "deskripsi": "Wisata kuliner dan rekreasi di atas danau buatan di Lembang.",
+     "durasi": "2 sampai 3 jam",
+     "tag": [
+      "keluarga"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "batagor",
+     "nama": "Batagor",
+     "kategori": "Jajanan",
+     "deskripsi": "Bakso tahu goreng disajikan dengan saus kacang.",
+     "halal": "Umumnya halal; pastikan di tempat."
+    },
+    {
+     "id": "siomay",
+     "nama": "Siomay",
+     "kategori": "Jajanan",
+     "deskripsi": "Dimsum ikan ala Indonesia dengan kentang, kol, tahu, dan saus kacang.",
+     "halal": "Umumnya halal; pastikan di tempat."
+    },
+    {
+     "id": "seblak",
+     "nama": "Seblak",
+     "kategori": "Street Food",
+     "deskripsi": "Kerupuk basah dimasak pedas dengan bumbu kencur dan aneka isian.",
+     "halal": "Umumnya halal; pastikan di tempat."
+    },
+    {
+     "id": "surabi",
+     "nama": "Surabi",
+     "kategori": "Jajanan",
+     "deskripsi": "Serabi dari tepung beras dan santan dipanggang di tungku tanah liat, rasa manis atau gurih.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "peuyeum",
+     "nama": "Peuyeum",
+     "kategori": "Oleh-oleh",
+     "deskripsi": "Tape singkong fermentasi dengan rasa manis asam.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "mie-kocok",
+     "nama": "Mie Kocok",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Mi kuah kaldu sapi dengan kikil dan tauge.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "cuanki",
+     "nama": "Cuanki",
+     "kategori": "Jajanan",
+     "deskripsi": "Bakso tahu dan siomay berkuah kaldu, dijual keliling maupun di warung.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "cireng",
+     "nama": "Cireng",
+     "kategori": "Jajanan",
+     "deskripsi": "Tepung aci digoreng, disajikan dengan sambal atau bumbu rujak.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "colenak",
+     "nama": "Colenak",
+     "kategori": "Dessert",
+     "deskripsi": "Peuyeum bakar dengan olesan gula merah dan kelapa parut.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "nasi-timbel",
+     "nama": "Nasi Timbel",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nasi yang dibungkus daun pisang dengan ayam goreng, tahu, tempe, dan lalapan.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "yogyakarta",
+   "nama": "Yogyakarta",
+   "wilayah": "DI Yogyakarta",
+   "ikon": "🏯",
+   "tagline": "Keraton, candi, dan kuliner manis",
+   "ringkas": "Kota budaya dengan keraton yang masih berfungsi, candi abad ke-9, dan kuliner khas bercita rasa manis.",
+   "waktu": "Sekitar Mei sampai September",
+   "durasi": "3 hari",
+   "wisata": [
+    {
+     "id": "keraton",
+     "nama": "Keraton Yogyakarta",
+     "kategori": "Budaya",
+     "deskripsi": "Istana Kesultanan Yogyakarta yang masih berfungsi, dengan museum dan pertunjukan budaya.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya",
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "prambanan",
+     "nama": "Candi Prambanan",
+     "kategori": "Sejarah",
+     "deskripsi": "Kompleks candi Hindu abad ke-9 dengan arsitektur menjulang.",
+     "durasi": "2 jam",
+     "tag": [
+      "sejarah",
+      "budaya"
+     ],
+     "foto": "Menjelang senja saat cahaya hangat."
+    },
+    {
+     "id": "taman-sari",
+     "nama": "Taman Sari",
+     "kategori": "Sejarah",
+     "deskripsi": "Bekas taman istana dengan kolam pemandian dan lorong-lorong lama.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "sejarah",
+      "budaya"
+     ],
+     "foto": "Pagi hari agar lorong belum ramai."
+    },
+    {
+     "id": "malioboro",
+     "nama": "Jalan Malioboro",
+     "kategori": "Budaya",
+     "deskripsi": "Jalan utama pusat keramaian dengan pedagang dan toko oleh-oleh.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya",
+      "malam",
+      "gratis"
+     ],
+     "foto": "Malam hari saat toko dan lampu jalan menyala."
+    },
+    {
+     "id": "borobudur",
+     "nama": "Candi Borobudur",
+     "kategori": "Sejarah",
+     "deskripsi": "Candi Buddha terbesar di Indonesia. Letaknya di Magelang, Jawa Tengah, sekitar satu sampai dua jam dari kota Yogyakarta.",
+     "durasi": "3 jam",
+     "tag": [
+      "sejarah",
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "parangtritis",
+     "nama": "Pantai Parangtritis",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai selatan Yogyakarta dengan ombak besar dan gumuk pasir di dekatnya.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "gratis"
+     ],
+     "foto": "Senja dari tepi pantai."
+    },
+    {
+     "id": "tugu-yogyakarta",
+     "nama": "Tugu Yogyakarta",
+     "kategori": "Sejarah",
+     "deskripsi": "Tugu penanda sumbu filosofis Yogyakarta di perempatan pusat kota.",
+     "durasi": "30 menit",
+     "tag": [
+      "sejarah",
+      "malam",
+      "gratis"
+     ],
+     "foto": "Malam hari saat lampu menyala."
+    },
+    {
+     "id": "vredeburg",
+     "nama": "Museum Benteng Vredeburg",
+     "kategori": "Sejarah",
+     "deskripsi": "Benteng peninggalan kolonial yang kini menjadi museum sejarah perjuangan.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "ratu-boko",
+     "nama": "Candi Ratu Boko",
+     "kategori": "Sejarah",
+     "deskripsi": "Situs di perbukitan dekat Prambanan, populer untuk melihat senja.",
+     "durasi": "2 jam",
+     "tag": [
+      "sejarah",
+      "alam"
+     ],
+     "foto": "Menjelang senja."
+    },
+    {
+     "id": "kaliurang-merapi",
+     "nama": "Kaliurang dan Lereng Merapi",
+     "kategori": "Alam",
+     "deskripsi": "Kawasan sejuk di lereng Gunung Merapi dengan pemandangan gunung.",
+     "durasi": "3 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "gudeg",
+     "nama": "Gudeg",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nangka muda dimasak lama dengan santan dan gula merah, disajikan dengan krecek, telur, dan ayam.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "bakpia",
+     "nama": "Bakpia",
+     "kategori": "Oleh-oleh",
+     "deskripsi": "Kue isi kacang hijau; kini tersedia banyak varian rasa.",
+     "halal": "Umumnya halal; cek label."
+    },
+    {
+     "id": "sate-klathak",
+     "nama": "Sate Klathak",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sate kambing berbumbu garam yang ditusuk dengan jeruji besi.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "wedang-ronde",
+     "nama": "Wedang Ronde",
+     "kategori": "Minuman",
+     "deskripsi": "Minuman jahe hangat dengan bola ketan berisi kacang.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "tiwul",
+     "nama": "Tiwul",
+     "kategori": "Jajanan",
+     "deskripsi": "Olahan singkong kering yang dikukus dan disajikan manis, khas Gunungkidul.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "angkringan",
+     "nama": "Nasi Kucing Angkringan",
+     "kategori": "Street Food",
+     "deskripsi": "Nasi porsi kecil dengan lauk sederhana, dijajakan di angkringan tepi jalan.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "mangut-lele",
+     "nama": "Mangut Lele",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan lele asap dalam kuah santan pedas.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kipo",
+     "nama": "Kipo",
+     "kategori": "Jajanan",
+     "deskripsi": "Kue kecil isi kelapa dan gula merah khas Kotagede.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "brongkos",
+     "nama": "Brongkos",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sayur kacang tolo dan kikil dalam kuah kluwek.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "oseng-mercon",
+     "nama": "Oseng Mercon",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Tumisan kikil dan lemak sapi dengan cabai sangat pedas.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "jakarta",
+   "nama": "Jakarta",
+   "wilayah": "DKI Jakarta",
+   "ikon": "🏙️",
+   "tagline": "Monumen, kota tua, dan kuliner Betawi",
+   "ringkas": "Ibu kota dengan monumen nasional, kawasan kolonial, taman budaya, dan kuliner Betawi.",
+   "waktu": "Sepanjang tahun; musim kemarau sekitar Mei sampai September",
+   "durasi": "2 sampai 3 hari",
+   "wisata": [
+    {
+     "id": "monas",
+     "nama": "Monumen Nasional (Monas)",
+     "kategori": "Sejarah",
+     "deskripsi": "Tugu di Lapangan Medan Merdeka dengan museum sejarah di dasarnya dan pelataran pandang di puncak.",
+     "durasi": "2 jam",
+     "tag": [
+      "sejarah",
+      "keluarga"
+     ],
+     "foto": "Sore hari saat cahaya hangat."
+    },
+    {
+     "id": "kota-tua",
+     "nama": "Kota Tua Jakarta",
+     "kategori": "Sejarah",
+     "deskripsi": "Kawasan bangunan kolonial di sekitar Taman Fatahillah, dengan museum dan sewa sepeda.",
+     "durasi": "2 sampai 3 jam",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": "Pagi hari agar lapangan belum penuh."
+    },
+    {
+     "id": "istiqlal",
+     "nama": "Masjid Istiqlal",
+     "kategori": "Budaya",
+     "deskripsi": "Masjid terbesar di Asia Tenggara, bersebelahan dengan Gereja Katedral.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "tmii",
+     "nama": "Taman Mini Indonesia Indah",
+     "kategori": "Keluarga",
+     "deskripsi": "Taman budaya dengan anjungan rumah adat dari berbagai provinsi.",
+     "durasi": "3 sampai 4 jam",
+     "tag": [
+      "keluarga",
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "ancol",
+     "nama": "Taman Impian Jaya Ancol",
+     "kategori": "Keluarga",
+     "deskripsi": "Kawasan rekreasi tepi laut di Jakarta Utara dengan taman hiburan dan akuarium.",
+     "durasi": "4 jam",
+     "tag": [
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "museum-nasional",
+     "nama": "Museum Nasional",
+     "kategori": "Sejarah",
+     "deskripsi": "Museum besar di Jakarta Pusat dengan koleksi arkeologi dan etnografi Nusantara.",
+     "durasi": "2 jam",
+     "tag": [
+      "sejarah",
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "sunda-kelapa",
+     "nama": "Pelabuhan Sunda Kelapa",
+     "kategori": "Sejarah",
+     "deskripsi": "Pelabuhan tua di Jakarta Utara tempat kapal pinisi masih bersandar.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": "Pagi atau sore saat kapal pinisi berjajar."
+    },
+    {
+     "id": "kepulauan-seribu",
+     "nama": "Kepulauan Seribu",
+     "kategori": "Pantai",
+     "deskripsi": "Gugusan pulau di utara Jakarta untuk snorkeling dan wisata pantai.",
+     "durasi": "1 sampai 2 hari",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "ragunan",
+     "nama": "Kebun Binatang Ragunan",
+     "kategori": "Keluarga",
+     "deskripsi": "Kebun binatang luas di Jakarta Selatan dengan banyak pepohonan.",
+     "durasi": "3 sampai 4 jam",
+     "tag": [
+      "keluarga",
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "petak-sembilan",
+     "nama": "Glodok dan Petak Sembilan",
+     "kategori": "Budaya",
+     "deskripsi": "Kawasan Pecinan dengan klenteng, toko, dan jajanan.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya",
+      "malam"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "kerak-telor",
+     "nama": "Kerak Telor",
+     "kategori": "Street Food",
+     "deskripsi": "Telur dan ketan sangrai dengan serundeng, dimasak di atas arang.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "soto-betawi",
+     "nama": "Soto Betawi",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Soto berkuah santan atau susu dengan daging sapi atau jeroan.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "gado-gado",
+     "nama": "Gado-gado",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sayur rebus dengan lontong, tahu, tempe, dan saus kacang.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ketoprak",
+     "nama": "Ketoprak",
+     "kategori": "Street Food",
+     "deskripsi": "Lontong, tahu, dan bihun dengan saus kacang dan kerupuk.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "bir-pletok",
+     "nama": "Bir Pletok",
+     "kategori": "Minuman",
+     "deskripsi": "Minuman rempah jahe khas Betawi, tanpa alkohol meski bernama bir.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "nasi-uduk",
+     "nama": "Nasi Uduk",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nasi gurih santan dengan lauk seperti ayam goreng, tempe orek, dan sambal.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "asinan-betawi",
+     "nama": "Asinan Betawi",
+     "kategori": "Jajanan",
+     "deskripsi": "Sayur dan buah dengan kuah cuka, kacang, dan cabai.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "laksa-betawi",
+     "nama": "Laksa Betawi",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Mi atau bihun dengan kuah santan, oncom, dan taburan kemangi.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "soto-tangkar",
+     "nama": "Soto Tangkar",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Soto iga sapi berkuah santan khas Betawi.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "dodol-betawi",
+     "nama": "Dodol Betawi",
+     "kategori": "Oleh-oleh",
+     "deskripsi": "Dodol manis dari ketan dan gula merah.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "lombok",
+   "nama": "Lombok",
+   "wilayah": "Nusa Tenggara Barat",
+   "ikon": "🌋",
+   "tagline": "Rinjani, pantai, dan gili",
+   "ringkas": "Pulau dengan gunung berapi Rinjani, pantai pasir lembut, dan gugusan gili untuk snorkeling.",
+   "waktu": "Sekitar Mei sampai September (musim kemarau)",
+   "durasi": "4 hari",
+   "wisata": [
+    {
+     "id": "rinjani",
+     "nama": "Gunung Rinjani",
+     "kategori": "Alam",
+     "deskripsi": "Salah satu gunung berapi tertinggi di Indonesia dengan danau kawah Segara Anak. Pendakian butuh persiapan dan pemandu.",
+     "durasi": "2 sampai 4 hari (pendakian)",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Saat fajar dari jalur pendakian."
+    },
+    {
+     "id": "senggigi",
+     "nama": "Pantai Senggigi",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai di pesisir barat dengan kafe dan penginapan, dikenal dengan senjanya.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": "Senja dari pantai menghadap barat."
+    },
+    {
+     "id": "gili-trawangan",
+     "nama": "Gili Trawangan",
+     "kategori": "Pantai",
+     "deskripsi": "Pulau kecil di barat laut Lombok tanpa kendaraan bermotor, populer untuk snorkeling dan menyelam.",
+     "durasi": "1 sampai 2 hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "tanjung-aan",
+     "nama": "Pantai Tanjung Aan",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai berpasir lembut di Lombok Tengah dengan bukit di sekitarnya.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "gratis"
+     ],
+     "foto": "Dari bukit di sisi pantai saat pagi."
+    },
+    {
+     "id": "sendang-gile",
+     "nama": "Air Terjun Sendang Gile",
+     "kategori": "Alam",
+     "deskripsi": "Air terjun di kaki Gunung Rinjani, kawasan Senaru, Lombok Utara.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "kuta-lombok",
+     "nama": "Pantai Kuta Lombok",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai berpasir halus di Lombok Tengah dengan bukit-bukit di sekitarnya.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "selong-belanak",
+     "nama": "Pantai Selong Belanak",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai lebar berombak landai di Lombok Tengah, cocok untuk belajar berselancar.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "tiu-kelep",
+     "nama": "Air Terjun Tiu Kelep",
+     "kategori": "Alam",
+     "deskripsi": "Air terjun di kawasan Senaru yang dicapai dengan berjalan kaki dari desa.",
+     "durasi": "2 sampai 3 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "desa-sade",
+     "nama": "Desa Sade",
+     "kategori": "Budaya",
+     "deskripsi": "Desa adat suku Sasak dengan rumah tradisional dan kain tenun.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pantai-pink-lombok",
+     "nama": "Pantai Pink Lombok",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai berpasir kemerahan di Lombok Timur yang dicapai dengan jalan atau perahu.",
+     "durasi": "3 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Saat matahari tinggi agar warna pasir terlihat."
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "ayam-taliwang",
+     "nama": "Ayam Taliwang",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ayam bakar atau goreng dengan bumbu cabai yang pedas.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "plecing-kangkung",
+     "nama": "Plecing Kangkung",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Kangkung rebus dengan sambal tomat terasi dan kacang tanah.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "sate-rembiga",
+     "nama": "Sate Rembiga",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sate daging sapi manis pedas dari daerah Rembiga, Mataram.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "bebalung",
+     "nama": "Bebalung",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sup tulang iga berbumbu rempah.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "nasi-balap-puyung",
+     "nama": "Nasi Balap Puyung",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nasi dengan ayam suwir pedas, kacang kedelai goreng, dan kerupuk khas Puyung.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "sate-bulayak",
+     "nama": "Sate Bulayak",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sate dengan lontong khas Lombok yang dibungkus daun enau, disiram bumbu kacang.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ares",
+     "nama": "Ares",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sayur batang pisang muda berkuah rempah.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "beberuk-terong",
+     "nama": "Beberuk Terong",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Lalapan terong dengan sambal tomat dan terasi.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "sate-pusut",
+     "nama": "Sate Pusut",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sate daging cincang dengan parutan kelapa dan bumbu, dibentuk di batang bambu.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "labuan-bajo",
+   "nama": "Labuan Bajo",
+   "wilayah": "Nusa Tenggara Timur",
+   "ikon": "🐉",
+   "tagline": "Komodo dan pulau-pulau eksotis",
+   "ringkas": "Pintu masuk ke Taman Nasional Komodo dengan pulau, pantai, dan spot snorkeling.",
+   "waktu": "Sekitar April sampai November",
+   "durasi": "3 sampai 4 hari",
+   "wisata": [
+    {
+     "id": "pulau-komodo",
+     "nama": "Pulau Komodo",
+     "kategori": "Alam",
+     "deskripsi": "Habitat asli komodo, hewan purba yang dilindungi. Kunjungan didampingi ranger.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pulau-padar",
+     "nama": "Pulau Padar",
+     "kategori": "Alam",
+     "deskripsi": "Pulau dengan bukit pendakian pendek dan pemandangan teluk berpasir berbeda warna.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Dari puncak bukit saat pagi atau sore."
+    },
+    {
+     "id": "pantai-pink",
+     "nama": "Pantai Pink",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai berpasir kemerahan di kawasan Taman Nasional Komodo, populer untuk snorkeling.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Dari perahu atau pantai saat matahari tinggi agar warna pasir terlihat."
+    },
+    {
+     "id": "pulau-kanawa",
+     "nama": "Pulau Kanawa",
+     "kategori": "Pantai",
+     "deskripsi": "Pulau kecil dengan pantai putih dan laut jernih untuk snorkeling.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "batu-cermin",
+     "nama": "Gua Batu Cermin",
+     "kategori": "Alam",
+     "deskripsi": "Gua dengan cahaya matahari yang masuk lewat celah batu, dekat kota Labuan Bajo.",
+     "durasi": "1 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": "Siang hari saat berkas cahaya masuk."
+    },
+    {
+     "id": "pulau-rinca",
+     "nama": "Pulau Rinca",
+     "kategori": "Alam",
+     "deskripsi": "Pulau di Taman Nasional Komodo yang lebih dekat dari Labuan Bajo, tempat melihat komodo.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "gili-lawa",
+     "nama": "Gili Lawa",
+     "kategori": "Alam",
+     "deskripsi": "Pulau dengan bukit yang memberi pemandangan teluk dan perairan jernih di sekitarnya.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Pagi atau senja dari puncak bukit."
+    },
+    {
+     "id": "manta-point",
+     "nama": "Manta Point",
+     "kategori": "Alam",
+     "deskripsi": "Titik snorkeling untuk melihat pari manta di perairan Taman Nasional Komodo.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "bukit-cinta",
+     "nama": "Bukit Cinta",
+     "kategori": "Alam",
+     "deskripsi": "Bukit kecil di dekat kota Labuan Bajo, populer untuk melihat matahari terbenam.",
+     "durasi": "1 jam",
+     "tag": [
+      "alam",
+      "gratis"
+     ],
+     "foto": "Senja menjelang matahari terbenam."
+    },
+    {
+     "id": "cunca-wulang",
+     "nama": "Air Terjun Cunca Wulang",
+     "kategori": "Alam",
+     "deskripsi": "Air terjun dengan kolam alami di Manggarai Barat, dicapai dari Labuan Bajo lewat jalan darat.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "ikan-bakar",
+     "nama": "Ikan Bakar",
+     "kategori": "Seafood",
+     "deskripsi": "Ikan laut bakar dengan sambal dan nasi; banyak dijual di area wisata kuliner malam di tepi pantai.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kopi-flores",
+     "nama": "Kopi Flores Bajawa",
+     "kategori": "Minuman",
+     "deskripsi": "Kopi arabika dari dataran tinggi Bajawa, Flores.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "jagung-bose",
+     "nama": "Jagung Bose",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Bubur jagung pipil dengan kacang-kacangan, makanan tradisional Nusa Tenggara Timur.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "sambal-luat",
+     "nama": "Sambal Luat",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sambal pedas khas Flores yang dimakan bersama ikan bakar.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ikan-kuah-asam",
+     "nama": "Ikan Kuah Asam",
+     "kategori": "Seafood",
+     "deskripsi": "Ikan laut dalam kuah asam segar yang bening.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "nasi-kolo",
+     "nama": "Nasi Kolo",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nasi yang dimasak dalam bambu, khas Manggarai, Flores.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "rumpu-rampe",
+     "nama": "Rumpu Rampe",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Tumisan sayur-sayuran khas Manggarai, Flores.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "halmahera",
+   "nama": "Halmahera",
+   "wilayah": "Maluku Utara",
+   "ikon": "🌴",
+   "tagline": "Pulau besar, laut jernih, dan jejak sejarah",
+   "ringkas": "Pulau terbesar di Maluku Utara dengan gunung berapi, danau, dan laut jernih. Tobelo dan Jailolo menjadi pintu masuk, dan Morotai di utara menyimpan jejak Perang Dunia II.",
+   "waktu": "Sekitar April sampai Oktober (lebih jarang hujan)",
+   "durasi": "3 sampai 5 hari",
+   "wisata": [
+    {
+     "id": "tobelo",
+     "nama": "Kota Tobelo",
+     "kategori": "Kota",
+     "deskripsi": "Kota di Halmahera Utara yang menjadi pusat kegiatan dan pintu masuk ke pulau-pulau di sekitarnya.",
+     "durasi": "1 hari",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pulau-dodola",
+     "nama": "Pulau Dodola",
+     "kategori": "Pantai",
+     "deskripsi": "Dua pulau kecil di Morotai yang dihubungkan jalur pasir saat air surut.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": "Saat air surut ketika jalur pasir muncul."
+    },
+    {
+     "id": "morotai-pd2",
+     "nama": "Peninggalan Perang Dunia II di Morotai",
+     "kategori": "Sejarah",
+     "deskripsi": "Pulau Morotai menjadi pangkalan Sekutu pada Perang Dunia II dan masih menyimpan sisa-sisa peninggalannya.",
+     "durasi": "1 hari",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "kepulauan-widi",
+     "nama": "Kepulauan Widi",
+     "kategori": "Alam",
+     "deskripsi": "Gugusan pulau kecil di Halmahera Selatan dengan laut jernih untuk snorkeling.",
+     "durasi": "1 sampai 2 hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "teluk-jailolo",
+     "nama": "Teluk Jailolo",
+     "kategori": "Alam",
+     "deskripsi": "Teluk di Halmahera Barat yang dikenal dengan perairan tenang dan terumbu karang.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam",
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "danau-galela",
+     "nama": "Danau Galela",
+     "kategori": "Alam",
+     "deskripsi": "Danau di Halmahera Utara yang dikelilingi perbukitan.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "gunung-dukono",
+     "nama": "Gunung Dukono",
+     "kategori": "Alam",
+     "deskripsi": "Gunung berapi aktif di Halmahera Utara. Cek status dan aturan pendakian sebelum mendekat.",
+     "durasi": "1 hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "gunung-gamkonora",
+     "nama": "Gunung Gamkonora",
+     "kategori": "Alam",
+     "deskripsi": "Gunung berapi di Halmahera Barat dengan puncak yang sering ditutupi awan.",
+     "durasi": "1 sampai 2 hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "gohu-ikan",
+     "nama": "Gohu Ikan",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan tuna mentah dipotong dadu dan diberi jeruk, cabai, bawang, serta kemangi, mirip ceviche ala Maluku Utara.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "nasi-jaha",
+     "nama": "Nasi Jaha",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Beras ketan dengan santan dan jahe yang dimasak dalam bambu.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "papeda",
+     "nama": "Papeda",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Bubur sagu kental yang biasa dimakan dengan ikan kuah kuning.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ikan-asar",
+     "nama": "Ikan Asar",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan yang diasapi, biasanya cakalang, dimakan dengan sambal.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kue-bagea",
+     "nama": "Kue Bagea",
+     "kategori": "Oleh-oleh",
+     "deskripsi": "Kue kering dari sagu dan kenari yang keras dan biasanya dicelup ke teh atau kopi.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ikan-kuah-kuning",
+     "nama": "Ikan Kuah Kuning",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan berkuah kunyit yang segar dan asam, sering dipasangkan dengan papeda.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "ternate",
+   "nama": "Ternate",
+   "wilayah": "Maluku Utara",
+   "ikon": "🌋",
+   "tagline": "Gunung api, benteng, dan pulau rempah",
+   "ringkas": "Kota pulau di kaki Gunung Gamalama yang dulu menjadi pusat perdagangan cengkih dan pala, dengan benteng, keraton, dan danau kawah.",
+   "waktu": "Sekitar April sampai Oktober",
+   "durasi": "2 sampai 3 hari",
+   "wisata": [
+    {
+     "id": "gamalama",
+     "nama": "Gunung Gamalama",
+     "kategori": "Alam",
+     "deskripsi": "Gunung berapi yang membentuk Pulau Ternate. Cek status aktivitas sebelum mendaki.",
+     "durasi": "1 hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "benteng-tolukko",
+     "nama": "Benteng Tolukko",
+     "kategori": "Sejarah",
+     "deskripsi": "Benteng peninggalan Portugis di bukit tepi pantai dengan pemandangan Pulau Tidore dan Maitara.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "benteng-oranje",
+     "nama": "Benteng Oranje",
+     "kategori": "Sejarah",
+     "deskripsi": "Benteng peninggalan Belanda di tepi pantai kota Ternate.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "danau-tolire",
+     "nama": "Danau Tolire Besar",
+     "kategori": "Alam",
+     "deskripsi": "Danau kawah di Ternate yang dipisahkan dari laut oleh pantai berpasir hitam.",
+     "durasi": "1 jam",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "batu-angus",
+     "nama": "Batu Angus",
+     "kategori": "Alam",
+     "deskripsi": "Hamparan batu lava hitam hasil letusan Gunung Gamalama.",
+     "durasi": "1 jam",
+     "tag": [
+      "alam",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "sulamadaha",
+     "nama": "Pantai Sulamadaha",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai berpasir hitam di sisi barat Ternate, dengan perairan jernih untuk snorkeling.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "keraton-ternate",
+     "nama": "Keraton Kesultanan Ternate",
+     "kategori": "Budaya",
+     "deskripsi": "Istana Kesultanan Ternate dengan museum benda pusaka dan sejarah kesultanan.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya",
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pulau-maitara",
+     "nama": "Pulau Maitara",
+     "kategori": "Alam",
+     "deskripsi": "Pulau kecil di antara Ternate dan Tidore yang pernah dipakai pada gambar uang kertas seribu rupiah.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "gohu-ikan-ternate",
+     "nama": "Gohu Ikan",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan tuna mentah berbumbu jeruk, cabai, dan kemangi, hidangan khas Ternate.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kue-bagea-ternate",
+     "nama": "Kue Bagea",
+     "kategori": "Oleh-oleh",
+     "deskripsi": "Kue kering dari sagu dan kenari khas Ternate dan Tidore.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ikan-asar-ternate",
+     "nama": "Ikan Asar",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan asap, biasanya cakalang, dengan sambal.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "manisan-pala",
+     "nama": "Manisan Pala",
+     "kategori": "Oleh-oleh",
+     "deskripsi": "Daging buah pala yang dimanis dengan gula, oleh-oleh dari wilayah rempah.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "papeda-ternate",
+     "nama": "Papeda",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Bubur sagu kental dengan kuah ikan kuning.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "batam",
+   "nama": "Batam",
+   "wilayah": "Kepulauan Riau",
+   "ikon": "🌉",
+   "tagline": "Jembatan Barelang, pantai, dan seafood",
+   "ringkas": "Kota di Kepulauan Riau dekat Singapura, dengan rangkaian jembatan Barelang, pantai, dan hidangan laut khas Melayu.",
+   "waktu": "Sepanjang tahun; musim hujan sekitar November sampai Januari",
+   "durasi": "2 sampai 3 hari",
+   "wisata": [
+    {
+     "id": "barelang",
+     "nama": "Jembatan Barelang",
+     "kategori": "Sejarah",
+     "deskripsi": "Rangkaian jembatan yang menghubungkan Batam, Rempang, dan Galang, ikon kota Batam.",
+     "durasi": "2 jam",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": "Sore hari saat cahaya hangat."
+    },
+    {
+     "id": "masjid-raya-batam",
+     "nama": "Masjid Raya Batam",
+     "kategori": "Budaya",
+     "deskripsi": "Masjid besar di Batam Centre dengan kubah dan menara yang menonjol.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "duta-maitreya",
+     "nama": "Maha Vihara Duta Maitreya",
+     "kategori": "Budaya",
+     "deskripsi": "Vihara besar di Batam dengan patung dan arsitektur bernuansa Buddha.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pantai-nongsa",
+     "nama": "Pantai Nongsa",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai di ujung timur laut Batam yang dekat dengan pelabuhan penyeberangan ke Singapura.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "kamp-vietnam-galang",
+     "nama": "Kamp Pengungsi Vietnam Pulau Galang",
+     "kategori": "Sejarah",
+     "deskripsi": "Bekas kamp pengungsi Vietnam di Pulau Galang yang kini menjadi situs sejarah.",
+     "durasi": "2 jam",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "belakang-padang",
+     "nama": "Pulau Belakang Padang",
+     "kategori": "Sejarah",
+     "deskripsi": "Pulau kecil dekat Batam dengan bangunan lama dan suasana tenang.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "ocarina",
+     "nama": "Mega Wisata Ocarina",
+     "kategori": "Keluarga",
+     "deskripsi": "Area rekreasi tepi pantai di Batam dengan wahana dan kuliner.",
+     "durasi": "3 jam",
+     "tag": [
+      "keluarga"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "gonggong",
+     "nama": "Gonggong",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Siput laut rebus yang dimakan dengan sambal, khas Kepulauan Riau.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "mie-lendir",
+     "nama": "Mie Lendir",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Mi dengan kuah kental berbumbu kacang dan ikan, khas Batam.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "otak-otak-batam",
+     "nama": "Otak-otak",
+     "kategori": "Jajanan",
+     "deskripsi": "Ikan giling berbumbu yang dibungkus daun dan dibakar.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "sop-ikan-batam",
+     "nama": "Sop Ikan Batam",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sup ikan laut berkuah bening dengan bumbu segar.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "roti-jala",
+     "nama": "Roti Jala",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Roti berbentuk jaring yang dimakan dengan kari.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "aceh",
+   "nama": "Aceh",
+   "wilayah": "Provinsi Aceh",
+   "ikon": "🕌",
+   "tagline": "Serambi Mekkah, pantai, dan kopi Gayo",
+   "ringkas": "Provinsi di ujung barat Indonesia dengan masjid bersejarah, jejak tsunami 2004, pulau-pulau untuk menyelam, dan kopi dataran tinggi Gayo.",
+   "waktu": "Sekitar Februari sampai Oktober",
+   "durasi": "4 sampai 5 hari",
+   "wisata": [
+    {
+     "id": "baiturrahman",
+     "nama": "Masjid Raya Baiturrahman",
+     "kategori": "Budaya",
+     "deskripsi": "Masjid agung di Banda Aceh yang menjadi ikon kota dengan kubah hitam dan menara putih.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya",
+      "sejarah",
+      "gratis"
+     ],
+     "foto": "Sore atau malam saat masjid diterangi lampu."
+    },
+    {
+     "id": "museum-tsunami",
+     "nama": "Museum Tsunami Aceh",
+     "kategori": "Sejarah",
+     "deskripsi": "Museum yang mengenang gempa dan tsunami Aceh 2004, dengan bangunan berarsitektur khas.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pltd-apung",
+     "nama": "PLTD Apung",
+     "kategori": "Sejarah",
+     "deskripsi": "Kapal pembangkit listrik yang terdampar di daratan akibat tsunami 2004 dan dijadikan monumen.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "kapal-lampulo",
+     "nama": "Kapal di Atas Rumah Lampulo",
+     "kategori": "Sejarah",
+     "deskripsi": "Kapal nelayan yang tersangkut di atas rumah saat tsunami 2004, dijadikan monumen.",
+     "durasi": "30 menit",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "lampuuk",
+     "nama": "Pantai Lampuuk",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai berpasir putih di Aceh Besar, populer untuk bersantai dan melihat senja.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga",
+      "gratis"
+     ],
+     "foto": "Senja dari tepi pantai."
+    },
+    {
+     "id": "tugu-nol-sabang",
+     "nama": "Tugu Nol Kilometer Sabang",
+     "kategori": "Sejarah",
+     "deskripsi": "Tugu penanda titik paling barat Indonesia di Pulau Weh, Sabang.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "iboih",
+     "nama": "Pantai Iboih",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai di Pulau Weh yang terkenal untuk snorkeling dan menyelam.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "danau-laut-tawar",
+     "nama": "Danau Laut Tawar",
+     "kategori": "Alam",
+     "deskripsi": "Danau besar di dataran tinggi Gayo, Takengon, dengan udara sejuk.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": "Pagi hari saat kabut tipis."
+    },
+    {
+     "id": "gunung-leuser",
+     "nama": "Taman Nasional Gunung Leuser",
+     "kategori": "Alam",
+     "deskripsi": "Kawasan hutan hujan yang menjadi habitat orangutan, gajah, dan harimau Sumatra.",
+     "durasi": "1 hari atau lebih",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "mie-aceh",
+     "nama": "Mie Aceh",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Mi kuning tebal berbumbu rempah kari, bisa digoreng, goreng basah, atau berkuah.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ayam-tangkap",
+     "nama": "Ayam Tangkap",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ayam goreng dengan taburan daun pandan, kari, dan cabai hijau.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kuah-beulangong",
+     "nama": "Kuah Beulangong",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Gulai daging sapi atau kambing yang dimasak dalam kuali besar.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "sate-matang",
+     "nama": "Sate Matang",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sate sapi atau kambing khas Matang dengan kuah dan bumbu kacang.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kopi-gayo",
+     "nama": "Kopi Gayo",
+     "kategori": "Minuman",
+     "deskripsi": "Kopi arabika dari dataran tinggi Gayo, Aceh Tengah.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "timphan",
+     "nama": "Timphan",
+     "kategori": "Jajanan",
+     "deskripsi": "Kue pisang dan ketan berbungkus daun pisang, sering hadir di hari besar.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kuah-pliek-u",
+     "nama": "Kuah Pliek U",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Gulai sayur dengan bumbu pliek u, hasil fermentasi ampas kelapa.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "keumamah",
+     "nama": "Keumamah",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan tongkol kering yang dimasak dengan bumbu rempah.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "nasi-gurih-aceh",
+     "nama": "Nasi Gurih",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nasi santan dengan lauk seperti ayam atau telur dan sambal, sarapan umum di Aceh.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "kaltim",
+   "nama": "Kalimantan Timur",
+   "wilayah": "Kalimantan Timur",
+   "ikon": "🐢",
+   "tagline": "Derawan, Mahakam, dan budaya Dayak",
+   "ringkas": "Wilayah dengan gugusan pulau Derawan, Sungai Mahakam, dan budaya Dayak serta Kutai.",
+   "waktu": "Sekitar Maret sampai Oktober",
+   "durasi": "4 sampai 5 hari",
+   "wisata": [
+    {
+     "id": "derawan",
+     "nama": "Kepulauan Derawan",
+     "kategori": "Alam",
+     "deskripsi": "Gugusan pulau di Berau yang dikenal dengan penyu hijau dan terumbu karang.",
+     "durasi": "2 sampai 3 hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "maratua",
+     "nama": "Pulau Maratua",
+     "kategori": "Alam",
+     "deskripsi": "Atol di Berau dengan laguna dan tempat menyelam.",
+     "durasi": "1 sampai 2 hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "kakaban",
+     "nama": "Pulau Kakaban",
+     "kategori": "Alam",
+     "deskripsi": "Pulau dengan danau berisi ubur-ubur yang tidak menyengat.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "labuan-cermin",
+     "nama": "Danau Labuan Cermin",
+     "kategori": "Alam",
+     "deskripsi": "Danau di Berau dengan dua lapisan air tawar dan asin yang jernih.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "islamic-center-samarinda",
+     "nama": "Islamic Center Samarinda",
+     "kategori": "Budaya",
+     "deskripsi": "Masjid besar di Samarinda dengan menara tinggi di tepi Sungai Mahakam.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pantai-manggar",
+     "nama": "Pantai Manggar Segara Sari",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai di Balikpapan yang ramai di akhir pekan.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pampang",
+     "nama": "Desa Budaya Pampang",
+     "kategori": "Budaya",
+     "deskripsi": "Desa budaya suku Dayak Kenyah di Samarinda yang menggelar pertunjukan tari.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pesut-mahakam",
+     "nama": "Pesut Mahakam",
+     "kategori": "Alam",
+     "deskripsi": "Lumba-lumba air tawar langka yang hidup di Sungai Mahakam.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "amplang",
+     "nama": "Amplang",
+     "kategori": "Oleh-oleh",
+     "deskripsi": "Kerupuk ikan renyah khas Kalimantan Timur.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "nasi-kuning-samarinda",
+     "nama": "Nasi Kuning",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nasi kuning berlauk telur, abon, dan sambal.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "gence-ruan",
+     "nama": "Gence Ruan",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan gabus berkuah santan dan rempah khas Kalimantan Timur.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ayam-cincane",
+     "nama": "Ayam Cincane",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ayam bakar atau goreng dengan sambal khas Samarinda.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "kalbar",
+   "nama": "Kalimantan Barat",
+   "wilayah": "Kalimantan Barat",
+   "ikon": "🧭",
+   "tagline": "Garis khatulistiwa dan kota air",
+   "ringkas": "Wilayah dengan Tugu Khatulistiwa di Pontianak, Sungai Kapuas, dan Singkawang yang kaya budaya Tionghoa dan Melayu.",
+   "waktu": "Sekitar Mei sampai September",
+   "durasi": "3 sampai 4 hari",
+   "wisata": [
+    {
+     "id": "tugu-khatulistiwa",
+     "nama": "Tugu Khatulistiwa",
+     "kategori": "Sejarah",
+     "deskripsi": "Tugu penanda garis khatulistiwa di Pontianak.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "istana-kadriah",
+     "nama": "Istana Kadriah",
+     "kategori": "Sejarah",
+     "deskripsi": "Istana Kesultanan Pontianak di tepi Sungai Kapuas, kini museum.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah",
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "masjid-jami-pontianak",
+     "nama": "Masjid Jami Sultan Syarif Abdurrahman",
+     "kategori": "Budaya",
+     "deskripsi": "Masjid bersejarah peninggalan Kesultanan Pontianak di tepi Sungai Kapuas.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya",
+      "sejarah",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "taman-alun-kapuas",
+     "nama": "Taman Alun Kapuas",
+     "kategori": "Keluarga",
+     "deskripsi": "Taman di tepi Sungai Kapuas yang ramai pada sore dan malam hari.",
+     "durasi": "1 sampai 2 jam",
+     "tag": [
+      "keluarga",
+      "malam",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "rumah-radakng",
+     "nama": "Rumah Betang Radakng",
+     "kategori": "Budaya",
+     "deskripsi": "Rumah panjang tradisional Dayak yang dijadikan pusat budaya di Pontianak.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "danau-sentarum",
+     "nama": "Danau Sentarum",
+     "kategori": "Alam",
+     "deskripsi": "Kawasan danau musiman luas di Kapuas Hulu, habitat banyak burung dan ikan.",
+     "durasi": "2 hari atau lebih",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "pasir-panjang-singkawang",
+     "nama": "Pantai Pasir Panjang Singkawang",
+     "kategori": "Pantai",
+     "deskripsi": "Pantai di Singkawang dengan pasir putih dan deretan pohon kelapa.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "tri-dharma-bumi-raya",
+     "nama": "Vihara Tri Dharma Bumi Raya",
+     "kategori": "Budaya",
+     "deskripsi": "Klenteng tua di Singkawang, salah satu pusat perayaan budaya Tionghoa.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya",
+      "sejarah"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "pacri-nanas",
+     "nama": "Pacri Nanas",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Nanas muda berbumbu rempah yang dimasak seperti kari, biasa disajikan dengan roti.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "bubur-pedas-sambas",
+     "nama": "Bubur Pedas Sambas",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Bubur nasi dengan aneka sayur dan rempah khas Sambas.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "chai-kwe",
+     "nama": "Chai Kwe",
+     "kategori": "Jajanan",
+     "deskripsi": "Pangsit kukus berisi sayur dan bahan lain, khas Pontianak.",
+     "halal": "Bervariasi; tanyakan isinya."
+    },
+    {
+     "id": "choi-pan",
+     "nama": "Choi Pan",
+     "kategori": "Jajanan",
+     "deskripsi": "Pangsit kukus dengan isian sengkuang dan bawang, bening kenyal.",
+     "halal": "Bervariasi; tanyakan isinya."
+    },
+    {
+     "id": "sotong-pangkong",
+     "nama": "Sotong Pangkong",
+     "kategori": "Street Food",
+     "deskripsi": "Cumi kering yang dipukul hingga empuk lalu dibakar dan disajikan dengan sambal.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kopi-pontianak",
+     "nama": "Kopi Pontianak",
+     "kategori": "Minuman",
+     "deskripsi": "Kopi hitam pekat khas warung kopi Pontianak.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "kalsel",
+   "nama": "Kalimantan Selatan",
+   "wilayah": "Kalimantan Selatan",
+   "ikon": "🛶",
+   "tagline": "Pasar terapung dan sungai",
+   "ringkas": "Wilayah Banjar dengan pasar terapung di sungai, kain sasirangan, dan kuliner khas Banjar.",
+   "waktu": "Sekitar Mei sampai September",
+   "durasi": "3 hari",
+   "wisata": [
+    {
+     "id": "lok-baintan",
+     "nama": "Pasar Terapung Lok Baintan",
+     "kategori": "Budaya",
+     "deskripsi": "Pasar tradisional di atas sungai, pedagang berjualan dari perahu kecil.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": "Pagi sekali saat pasar paling ramai."
+    },
+    {
+     "id": "muara-kuin",
+     "nama": "Pasar Terapung Muara Kuin",
+     "kategori": "Budaya",
+     "deskripsi": "Pasar terapung di muara Sungai Kuin, Banjarmasin.",
+     "durasi": "2 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": "Pagi sekali."
+    },
+    {
+     "id": "pulau-kembang",
+     "nama": "Pulau Kembang",
+     "kategori": "Alam",
+     "deskripsi": "Pulau kecil di Sungai Barito yang dihuni kera ekor panjang.",
+     "durasi": "2 jam",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "masjid-sultan-suriansyah",
+     "nama": "Masjid Sultan Suriansyah",
+     "kategori": "Sejarah",
+     "deskripsi": "Masjid tua peninggalan Kesultanan Banjar, salah satu masjid tertua di Kalimantan.",
+     "durasi": "1 jam",
+     "tag": [
+      "sejarah",
+      "budaya",
+      "gratis"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "kampung-sasirangan",
+     "nama": "Kampung Sasirangan",
+     "kategori": "Budaya",
+     "deskripsi": "Sentra kain sasirangan khas Banjar tempat melihat pembuatan dan membeli kain.",
+     "durasi": "1 jam",
+     "tag": [
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "loksado",
+     "nama": "Loksado",
+     "kategori": "Alam",
+     "deskripsi": "Kawasan pegunungan Meratus dengan arung jeram bambu dan budaya Dayak Meratus.",
+     "durasi": "1 hari",
+     "tag": [
+      "alam",
+      "budaya"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "siring-tendean",
+     "nama": "Siring Pierre Tendean",
+     "kategori": "Keluarga",
+     "deskripsi": "Taman tepi Sungai Martapura di Banjarmasin yang ramai pada sore hari.",
+     "durasi": "1 jam",
+     "tag": [
+      "keluarga",
+      "gratis"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "soto-banjar",
+     "nama": "Soto Banjar",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Soto ayam berkuah bening harum rempah dengan perkedel dan telur.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "ketupat-kandangan",
+     "nama": "Ketupat Kandangan",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ketupat dengan ikan haruan bakar dan kuah santan kuning.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "itik-gambut",
+     "nama": "Nasi Itik Gambut",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Itik berbumbu pedas dari daerah Gambut dengan nasi hangat.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "lontong-orari",
+     "nama": "Lontong Orari",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Lontong dengan kuah santan, ikan, dan tambahan lauk.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "bingka",
+     "nama": "Bingka",
+     "kategori": "Jajanan",
+     "deskripsi": "Kue manis dari telur, santan, dan tepung yang dipanggang, aneka rasa.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  },
+  {
+   "id": "kalteng",
+   "nama": "Kalimantan Tengah",
+   "wilayah": "Kalimantan Tengah",
+   "ikon": "🦧",
+   "tagline": "Orangutan dan sungai hutan",
+   "ringkas": "Wilayah dengan Taman Nasional Tanjung Puting, habitat orangutan yang dijelajahi lewat sungai dengan perahu klotok.",
+   "waktu": "Sekitar Mei sampai September",
+   "durasi": "3 sampai 4 hari",
+   "wisata": [
+    {
+     "id": "tanjung-puting",
+     "nama": "Taman Nasional Tanjung Puting",
+     "kategori": "Alam",
+     "deskripsi": "Taman nasional di Kotawaringin Barat tempat orangutan dan satwa lain, dijelajahi dengan perahu klotok.",
+     "durasi": "2 sampai 3 hari",
+     "tag": [
+      "alam",
+      "keluarga"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "camp-leakey",
+     "nama": "Camp Leakey",
+     "kategori": "Alam",
+     "deskripsi": "Pusat penelitian dan rehabilitasi orangutan di Tanjung Puting.",
+     "durasi": "Setengah hari",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "sebangau",
+     "nama": "Taman Nasional Sebangau",
+     "kategori": "Alam",
+     "deskripsi": "Hutan rawa gambut luas di Kalimantan Tengah, habitat orangutan.",
+     "durasi": "1 hari atau lebih",
+     "tag": [
+      "alam"
+     ],
+     "foto": ""
+    },
+    {
+     "id": "bundaran-besar",
+     "nama": "Bundaran Besar Palangka Raya",
+     "kategori": "Sejarah",
+     "deskripsi": "Bundaran dan tugu di pusat kota Palangka Raya.",
+     "durasi": "30 menit",
+     "tag": [
+      "sejarah",
+      "gratis"
+     ],
+     "foto": ""
+    }
+   ],
+   "kuliner": [
+    {
+     "id": "juhu-umbut-rotan",
+     "nama": "Juhu Umbut Rotan",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Sayur umbut rotan dalam kuah, makanan tradisional Dayak.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "kalumpe",
+     "nama": "Kalumpe",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Daun singkong muda yang dimasak dengan santan dan bumbu, khas Dayak.",
+     "halal": "Umumnya halal."
+    },
+    {
+     "id": "wadi",
+     "nama": "Wadi",
+     "kategori": "Makanan Khas",
+     "deskripsi": "Ikan atau daging yang difermentasi dengan garam dan nasi, makanan tradisional Dayak.",
+     "halal": "Bervariasi; ada versi dari daging babi, tanyakan."
+    },
+    {
+     "id": "patin-bakar",
+     "nama": "Ikan Patin Bakar",
+     "kategori": "Seafood",
+     "deskripsi": "Ikan patin sungai yang dibakar dengan bumbu dan sambal.",
+     "halal": "Umumnya halal."
+    }
+   ]
+  }
+ ]
+}

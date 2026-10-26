@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(9, "1.6.1", listOf(
+            FiturBaru("🧭", "Panduan Travel dengan tampilan baru", "Daftar wisata dan kuliner bawaan dihapus. Sekarang ketik nama kota atau tempat, lalu ketuk panah: aplikasi mengambil ringkasan dan foto dari Wikipedia, dan menyediakan tombol langsung ke Google Maps (wisata, kuliner, hotel), Traveloka, Booking.com, dan Wikivoyage. Destinasi bisa disimpan, dijadikan dinas baru, atau ditambahkan sebagai titik dinas.",
+                listOf("Buka menu Panduan.", "Ketik kota, misalnya Purwakarta, lalu ketuk panah biru.", "Ketuk Cari di internet atau salah satu kartu di bawahnya."), null),
+        )),
         RilisInfo(8, "1.6.0", listOf(
             FiturBaru("🎨", "Studio Foto", "Percantik foto dinas dengan filter (Cerah, Hangat, Sejuk, Hitam putih, Sepia, Vintage, Dramatis) dan bingkai (Putih, Hitam, Polaroid dengan tulisan, Emas). Hasilnya disimpan sebagai foto baru di titik atau temuan yang sama; foto asli tidak berubah.",
                 listOf("Buka sebuah foto di titik atau temuan.", "Ketuk ikon 🎨 di pojok atas.", "Pilih filter dan bingkai, lalu Simpan sebagai foto baru."), null),
