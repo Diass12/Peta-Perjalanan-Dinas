@@ -26,6 +26,12 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(8, "1.6.0", listOf(
+            FiturBaru("🎨", "Studio Foto", "Percantik foto dinas dengan filter (Cerah, Hangat, Sejuk, Hitam putih, Sepia, Vintage, Dramatis) dan bingkai (Putih, Hitam, Polaroid dengan tulisan, Emas). Hasilnya disimpan sebagai foto baru di titik atau temuan yang sama; foto asli tidak berubah.",
+                listOf("Buka sebuah foto di titik atau temuan.", "Ketuk ikon 🎨 di pojok atas.", "Pilih filter dan bingkai, lalu Simpan sebagai foto baru."), null),
+            FiturBaru("🧩", "Kolase foto", "Gabungkan 2 sampai 4 foto dari satu dinas menjadi satu gambar dengan beberapa tata letak dan warna latar.",
+                listOf("Di Studio Foto ketuk tab Kolase.", "Pilih 2 sampai 4 foto, tata letak, dan warna latar.", "Simpan sebagai foto baru."), null),
+        )),
         RilisInfo(7, "1.5.0", listOf(
             FiturBaru("📷", "Foto asli di Panduan", "Kartu destinasi, wisata, dan kuliner kini menampilkan foto asli dari Wikipedia/Wikimedia Commons lengkap dengan nama fotografer dan lisensinya. Foto disimpan di HP setelah dimuat. Bila sinyal lemah, kartu tetap tampil tanpa foto.",
                 listOf("Buka menu Panduan dengan internet aktif.", "Tunggu foto muncul; ketuk keterangan foto untuk melihat sumbernya."), null),

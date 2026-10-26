@@ -136,6 +136,7 @@ private fun Root(vm: MainViewModel, onUnlock: () -> Unit) {
         Screen.Home -> ShellScreen(vm)
         is Screen.Detail -> DetailScreen(vm, s.dinasId)
         is Screen.Photo -> PhotoViewerScreen(vm, s)
+        is Screen.Studio -> id.tub.dinas.ui.screens.StudioScreen(vm, s)
         is Screen.Pdf -> PdfViewerScreen(vm, s)
         Screen.Settings -> SettingsScreen(vm)
         Screen.Aset -> AsetScreen(vm)

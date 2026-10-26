@@ -38,6 +38,7 @@ fun PhotoViewerScreen(vm: MainViewModel, s: Screen.Photo) {
 
     Column(Modifier.fillMaxSize().background(Color.Black)) {
         Header("Foto ${i + 1} / ${fotos.size}", onBack = { vm.pop() }, actions = {
+            HeaderAction("🎨") { vm.push(Screen.Studio(s.dinasId, s.ownerId, i)) }
             if (i > 0) HeaderAction("‹") { idx = i - 1 }
             if (i < fotos.lastIndex) HeaderAction("›") { idx = i + 1 }
         })

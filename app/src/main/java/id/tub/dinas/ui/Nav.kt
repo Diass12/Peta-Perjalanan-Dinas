@@ -4,6 +4,7 @@ sealed interface Screen {
     data object Home : Screen
     data class Detail(val dinasId: String) : Screen
     data class Photo(val dinasId: String, val ownerId: String, val index: Int) : Screen
+    data class Studio(val dinasId: String, val ownerId: String, val index: Int) : Screen
     data class Pdf(val path: String, val name: String) : Screen
     data object Settings : Screen
     data object Aset : Screen
