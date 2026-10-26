@@ -122,7 +122,7 @@ fun AsetEditor(vm: MainViewModel, asetId: String) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp).navigationBarsPadding().imePadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // media & lampiran (foto, baca kode/AI, video, dokumen)
                 Panel {
-                    SecTitle("📎", "MEDIA & LAMPIRAN", "${fotos.size} foto · ${medias.size} berkas")
+                    SecTitle("📎", "MEDIA & LAMPIRAN", "Foto ${fotos.size} · Berkas ${medias.size}")
                     if (!isSaved) Text("Simpan aset dulu untuk menambah foto.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                     else {
                         Spacer(Modifier.height(6.dp))

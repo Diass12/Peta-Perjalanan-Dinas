@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(22, "1.7.12", listOf(
+            FiturBaru("🧾", "Bon di web & APK kini sama", "Isian bon di versi web/PC kini bergaya kartu seperti di APK (kategori berupa pilihan, terbilang otomatis). Label foto dan berkas di form Aset dan Bon juga dirapikan serta diterjemahkan.",
+                listOf("Buka Uang Muka, lalu Tambah bon."), null),
+        )),
         RilisInfo(21, "1.7.11", listOf(
             FiturBaru("✨", "Baca bon dengan Gemini", "Tombol Baca otomatis di foto bon kini memakai Gemini bila kunci Gemini sudah diisi di Pengaturan, sehingga tulisan tangan dan struk sulit terbaca lebih akurat. Selain jumlah dan tanggal, Gemini mengusulkan uraian dan kategori. Foto dikirim ke Google hanya saat tombol dipakai; tanpa kunci, pembacaan tetap di perangkat. Hasil selalu Anda periksa dulu.",
                 listOf("Isi kunci Gemini di Pengaturan (sekali saja).", "Buka bon, lampirkan foto, ketuk Baca otomatis (Gemini), lalu Pakai hasil."), null),

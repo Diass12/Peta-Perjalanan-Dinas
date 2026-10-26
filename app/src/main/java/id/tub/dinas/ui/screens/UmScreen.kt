@@ -422,7 +422,7 @@ private fun BonEditor(vm: MainViewModel, bonId: String) {
                 }
                 Panel {
                     Label("📷", "FOTO BON") {
-                        Text("${bb.fotos.size} foto", color = hijau, fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        Text("Foto ${bb.fotos.size}", color = hijau, fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                             modifier = Modifier.background(hijau.copy(alpha = 0.14f), CircleShape).padding(horizontal = 10.dp, vertical = 3.dp))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

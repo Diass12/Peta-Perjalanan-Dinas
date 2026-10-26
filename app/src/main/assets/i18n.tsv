@@ -883,3 +883,12 @@ Kategori:|Category:|类别：|カテゴリ：|카테고리:
 Membaca…|Reading…|识别中…|読み取り中…|읽는 중…
 Isi kunci Gemini di Pengaturan agar tulisan tangan dan struk sulit terbaca lebih akurat.|Enter your Gemini key in Settings for more accurate reading of handwriting and hard-to-read receipts.|请在设置中填写 Gemini 密钥，以更准确地识别手写和难辨认的单据。|設定にGeminiキーを入力すると、手書きや読みにくいレシートをより正確に読み取れます。|설정에 Gemini 키를 입력하면 손글씨와 읽기 어려운 영수증을 더 정확하게 읽습니다.
 ~foto bon|receipt photo|收据照片|領収書の写真|영수증 사진
+KATEGORI|CATEGORY|类别|カテゴリ|카테고리
+TANGGAL BON|RECEIPT DATE|单据日期|領収書の日付|영수증 날짜
+JUMLAH (RP)|AMOUNT (RP)|金额 (RP)|金額 (RP)|금액 (RP)
+URAIAN|DESCRIPTION|说明|内容|설명
+FOTO BON|RECEIPT PHOTOS|单据照片|領収書の写真|영수증 사진
+Foto|Photos|照片|写真|사진
+Berkas|Files|文件|ファイル|파일
+~karakter|characters|个字符|文字|자
+~Berkas|files|文件|ファイル|파일
