@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.asImageBitmap
 import id.tub.dinas.MainViewModel
 import id.tub.dinas.data.PhotoPreset
+import id.tub.dinas.data.PtProfil
 import id.tub.dinas.security.AppLock
 import id.tub.dinas.ui.components.*
 import id.tub.dinas.ui.theme.C
@@ -200,10 +201,11 @@ fun SettingsScreen(vm: MainViewModel) {
                     } },
                     confirmButton = { TextButton(onClick = { riwayat = false }) { Text("Tutup") } })
             }
+            PtPanel(vm)
             Panel {
                 var lp by remember { mutableStateOf(s.lapPerusahaan) }; var lk by remember { mutableStateOf(s.lapKota) }
                 var ln by remember { mutableStateOf(s.lapPenyiap) }; var lj by remember { mutableStateOf(s.lapJabatan) }; var lc by remember { mutableStateOf(s.lapPemeriksa) }
-                Text("Laporan realisasi (LPBPD)", style = MaterialTheme.typography.titleMedium)
+                Text("Laporan realisasi (LPBPD) — identitas bawaan", style = MaterialTheme.typography.titleMedium)
                 Text("Kepala dan tanda tangan pada laporan biaya perjalanan dinas hasil ekspor.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(6.dp))
                 var logoVer by remember { mutableStateOf(0) }
@@ -288,3 +290,68 @@ private val RIWAYAT = listOf(
     ),
     "1.0.0" to listOf("Dinas, peta GPS, temuan, uang muka, jadwal, Aset Scan, ekspor, cadangan terenkripsi"),
 )
+
+/** Daftar PT dengan logo & tanda tangan sendiri-sendiri; pengajuan uang muka memilih salah satunya. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PtPanel(vm: MainViewModel) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val s = vm.settings
+    var daftar by remember { mutableStateOf(s.ptDaftar) }
+    var edit by remember { mutableStateOf<Pair<Int, PtProfil>?>(null) }
+    var ver by remember { mutableStateOf(0) }
+    fun logoFile(id: String) = java.io.File(ctx.filesDir, "logo_pt_$id.png")
+    Panel {
+        Text("Daftar PT & logo", style = MaterialTheme.typography.titleMedium)
+        Text("Tambah semua PT pemberi uang muka. Tiap PT punya logo dan tanda tangan sendiri untuk laporan LPBPD. Pengajuan uang muka tinggal memilih PT dari daftar ini.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(8.dp))
+        if (daftar.isEmpty()) Text("Belum ada PT. Laporan memakai identitas bawaan di bawah.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+        daftar.forEachIndexed { i, p ->
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                val bmp = remember(ver, p.logoId) { runCatching { android.graphics.BitmapFactory.decodeFile(logoFile(p.logoId).path) }.getOrNull() }
+                if (bmp != null) androidx.compose.foundation.Image(bmp.asImageBitmap(), p.nama, Modifier.size(44.dp)) else Box(Modifier.size(44.dp).background(C.Chip))
+                Column(Modifier.weight(1f)) { Text(p.nama, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold); Text(listOf(p.kota, p.penyiap).filter { it.isNotBlank() }.joinToString(" · "), color = C.Muted, style = MaterialTheme.typography.bodySmall) }
+                SoftButton("Ubah") { edit = i to p }
+                SoftButton("Hapus", danger = true) { logoFile(p.logoId).delete(); daftar = daftar.toMutableList().also { it.removeAt(i) }; s.ptDaftar = daftar }
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        PrimaryButton("+ Tambah PT") { edit = -1 to PtProfil("", s.lapKota, "", "", s.lapPemeriksa, java.util.UUID.randomUUID().toString().take(8)) }
+    }
+    edit?.let { (idx, p0) ->
+        var p by remember(idx, p0.logoId) { mutableStateOf(p0) }
+        var lv by remember { mutableStateOf(0) }
+        val pilih = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) runCatching {
+                val bmp = ctx.contentResolver.openInputStream(uri)!!.use { android.graphics.BitmapFactory.decodeStream(it) }!!
+                val sc = minOf(1f, 500f / maxOf(bmp.width, bmp.height))
+                val kecil = if (sc < 1f) android.graphics.Bitmap.createScaledBitmap(bmp, (bmp.width * sc).toInt().coerceAtLeast(1), (bmp.height * sc).toInt().coerceAtLeast(1), true) else bmp
+                logoFile(p.logoId).outputStream().use { kecil.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                lv++; ver++
+            }.onFailure { vm.toast("Gambar tidak dapat dibaca") }
+        }
+        AlertDialog(onDismissRequest = { edit = null }, title = { Text(if (idx >= 0) "Ubah PT" else "Tambah PT") },
+            text = {
+                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        val bmp = remember(lv) { runCatching { android.graphics.BitmapFactory.decodeFile(logoFile(p.logoId).path) }.getOrNull() }
+                        if (bmp != null) androidx.compose.foundation.Image(bmp.asImageBitmap(), "Logo", Modifier.size(64.dp))
+                        SoftButton("Pilih logo") { pilih.launch("image/*") }
+                    }
+                    Field(p.nama, { p = p.copy(nama = it) }, "Nama PT", singleLine = true)
+                    Field(p.kota, { p = p.copy(kota = it) }, "Kota (tanggal cetak)", singleLine = true)
+                    Field(p.penyiap, { p = p.copy(penyiap = it) }, "Dipersiapkan oleh", singleLine = true)
+                    Field(p.jabatan, { p = p.copy(jabatan = it) }, "Jabatan penyiap", singleLine = true)
+                    Field(p.pemeriksa, { p = p.copy(pemeriksa = it) }, "Diperiksa oleh", singleLine = true)
+                }
+            },
+            confirmButton = { TextButton(enabled = p.nama.isNotBlank(), onClick = {
+                val dup = daftar.withIndex().any { (j, x) -> j != idx && x.nama.trim().equals(p.nama.trim(), true) }
+                if (dup) vm.toast("Nama PT sudah ada") else {
+                    val l = daftar.toMutableList(); val np = p.copy(nama = p.nama.trim()); if (idx >= 0) l[idx] = np else l.add(np)
+                    daftar = l; s.ptDaftar = l; edit = null
+                }
+            }) { Text("Simpan") } },
+            dismissButton = { TextButton(onClick = { edit = null }) { Text("Batal") } })
+    }
+}

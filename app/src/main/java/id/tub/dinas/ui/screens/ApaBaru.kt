@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(24, "1.7.14", listOf(
+            FiturBaru("🏢", "Daftar PT, logo & impor aman", "Pengaturan kini punya Daftar PT dengan logo dan tanda tangan sendiri-sendiri; laporan LPBPD memakai PT yang dipilih di pengajuan. Nomor pengajuan yang sama di PT berbeda tidak lagi saling menimpa. Impor menampilkan pilihan Lewati / Timpa / Simpan sebagai baru bila data sudah ada, dan bon yang diedit memperbarui bon yang sama (tidak menggandakan). Ekspor Aset bisa dipilih per PT, dan aset PT berbeda dengan kode sama tidak saling menimpa.",
+                listOf("Pengaturan, Daftar PT, tambah PT dan logonya.", "Uang Muka, Ubah pengajuan, pilih Nama PT."), Screen.UangMuka),
+        )),
         RilisInfo(23, "1.7.13", listOf(
             FiturBaru("🛠", "Perbaikan Gemini error 404", "Jika nama model Gemini di Pengaturan sudah tidak tersedia (error 404), aplikasi kini otomatis mencoba model terbaru. Disarankan mengosongkan kolom model agar memakai bawaan.",
                 listOf("Pengaturan, kosongkan kolom model Gemini."), null),

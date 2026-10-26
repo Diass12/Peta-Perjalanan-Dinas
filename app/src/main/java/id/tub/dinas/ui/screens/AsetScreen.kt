@@ -127,16 +127,19 @@ fun AsetScreen(vm: MainViewModel) {
             awal = fmt0, semua = list, terfilter = filtered.size, terpilih = sel.size,
             onDismiss = { exportFmt = null },
             onOpsi = { c.opsiXlsx = it },
-            onGo = { fmt, n, cakupan ->
+            onGo = { fmt, n, cakupan, ptPilih ->
                 exportFmt = null
-                val scope = when (cakupan) { 1 -> filtered; 2 -> list.filter { it.id in sel }; else -> list }
+                val dasar = when (cakupan) { 1 -> filtered; 2 -> list.filter { it.id in sel }; else -> list }
+                val scope = if (ptPilih.isBlank()) dasar else dasar.filter { it.owner.trim().equals(ptPilih, true) }
+                if (scope.isEmpty()) { vm.toast("Tidak ada aset untuk PT ini"); return@ExportDialog }
+                val ptf = if (ptPilih.isBlank()) "" else " " + ptPilih.replace(Regex("[\\\\/:*?\"<>|]"), " ")
                 exportReq = Triple(fmt, n, scope)
                 val tgl = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
                 when (fmt) {
-                    "xlsx" -> createXlsx.launch("Physical Check $tgl.xlsx")
-                    "pdf" -> createPdf.launch("Laporan Aset $tgl.pdf")
-                    "html" -> createHtml.launch("Laporan Aset $tgl.html")
-                    "json" -> createJson.launch("asetscan-backup-$tgl.json")
+                    "xlsx" -> createXlsx.launch("Physical Check$ptf $tgl.xlsx")
+                    "pdf" -> createPdf.launch("Laporan Aset$ptf $tgl.pdf")
+                    "html" -> createHtml.launch("Laporan Aset$ptf $tgl.html")
+                    "json" -> createJson.launch("asetscan-backup${ptf.replace(" ", "-")}-$tgl.json")
                     else -> createPdf.launch("Label QR Aset $tgl.pdf")
                 }
             },
@@ -279,8 +282,10 @@ private fun ImportDialog(vm: MainViewModel, st: id.tub.dinas.aset.ImportState) {
 }
 
 @Composable
-private fun ExportDialog(awal: String, semua: List<AsetModel>, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onOpsi: (MemoFat.Opsi) -> Unit, onGo: (String, Int, Int) -> Unit) {
+private fun ExportDialog(awal: String, semua: List<AsetModel>, terfilter: Int, terpilih: Int, onDismiss: () -> Unit, onOpsi: (MemoFat.Opsi) -> Unit, onGo: (String, Int, Int, String) -> Unit) {
     var fmt by remember { mutableStateOf(awal) }
+    var pt by remember { mutableStateOf("") }
+    val ptAda = remember(semua) { semua.map { it.owner.trim() }.filter { it.isNotEmpty() }.groupingBy { it.lowercase() }.eachCount().let { m -> semua.map { it.owner.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }.map { it to (m[it.lowercase()] ?: 0) } } }
     var n by remember { mutableIntStateOf(2) }
     var cakupan by remember { mutableIntStateOf(if (terpilih > 0) 2 else 0) }
     var o by remember { mutableStateOf(MemoFat.Opsi()) }
@@ -339,6 +344,13 @@ private fun ExportDialog(awal: String, semua: List<AsetModel>, terfilter: Int, t
                     Text("Foto per aset", color = A.Muted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { (if (fmt == "xlsx") 1..4 else 0..4).forEach { k -> Chip("$k", (if (fmt == "xlsx") n.coerceAtLeast(1) else n) == k) { n = k } } }
                 }
+                if (ptAda.size > 0 && fmt != "label") Bagian("PT yang dilaporkan") {
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Chip("Semua PT", pt.isEmpty()) { pt = "" }
+                        ptAda.forEach { (n0, c0) -> Chip("$n0 ($c0)", pt.equals(n0, true)) { pt = n0 } }
+                    }
+                }
                 Bagian("Cakupan") {
                     @OptIn(ExperimentalLayoutApi::class)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -350,7 +362,7 @@ private fun ExportDialog(awal: String, semua: List<AsetModel>, terfilter: Int, t
             }
             Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onDismiss) { Text("Batal") }
-                TextButton(enabled = !laporan || o.tagged || o.untagged || o.tanpaKode, onClick = { onOpsi(o); onGo(fmt, if (fmt == "xlsx") n.coerceAtLeast(1) else if (laporan && !o.foto) 0 else n, cakupan) }) { Text(if (fmt == "label") "Buat label" else "Ekspor") }
+                TextButton(enabled = !laporan || o.tagged || o.untagged || o.tanpaKode, onClick = { onOpsi(o); onGo(fmt, if (fmt == "xlsx") n.coerceAtLeast(1) else if (laporan && !o.foto) 0 else n, cakupan, pt) }) { Text(if (fmt == "label") "Buat label" else "Ekspor") }
             }
         }
     }

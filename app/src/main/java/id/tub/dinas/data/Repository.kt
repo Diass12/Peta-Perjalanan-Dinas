@@ -404,6 +404,8 @@ class Repository(
         id
     }
 
+    suspend fun bonAda(id: String): Boolean = withContext(Dispatchers.IO) { dao.bonById(id) != null }
+
     suspend fun deleteBon(id: String) = withContext(Dispatchers.IO) {
         val paths = dao.bonFotoOf(id).map { it.path }
         dao.deleteBon(id)

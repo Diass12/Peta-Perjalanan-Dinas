@@ -59,11 +59,26 @@ fun UmScreen(vm: MainViewModel) {
     val createJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { run(it) }
     val importPick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) c.impor(uri) }
 
+    val tampil = list.filter { c.filterPt.isEmpty() || (if (c.filterPt == "-") it.um.pt.isBlank() else it.um.pt.equals(c.filterPt, true)) }
     Column(Modifier.fillMaxSize().background(C.Bg)) {
-        if (detail == null) UmList(vm, list, onExport = { askScope = list }, onImport = { importPick.launch(arrayOf("*/*")) })
+        if (detail == null) UmList(vm, list, tampil, onExport = { askScope = tampil }, onImport = { importPick.launch(arrayOf("*/*")) })
         else UmDetail(vm, detail, onExport = { askScope = listOf(detail) })
     }
 
+    c.konflik?.let { (k, _) ->
+        var semua by remember(k) { mutableStateOf(false) }
+        AlertDialog(onDismissRequest = {},
+            title = { Text("Data sudah ada") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("${k.jenis} dengan kode ${k.kode}${if (k.pt.isNotBlank()) " (${k.pt})" else ""}${if (k.nama.isNotBlank()) " — ${k.nama}" else ""} sudah ada di sini.")
+                    Text("Di sini: ${k.lama}. Dalam berkas: ${k.baru}.", color = C.Muted, style = MaterialTheme.typography.bodySmall)
+                    Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(semua, { semua = it }); Text("Terapkan ke semua yang sama") }
+                }
+            },
+            confirmButton = { TextButton(onClick = { c.jawabKonflik("timpa", semua) }) { Text("Timpa") } },
+            dismissButton = { Row { TextButton(onClick = { c.jawabKonflik("lewati", semua) }) { Text("Lewati") }; TextButton(onClick = { c.jawabKonflik("baru", semua) }) { Text("Simpan sebagai baru") } } })
+    }
     c.editUm?.let { UmDialog(vm, it) }
     c.editBonId?.let { id -> BonEditor(vm, id) }
     c.viewer?.let { (bonId, idx) -> BonFotoViewer(vm, bonId, idx) }
@@ -91,8 +106,9 @@ fun UmScreen(vm: MainViewModel) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ColumnScope.UmList(vm: MainViewModel, list: List<UmBundle>, onExport: () -> Unit, onImport: () -> Unit) {
+private fun ColumnScope.UmList(vm: MainViewModel, semua: List<UmBundle>, list: List<UmBundle>, onExport: () -> Unit, onImport: () -> Unit) {
     val c = vm.um
     Header("Uang Muka", onBack = { vm.pop() }) {
         HeaderAction("Impor", onImport)
@@ -101,6 +117,14 @@ private fun ColumnScope.UmList(vm: MainViewModel, list: List<UmBundle>, onExport
     Box(Modifier.weight(1f)) {
         if (list.isEmpty()) Empty("Belum ada pengajuan. Ketuk “+ Pengajuan baru” untuk mencatat uang muka, lalu tambahkan bon realisasinya lengkap dengan foto.")
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            val ptAda = semua.map { it.um.pt }.filter { it.isNotBlank() }.distinctBy { it.lowercase() }
+            if (ptAda.isNotEmpty()) item {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Chip("Semua PT (${semua.size})", c.filterPt.isEmpty(), onClick = { c.filterPt = "" })
+                    ptAda.forEach { n -> Chip("$n (${semua.count { it.um.pt.equals(n, true) }})", c.filterPt.equals(n, true), onClick = { c.filterPt = n }) }
+                    if (semua.any { it.um.pt.isBlank() }) Chip("Tanpa PT (${semua.count { it.um.pt.isBlank() }})", c.filterPt == "-", onClick = { c.filterPt = "-" })
+                }
+            }
             if (list.isNotEmpty()) item {
                 Panel {
                     Text("RINGKASAN", style = MaterialTheme.typography.labelSmall, color = C.Muted)
@@ -134,7 +158,7 @@ private fun UmCard(b: UmBundle, onClick: () -> Unit) {
             Text(u.judul.ifEmpty { "(tanpa judul)" }, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             Chip(u.status.label, true, color = when (u.status) { UmStatus.SELESAI -> Ok; UmStatus.CAIR -> C.Ink; else -> C.Muted })
         }
-        Text(listOf(u.nomor, fmtTgl(u.tglPengajuan)).filter { it.isNotEmpty() }.joinToString(" · "), color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+        Text(listOf(u.pt, u.nomor, fmtTgl(u.tglPengajuan)).filter { it.isNotEmpty() }.joinToString(" · "), color = C.Muted, style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(6.dp))
         KV("Dana", rupiah(b.dana))
         KV("Bon (${b.bons.size})", rupiah(b.totalBon))
@@ -220,6 +244,9 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
     var cat by remember(ex.id) { mutableStateOf(ex.catatanTeks) }
     var tambah by remember(ex.id) { mutableStateOf(ex.pencairanTambahan.joinToString("\n") { "${it.first} ${it.second.toLong()}" }) }
     var dinasId by remember(ex.id) { mutableStateOf(ex.dinasId) }
+    var ptNama by remember(ex.id) { mutableStateOf(ex.pt) }
+    val bundlesAda by c.bundles.collectAsState()
+    val ptPilihan = remember(ex.id) { (vm.settings.ptDaftar.map { it.nama } + listOfNotNull(ex.pt.ifBlank { null })).distinctBy { it.lowercase() } }
     AlertDialog(
         onDismissRequest = { c.editUm = null },
         title = { Text(if (ex.id.isEmpty()) "Pengajuan uang muka" else "Ubah pengajuan") },
@@ -227,6 +254,14 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Field(judul, { judul = it }, "Keperluan / judul (mis. Dinas Halmahera)", singleLine = true)
                 Field(nomor, { nomor = it }, "No. pengajuan", singleLine = true)
+                Text("Nama PT (pemberi uang muka)", style = MaterialTheme.typography.labelSmall, color = C.Muted)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Chip("Bawaan / tanpa PT", ptNama.isBlank(), onClick = { ptNama = "" })
+                    ptPilihan.forEach { n -> Chip(n, ptNama.equals(n, true), onClick = { ptNama = n }) }
+                }
+                if (ptPilihan.isEmpty()) Text("Tambah PT di Pengaturan, Daftar PT.", style = MaterialTheme.typography.bodySmall, color = C.Muted)
+                val bentrok = nomor.isNotBlank() && bundlesAda.any { it.um.id != ex.id && it.um.nomor.equals(nomor.trim(), true) && it.um.pt.equals(ptNama.trim(), true) }
+                if (bentrok) Text("Nomor pengajuan ini sudah dipakai${if (ptNama.isNotBlank()) " untuk $ptNama" else ""}. Pakai nomor lain atau ubah PT.", style = MaterialTheme.typography.bodySmall, color = C.Danger)
                 Field(pemohon, { pemohon = it }, "Pemohon", singleLine = true)
                 DateField("Tgl pengajuan", tgl, { tgl = it }, clearable = false)
                 Field(diaj, { diaj = it }, "Jumlah diajukan (Rp)", singleLine = true)
@@ -244,12 +279,12 @@ private fun UmDialog(vm: MainViewModel, ex: UangMukaModel) {
             }
         },
         confirmButton = {
-            TextButton(enabled = judul.isNotBlank(), onClick = {
+            TextButton(enabled = judul.isNotBlank() && !(nomor.isNotBlank() && bundlesAda.any { it.um.id != ex.id && it.um.nomor.equals(nomor.trim(), true) && it.um.pt.equals(ptNama.trim(), true) }), onClick = {
                 val dj = AsetImport.parseAngka(diaj) ?: 0.0; val cr = AsetImport.parseAngka(cair) ?: 0.0
                 var st = ex.status
                 if (cr > 0 && st == UmStatus.DIAJUKAN) st = UmStatus.CAIR
                 c.simpanUm(ex.copy(nomor = nomor.trim(), judul = judul.trim(), pemohon = pemohon.trim(), tglPengajuan = tgl, jumlahDiajukan = dj,
-                    tglCair = tglC, jumlahCair = cr, catatan = UangMukaModel.gabungCatatan(cat, tambah.lines().mapNotNull { l -> val t = l.trim().split(Regex("\\s+")); if (t.size < 2) null else AsetImport.parseAngka(t.last())?.takeIf { it > 0 }?.let { t.first() to it } }), dinasId = dinasId, status = st))
+                    tglCair = tglC, jumlahCair = cr, catatan = UangMukaModel.gabungCatatan(cat, tambah.lines().mapNotNull { l -> val t = l.trim().split(Regex("\\s+")); if (t.size < 2) null else AsetImport.parseAngka(t.last())?.takeIf { it > 0 }?.let { t.first() to it } }, ptNama), dinasId = dinasId, status = st))
             }) { Text("Simpan") }
         },
         dismissButton = { TextButton(onClick = { c.editUm = null }) { Text("Batal") } },

@@ -49,6 +49,18 @@ class UmController(private val vm: MainViewModel) {
     var editBonId by mutableStateOf<String?>(null)
     var viewer by mutableStateOf<Pair<String, Int>?>(null)   // bonId, indeks foto
     var exportAsk by mutableStateOf(false)
+    /** Filter daftar per PT: "" = semua, "-" = tanpa PT. */
+    var filterPt by mutableStateOf("")
+    /** Konflik duplikat yang sedang menunggu jawaban pengguna (dialog di layar Uang Muka). */
+    var konflik by mutableStateOf<Pair<KonflikDuplikat, kotlinx.coroutines.CompletableDeferred<String>>?>(null)
+    private var semuaPilih: String? = null
+    suspend fun tanyaDuplikat(k: KonflikDuplikat): String {
+        semuaPilih?.let { return it }
+        val d = kotlinx.coroutines.CompletableDeferred<String>()
+        konflik = k to d
+        return d.await()
+    }
+    fun jawabKonflik(pilihan: String, semua: Boolean) { if (semua) semuaPilih = pilihan; konflik?.second?.complete(pilihan); konflik = null }
 
     fun pengajuanBaru() {
         val n = bundles.value.size + 1
@@ -113,11 +125,17 @@ class UmController(private val vm: MainViewModel) {
                     "json" -> UmTransfer.tulisJson(daftar, baca, it)
                     "lpbpd" -> {
                         val se = vm.settings
+                        val ptNama = daftar.first().um.pt
+                        val prof = se.ptDaftar.firstOrNull { it.nama.equals(ptNama, true) }
                         val lf = File(app.filesDir, "logo_laporan.png")
-                        val logo = runCatching { if (lf.exists()) lf.readBytes() else app.assets.open("logo_tub.png").use { a -> a.readBytes() } }.getOrNull()
+                        // PT yang ada di daftar: logonya sendiri (kosong = tanpa gambar, bukan logo PT lain); PT di luar daftar: logo bawaan.
+                        val logo = runCatching {
+                            if (prof != null) File(app.filesDir, "logo_pt_${prof.logoId}.png").takeIf { it.exists() }?.readBytes()
+                            else if (lf.exists()) lf.readBytes() else app.assets.open("logo_tub.png").use { a -> a.readBytes() }
+                        }.getOrNull()
                         val now = java.util.Calendar.getInstance()
                         val tgl = id.tub.dinas.export.LaporanRealisasi.tgl(String.format(java.util.Locale.US, "%04d-%02d-%02d", now.get(java.util.Calendar.YEAR), now.get(java.util.Calendar.MONTH) + 1, now.get(java.util.Calendar.DAY_OF_MONTH)))
-                        id.tub.dinas.export.LaporanRealisasi.tulis(daftar.first(), id.tub.dinas.export.IdentitasLaporan(se.lapPerusahaan, se.lapKota, tgl, se.lapPenyiap.ifBlank { se.playerName }, se.lapJabatan.ifBlank { se.jabatan }, se.lapPemeriksa), logo, it)
+                        id.tub.dinas.export.LaporanRealisasi.tulis(daftar.first(), id.tub.dinas.export.IdentitasLaporan(prof?.nama ?: ptNama.ifBlank { se.lapPerusahaan }, prof?.kota?.ifBlank { null } ?: se.lapKota, tgl, prof?.penyiap?.ifBlank { null } ?: se.lapPenyiap.ifBlank { se.playerName }, prof?.jabatan?.ifBlank { null } ?: se.lapJabatan.ifBlank { se.jabatan }, prof?.pemeriksa?.ifBlank { null } ?: se.lapPemeriksa), logo, it)
                     }
                     else -> UmTransfer.tulisExcel(daftar, baca, it)
                 }
@@ -127,13 +145,14 @@ class UmController(private val vm: MainViewModel) {
     }
 
     fun impor(uri: Uri) = vm.work {
+        semuaPilih = null
         val file = File(app.cacheDir, "impor").apply { mkdirs() }.let { File(it, "um_${System.nanoTime()}.dat") }
         try {
             val r = withContext(Dispatchers.IO) {
                 (app.contentResolver.openInputStream(uri) ?: throw IllegalArgumentException("Berkas tidak dapat dibuka")).use { i -> file.outputStream().use { o -> i.copyTo(o) } }
-                UmTransfer.impor(file, repo)
+                UmTransfer.impor(file, repo) { k -> tanyaDuplikat(k) }
             }
-            vm.toast("Impor: ${r.um} pengajuan, ${r.bon} bon baru, ${r.foto} foto" + if (r.lewat > 0) " (${r.lewat} sudah ada dilewati)" else "")
+            vm.toast("Impor: ${r.um} pengajuan baru, ${r.bon} bon baru, ${r.ubah} bon diperbarui, ${r.foto} foto" + if (r.lewat > 0) " (${r.lewat} dilewati)" else "")
         } finally { file.delete() }
     }
 }

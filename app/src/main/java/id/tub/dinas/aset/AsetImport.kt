@@ -23,8 +23,8 @@ class ImportReport(val total: Int, val baru: Int, val update: Int, val sama: Int
 /** Menerapkan baris hasil baca ke register: kunci = kode ternormalisasi; bila kosong nama+dept. Mode "Lengkapi": hanya mengisi yang kosong. */
 class AsetImporter(private val repo: Repository, existing: List<AsetModel>, private val fotoCount: Map<String, Int>, private val dryRun: Boolean, private val timpa: Boolean = false, private val pilih: Set<String>? = null) {
     val items = ArrayList<ImportItem>()
-    private val byCode = HashMap<String, AsetModel>()
-    private val byName = HashMap<String, AsetModel>()
+    private val byCode = HashMap<String, MutableList<AsetModel>>()
+    private val byName = HashMap<String, MutableList<AsetModel>>()
     private val seen = HashSet<String>()
     val perubahan = ArrayList<String>(); var totalPerubahan = 0
     var total = 0; var baru = 0; var update = 0; var sama = 0; var ganda = 0; var foto = 0
@@ -33,19 +33,22 @@ class AsetImporter(private val repo: Repository, existing: List<AsetModel>, priv
 
     private fun index(a: AsetModel) {
         val k = KodeAset.norm(a.code)
-        if (k.isNotEmpty()) byCode[k] = a else if (a.name.isNotBlank()) byName[nameKey(a)] = a
+        if (k.isNotEmpty()) byCode.getOrPut(k) { ArrayList() }.add(a) else if (a.name.isNotBlank()) byName.getOrPut(nameKey(a)) { ArrayList() }.add(a)
     }
+    private fun ptKey(a: AsetModel) = a.owner.trim().lowercase()
+    /** PT berbeda = aset berbeda walau kodenya sama; pemilik kosong dianggap cocok dengan PT mana pun. */
+    private fun samaPt(a: AsetModel, b: AsetModel) = ptKey(a).isEmpty() || ptKey(b).isEmpty() || ptKey(a) == ptKey(b)
     private fun nameKey(a: AsetModel) = (a.name.trim() + "|" + a.dept.trim()).lowercase()
-    private fun keyOf(a: AsetModel): String { val k = KodeAset.norm(a.code); return if (k.isNotEmpty()) "c:$k" else "n:${nameKey(a)}" }
+    private fun keyOf(a: AsetModel): String { val k = KodeAset.norm(a.code); return (if (k.isNotEmpty()) "c:$k" else "n:${nameKey(a)}") + "@" + ptKey(a) }
 
     suspend fun add(m0: AsetModel, photoCount: Int, photos: () -> List<ByteArray>) {
         // Staff Site: kolom NBV di file diabaikan sama sekali.
         val m = if (id.tub.dinas.security.Lisensi.ho) m0 else m0.copy(nbv = null, harga = null, masa = null, tglTercatat = "", nbvKet = "", catatan = "", sumber = "", srcStatus = "")
         total++
         val key = keyOf(m)
-        if (key == "n:|") return
+        if (key.startsWith("n:|")) return
         if (!seen.add(key)) { ganda++; return }
-        val old = (KodeAset.norm(m.code).takeIf { it.isNotEmpty() }?.let { byCode[it] }) ?: if (KodeAset.norm(m.code).isEmpty()) byName[nameKey(m)] else null
+        val old = (KodeAset.norm(m.code).takeIf { it.isNotEmpty() }?.let { byCode[it] } ?: if (KodeAset.norm(m.code).isEmpty()) byName[nameKey(m)] else null)?.firstOrNull { samaPt(it, m) }
         if (!dryRun && pilih != null && key !in pilih) return
         val judul = m.code.ifBlank { m.name }
         if (old == null) {

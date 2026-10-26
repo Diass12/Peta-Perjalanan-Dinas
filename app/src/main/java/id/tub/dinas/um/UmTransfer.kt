@@ -17,7 +17,11 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.time.Instant
 
-class UmImpor(var um: Int = 0, var bon: Int = 0, var foto: Int = 0, var lewat: Int = 0)
+class UmImpor(var um: Int = 0, var bon: Int = 0, var foto: Int = 0, var lewat: Int = 0, var ubah: Int = 0)
+
+/** Data yang kodenya sama dengan yang sudah ada; pengguna memilih "lewati" / "timpa" / "baru". */
+class KonflikDuplikat(val jenis: String, val kode: String, val pt: String, val nama: String, val lama: String, val baru: String)
+typealias TanyaDuplikat = suspend (KonflikDuplikat) -> String
 
 /** Ekspor/impor Uang Muka: JSON lengkap (foto tertanam) dan Excel (rekap + rincian bon dengan foto). */
 object UmTransfer {
@@ -119,43 +123,62 @@ object UmTransfer {
 
     private fun key(t: String, k: BonKategori, u: String, j: Double) = "$t|${k.name}|${u.trim().lowercase()}|${j.toLong()}"
 
-    private class Gabung(val repo: Repository, val hasil: UmImpor) {
+    private class Gabung(val repo: Repository, val hasil: UmImpor, val tanya: TanyaDuplikat? = null) {
         var ada: List<UmBundle> = emptyList()
         suspend fun muat() { ada = repo.umBundles() }
 
+        /** Nomor sama dianggap pengajuan yang sama hanya bila PT-nya sama (atau salah satunya belum punya PT). */
+        private fun samaPt(a: UangMukaModel, m: UangMukaModel) = a.pt.isBlank() || m.pt.isBlank() || a.pt.equals(m.pt, true)
+
         suspend fun um(m: UangMukaModel): UmBundle? =
             ada.firstOrNull { m.id.isNotEmpty() && it.um.id == m.id }
-                ?: ada.firstOrNull { m.nomor.isNotBlank() && it.um.nomor.equals(m.nomor, true) }
+                ?: ada.firstOrNull { m.nomor.isNotBlank() && it.um.nomor.equals(m.nomor, true) && samaPt(it.um, m) }
 
-        /** Mengembalikan id pengajuan (baru atau yang sudah ada, metadata diperbarui). */
-        suspend fun simpanUm(m: UangMukaModel): String {
-            val lama = um(m)
-            return if (lama != null) { repo.saveUm(m.copy(id = lama.um.id, dinasId = lama.um.dinasId)); lama.um.id }
-            else { hasil.um++; repo.saveUm(m.copy(id = "")) }
+        /** Mengembalikan id pengajuan (baru atau yang sudah ada), atau null bila pengguna memilih melewati. */
+        suspend fun simpanUm(m0: UangMukaModel, jumlahBon: Int = 0, tanyakan: Boolean = true): String? {
+            var m = m0
+            var lama = um(m)
+            if (lama != null && tanyakan && tanya != null) {
+                when (tanya.invoke(KonflikDuplikat("Pengajuan uang muka", m.nomor, m.pt.ifBlank { lama.um.pt }, m.judul.ifBlank { lama.um.judul },
+                    "${lama.bons.size} bon, total ${rupiah(lama.totalBon)}", "$jumlahBon bon dalam berkas"))) {
+                    "lewati" -> return null
+                    "baru" -> { m = m.copy(nomor = m.nomor + " (" + (ada.count { it.um.nomor.startsWith(m.nomor) } + 1) + ")", id = ""); lama = null }
+                }
+            }
+            return if (lama != null) {
+                // PT lama dipertahankan bila berkas tidak membawa PT.
+                val cat = if (m.pt.isBlank() && lama.um.pt.isNotBlank()) m.catatan + (if (m.catatan.isBlank()) "" else "\n") + "#PT|" + lama.um.pt else m.catatan
+                repo.saveUm(m.copy(id = lama.um.id, dinasId = lama.um.dinasId, catatan = cat)); lama.um.id
+            } else { hasil.um++; repo.saveUm(m.copy(id = "")) }
         }
 
         suspend fun bon(umId: String, tgl: String, kat: BonKategori, ur: String, jml: Double, id: String, foto: List<ByteArray>, tag: String = "") {
             val u = repo.umBundles().first { it.um.id == umId }
             val sama = u.bons.firstOrNull { id.isNotEmpty() && it.bon.id == id } ?: u.bons.firstOrNull { key(it.bon.tanggal, it.bon.kategori, it.bon.uraian, it.bon.jumlah) == key(tgl, kat, ur, jml) }
             if (sama != null) {
-                hasil.lewat++
+                // Bon yang sama (id sama) tetapi isinya sudah diedit di sumber: perbarui, jangan digandakan.
+                if (id.isNotEmpty() && sama.bon.id == id && key(sama.bon.tanggal, sama.bon.kategori, sama.bon.uraian, sama.bon.jumlah) != key(tgl, kat, ur, jml)) {
+                    repo.saveBon(sama.bon.copy(tanggal = tgl, kategori = kat, uraian = ur, jumlah = jml, tag = tag)); hasil.ubah++
+                } else hasil.lewat++
                 if (sama.fotos.isEmpty()) for (f in foto) { repo.addBonFoto(sama.bon.id, f); hasil.foto++ }
                 return
             }
-            val nid = repo.saveBon(BonModel("", umId, tgl, kat, ur, jml, tag = tag))
+            val nid = repo.saveBon(BonModel(if (id.isNotEmpty() && !repo.bonAda(id)) id else "", umId, tgl, kat, ur, jml, tag = tag))
             hasil.bon++
             for (f in foto) { repo.addBonFoto(nid, f); hasil.foto++ }
         }
+
     }
 
-    suspend fun impor(file: File, repo: Repository): UmImpor {
+    suspend fun impor(file: File, repo: Repository, tanya: TanyaDuplikat? = null): UmImpor {
         val hasil = UmImpor()
-        val g = Gabung(repo, hasil); g.muat()
+        val g = Gabung(repo, hasil, tanya); g.muat()
         val head = file.inputStream().use { s -> ByteArray(2).also { s.read(it) } }
         if (head[0] == 'P'.code.toByte() && head[1] == 'K'.code.toByte()) imporExcel(file, g)
         else file.inputStream().use { s ->
             streamJson(s) { item ->
-                val id = g.simpanUm(item.m)
+                val id = g.simpanUm(item.m, item.bon.size)
+                if (id == null) { hasil.lewat += item.bon.size; return@streamJson }
                 for (b in item.bon) g.bon(id, b.tanggal, BonKategori.from(b.kategori), b.uraian, b.jumlah, b.id, b.foto.mapNotNull { Imaging.jpeg(it, 1600, 85) }, BonKategori.tagDari(b.kategori))
                 g.muat()
             }
@@ -252,6 +275,7 @@ object UmTransfer {
             return null
         }
         val nomorIdx = mutableMapOf<String, String>()   // nomor -> id pengajuan
+        val skipNomor = mutableSetOf<String>()
         // 1) Sheet rekap: metadata pengajuan
         for (sh in sheets) {
             val (hr, h) = headerOf(sh) { it.values.any { v -> v.startsWith("no. pengajuan") || v == "no pengajuan" || v == "nomor pengajuan" } && it.values.any { v -> v.startsWith("keperluan") || v == "judul" } } ?: continue
@@ -266,7 +290,8 @@ object UmTransfer {
                 val nomor = t(cN); if (nomor.isEmpty() || nomor.equals("total", true)) continue
                 val st = t(cS).lowercase().let { when { it.contains("selesai") -> UmStatus.SELESAI; it.contains("cair") -> UmStatus.CAIR; else -> UmStatus.DIAJUKAN } }
                 val m = UangMukaModel("", nomor, t(cJ), null, t(cP), AsetImport.parseTanggal(cT?.let { row[it] }), n(cD), "", n(cC), t(cK), st)
-                nomorIdx[nomor] = g.simpanUm(m)
+                val sid = g.simpanUm(m)
+                if (sid == null) skipNomor.add(nomor) else nomorIdx[nomor] = sid
                 g.muat()
             }
         }
@@ -285,7 +310,8 @@ object UmTransfer {
                 val jml = cJ?.let { row[it] }?.let { it.num ?: AsetImport.parseAngka(it.text) } ?: 0.0
                 if (uraian.isEmpty() && jml == 0.0 && imgs.isEmpty()) continue
                 val nomor = cN?.let { row[it]?.text?.trim() }.orEmpty().ifEmpty { "UM-IMPOR" }
-                val umId = nomorIdx[nomor] ?: g.simpanUm(UangMukaModel("", nomor, if (nomor == "UM-IMPOR") "Hasil impor" else nomor, null, "", todayIso(), 0.0, "", 0.0, "", UmStatus.DIAJUKAN)).also { nomorIdx[nomor] = it; g.muat() }
+                if (nomor in skipNomor) { g.hasil.lewat++; continue }
+                val umId = nomorIdx[nomor] ?: g.simpanUm(UangMukaModel("", nomor, if (nomor == "UM-IMPOR") "Hasil impor" else nomor, null, "", todayIso(), 0.0, "", 0.0, "", UmStatus.DIAJUKAN), tanyakan = false)!!.also { nomorIdx[nomor] = it; g.muat() }
                 val tgl = AsetImport.parseTanggal(cT?.let { row[it] }).ifEmpty { todayIso() }
                 val fotos = imgs.mapNotNull { e -> XlsxReader.readImage(file, e)?.let { b -> Imaging.jpeg(b, 1600, 85) } }
                 val katTeks = cK?.let { row[it]?.text }?.trim().orEmpty()

@@ -56,10 +56,13 @@ data class UangMukaModel(
         (p.getOrNull(1)?.trim().orEmpty()) to j
     }
     /** Catatan tanpa baris pencairan tambahan. */
-    val catatanTeks: String get() = catatan.lines().filterNot { it.startsWith("#BON|") }.joinToString("\n").trim()
+    val catatanTeks: String get() = catatan.lines().filterNot { it.startsWith("#BON|") || it.startsWith("#PT|") }.joinToString("\n").trim()
+    /** Nama PT pemberi uang muka: baris "#PT|nama" di catatan (format cadangan/impor tidak berubah). */
+    val pt: String get() = catatan.lines().firstOrNull { it.startsWith("#PT|") }?.substring(4)?.trim().orEmpty()
     companion object {
-        fun gabungCatatan(teks: String, tambahan: List<Pair<String, Double>>) =
-            (listOf(teks.trim()).filter { it.isNotEmpty() } + tambahan.map { "#BON|${it.first}|${it.second.toLong()}" }).joinToString("\n")
+        fun gabungCatatan(teks: String, tambahan: List<Pair<String, Double>>, pt: String = "") =
+            (listOf(teks.trim()).filter { it.isNotEmpty() } + tambahan.map { "#BON|${it.first}|${it.second.toLong()}" } +
+                listOf(pt.trim().replace("\n", " ")).filter { it.isNotEmpty() }.map { "#PT|$it" }).joinToString("\n")
     }
 }
 

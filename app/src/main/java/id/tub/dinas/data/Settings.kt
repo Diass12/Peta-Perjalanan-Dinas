@@ -82,6 +82,10 @@ class Settings(ctx: Context) {
     var lapPemeriksa: String
         get() = p.getString("lapPemeriksa", "Finance") ?: ""
         set(v) { p.edit().putString("lapPemeriksa", v.trim()).apply() }
+    /** Daftar PT (nama, kota, penyiap, jabatan, pemeriksa, id logo). Satu per baris, kolom dipisah tab. Logo: filesDir/logo_pt_<id>.png. */
+    var ptDaftar: List<PtProfil>
+        get() = (p.getString("ptDaftar", "") ?: "").lines().mapNotNull { l -> val c = l.split("\t"); if (c.size < 6 || c[0].isBlank()) null else PtProfil(c[0], c[1], c[2], c[3], c[4], c[5]) }
+        set(v) { p.edit().putString("ptDaftar", v.joinToString("\n") { listOf(it.nama, it.kota, it.penyiap, it.jabatan, it.pemeriksa, it.logoId).joinToString("\t") { x -> x.replace("\t", " ").replace("\n", " ") } }).apply() }
     /** Waktu (ms) terakhir lisensi terverifikasi online. */
     /** Favorit Panduan Travel: id seperti "k:bali", "w:bali:tanah-lot", "u:bali:ayam-betutu". */
     var panduanFav: Set<String>
@@ -130,3 +134,6 @@ class Settings(ctx: Context) {
         get() = p.getString("lastDinas", null)
         set(v) { p.edit().putString("lastDinas", v).apply() }
 }
+
+/** Profil satu PT untuk kepala & tanda tangan laporan. */
+data class PtProfil(val nama: String, val kota: String = "", val penyiap: String = "", val jabatan: String = "", val pemeriksa: String = "", val logoId: String = "")

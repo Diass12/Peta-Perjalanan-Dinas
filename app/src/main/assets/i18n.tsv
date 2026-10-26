@@ -892,3 +892,39 @@ Foto|Photos|照片|写真|사진
 Berkas|Files|文件|ファイル|파일
 ~karakter|characters|个字符|文字|자
 ~Berkas|files|文件|ファイル|파일
+Nama PT (pemberi uang muka)|Company (cash advance provider)|公司名称（预支款提供方）|会社名（仮払金の提供元）|회사명(선급금 제공처)
+Bawaan / tanpa PT|Default / no company|默认 / 无公司|既定 / 会社なし|기본 / 회사 없음
+Tambah PT di Pengaturan, Daftar PT.|Add companies in Settings, Company list.|请在“设置—公司列表”中添加公司。|設定の「会社リスト」で会社を追加してください。|설정의 '회사 목록'에서 회사를 추가하세요.
+Daftar PT & logo|Company list & logos|公司列表与标志|会社リストとロゴ|회사 목록 및 로고
+Tambah semua PT pemberi uang muka. Tiap PT punya logo dan tanda tangan sendiri untuk laporan LPBPD. Pengajuan uang muka tinggal memilih PT dari daftar ini.|Add every company that provides cash advances. Each has its own logo and signatures for the LPBPD report. A cash advance simply picks a company from this list.|添加所有提供预支款的公司。每家公司在 LPBPD 报告中有各自的标志和签名。预支申请只需从此列表选择公司。|仮払金を提供するすべての会社を追加します。各社はLPBPDレポート用に専用のロゴと署名を持ちます。仮払申請はこのリストから会社を選ぶだけです。|선급금을 제공하는 모든 회사를 추가하세요. 각 회사는 LPBPD 보고서용 로고와 서명을 따로 가집니다. 선급금 신청은 이 목록에서 회사를 고르면 됩니다.
+Belum ada PT. Laporan memakai identitas bawaan di bawah.|No companies yet. Reports use the default identity below.|尚无公司。报告将使用下方的默认信息。|会社がありません。レポートは下の既定の情報を使います。|등록된 회사가 없습니다. 보고서는 아래 기본 정보를 사용합니다.
++ Tambah PT|+ Add company|+ 添加公司|+ 会社を追加|+ 회사 추가
+Ubah PT|Edit company|修改公司|会社を編集|회사 수정
+Tambah PT|Add company|添加公司|会社を追加|회사 추가
+Pilih logo|Choose logo|选择标志|ロゴを選ぶ|로고 선택
+Nama PT|Company name|公司名称|会社名|회사명
+Kota (tanggal cetak)|City (print date)|城市（打印日期）|都市（印刷日）|도시(인쇄 날짜)
+Dipersiapkan oleh|Prepared by|编制人|作成者|작성자
+Jabatan penyiap|Preparer's title|编制人职务|作成者の役職|작성자 직위
+Diperiksa oleh|Checked by|审核人|確認者|검토자
+Nama PT sudah ada|Company name already exists|公司名称已存在|会社名は既に存在します|이미 있는 회사명입니다
+Laporan realisasi (LPBPD) — identitas bawaan|Realization report (LPBPD) — default identity|实报报告（LPBPD）— 默认信息|実績報告（LPBPD）— 既定の情報|실적 보고서(LPBPD) — 기본 정보
+Data sudah ada|Data already exists|数据已存在|データは既に存在します|이미 있는 데이터
+Terapkan ke semua yang sama|Apply to all matches|应用于所有相同项|同じものすべてに適用|동일 항목 모두 적용
+Timpa|Overwrite|覆盖|上書き|덮어쓰기
+Lewati|Skip|跳过|スキップ|건너뛰기
+Simpan sebagai baru|Save as new|另存为新项|新規として保存|새로 저장
+PT yang dilaporkan|Company to report|要报告的公司|レポート対象の会社|보고할 회사
+Semua PT|All companies|所有公司|すべての会社|모든 회사
+Sisa anggaran semua pengajuan berjalan|Remaining budget of all active requests|所有进行中申请的剩余预算|進行中の全申請の残り予算|진행 중인 모든 신청의 남은 예산
+~sudah ada di sini.|already exists here.|已存在于此。|は既にここにあります。|이(가) 이미 있습니다.
+~Di sini:|Here:|此处：|ここ：|여기:
+~Dalam berkas:|In file:|文件中：|ファイル内：|파일 내:
+~dengan kode|with code|代码为|コード|코드
+~Tanpa PT|No company|无公司|会社なし|회사 없음
+~Semua PT|All companies|所有公司|すべての会社|모든 회사
+~Nomor pengajuan ini sudah dipakai|This request number is already used|此申请编号已被使用|この申請番号は既に使われています|이 신청 번호는 이미 사용 중입니다
+~Pakai nomor lain atau ubah PT.|Use another number or change the company.|请使用其他编号或更改公司。|別の番号を使うか会社を変更してください。|다른 번호를 쓰거나 회사를 바꾸세요.
+~untuk|for|用于|用|용
+~bon dalam berkas|receipts in file|文件中的单据|ファイル内の領収書|파일 내 영수증
+~bon, total|receipts, total|张单据，合计|件の領収書、合計|건의 영수증, 합계

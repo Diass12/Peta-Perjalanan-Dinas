@@ -194,7 +194,7 @@ fun BerandaTab(vm: MainViewModel, aktif: DinasModel?, s: DinasSnapshot?) {
                     Box(Modifier.size(64.dp).background(Color(0xFFDDF6EA), RoundedCornerShape(18.dp)), contentAlignment = Alignment.Center) { Text("👛", fontSize = 32.sp) }
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("Sisa Anggaran Perjalanan", color = C.Muted, fontSize = 14.sp)
+                        Text("Sisa anggaran semua pengajuan berjalan", color = C.Muted, fontSize = 14.sp)
                         if (berjalan.isEmpty()) Text("Belum ada uang muka berjalan.", color = C.Muted, modifier = Modifier.padding(top = 6.dp))
                         else {
                             val sisa = dana - bon
