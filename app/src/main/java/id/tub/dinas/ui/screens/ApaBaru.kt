@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(19, "1.7.9", listOf(
+            FiturBaru("🌐", "Terjemahan lebih lengkap", "Sekitar 150 teks yang sebelumnya tetap berbahasa Indonesia saat bahasa aplikasi diganti kini ikut diterjemahkan (Inggris, Mandarin, Jepang, Korea): form aset, bon, Insights, Panduan, Studio Foto, Pengaturan, dan kondisi aset (Baik, Cukup, Rusak) beserta riwayat aset.",
+                listOf("Ganti bahasa di Pengaturan, lalu periksa form Aset dan Bon."), null),
+        )),
         RilisInfo(18, "1.7.8", listOf(
             FiturBaru("📦", "Form aset lebih rapi", "Isian aset kini dikelompokkan menjadi Media & Lampiran (foto, baca kode, AI, video, dokumen), Informasi Utama, Kepemilikan & Distribusi, serta Status & Kondisi. Chip kondisi dan status berwarna (hijau, oranye, merah), tombol Simpan dan Buat temuan melayang di bawah, dan Unduh kartu / Hapus aset dipindah ke menu ⋯ di kanan atas agar tidak terpencet. Data aset tidak berubah.",
                 listOf("Buka Aset, lalu ketuk salah satu aset.", "Ketuk ⋯ di kanan atas untuk Unduh kartu aset atau Hapus aset."), null),

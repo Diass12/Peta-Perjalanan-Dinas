@@ -699,3 +699,179 @@ Nama berkas|File name|文件名|ファイル名|파일 이름
 Lokasi|Location|位置|場所|위치
 Buka berkas|Open file|打开文件|ファイルを開く|파일 열기
 OK|OK|确定|OK|확인
+Baik|Good|良好|良好|양호
+Cukup|Fair|一般|普通|보통
+Damaged|Damaged|损坏|破損|파손
+otomatis|automatic|自动|自動|자동
+diatur manual|set manually|手动设置|手動設定|수동 설정
+sumber: hasil scan|source: scan result|来源：扫描结果|ソース：スキャン結果|출처: 스캔 결과
+sumber: Excel|source: Excel|来源：Excel|ソース：Excel|출처: Excel
+↻ Hitung otomatis|↻ Recalculate automatically|↻ 自动重新计算|↻ 自動で再計算|↻ 자동 재계산
+Status barcode|Barcode status|条码状态|バーコード状態|바코드 상태
+Status audit|Audit status|审计状态|監査状態|감사 상태
+RIWAYAT|HISTORY|历史记录|履歴|이력
+Pilih dinas|Choose a trip|选择出差|出張を選択|출장 선택
+Belum ada dinas. Buat dinas dulu di halaman depan.|No trips yet. Create a trip on the home page first.|还没有出差。请先在首页创建出差。|出張がまだありません。先にホームで作成してください。|출장이 없습니다. 먼저 홈에서 출장을 만드세요.
+Temuan dibuat dengan kode, nama, kondisi, dan foto utama aset ini. Lensa Aset terisi otomatis.|The finding is created with this asset's code, name, condition and main photo. The Asset lens is filled in automatically.|发现将带有此资产的编码、名称、状况和主照片，资产分类自动填写。|所見はこの資産のコード・名称・状態・メイン写真付きで作成され、資産レンズが自動入力されます。|이 자산의 코드, 이름, 상태, 대표 사진으로 발견 항목이 만들어지며 자산 렌즈가 자동 입력됩니다.
+Tidak ada kode terbaca di foto|No code could be read in the photo|照片中未读取到编码|写真からコードを読み取れませんでした|사진에서 코드를 읽지 못했습니다
+Isi kunci Gemini dulu di Pengaturan|Enter your Gemini key in Settings first|请先在设置中填写 Gemini 密钥|先に設定でGeminiキーを入力してください|먼저 설정에서 Gemini 키를 입력하세요
+Baca kode berjalan di perangkat tanpa internet. Analisis AI mengirim foto utama ke Google Gemini.|Code reading runs on the device without internet. AI analysis sends the main photo to Google Gemini.|读取编码在设备上运行，无需网络。AI 分析会将主照片发送给 Google Gemini。|コード読み取りは端末内で行われ、通信は不要です。AI分析はメイン写真をGoogle Geminiに送信します。|코드 읽기는 인터넷 없이 기기에서 실행됩니다. AI 분석은 대표 사진을 Google Gemini로 보냅니다.
+Hasil AI bisa keliru; periksa sebelum menyimpan.|AI results may be wrong; check before saving.|AI 结果可能有误，保存前请检查。|AIの結果は誤る場合があります。保存前に確認してください。|AI 결과는 틀릴 수 있으니 저장 전에 확인하세요.
+Izin kamera ditolak. Pakai "Pilih video".|Camera permission denied. Use "Pick video".|相机权限被拒绝。请使用“选择视频”。|カメラの許可が拒否されました。「動画を選択」を使ってください。|카메라 권한이 거부되었습니다. "동영상 선택"을 사용하세요.
+Izin kamera ditolak. Pakai "Pilih video" untuk mengambil dari galeri.|Camera permission denied. Use "Pick video" to choose from the gallery.|相机权限被拒绝。请使用“选择视频”从相册选取。|カメラの許可が拒否されました。「動画を選択」でギャラリーから選んでください。|카메라 권한이 거부되었습니다. "동영상 선택"으로 갤러리에서 고르세요.
+Izin mikrofon ditolak. Pakai "Pilih audio" untuk mengambil berkas rekaman.|Microphone permission denied. Use "Pick audio" to choose a recording file.|麦克风权限被拒绝。请使用“选择音频”选取录音文件。|マイクの許可が拒否されました。「音声を選択」で録音ファイルを選んでください。|마이크 권한이 거부되었습니다. "오디오 선택"으로 녹음 파일을 고르세요.
+Unduh kartu aset (PDF)|Download asset card (PDF)|下载资产卡 (PDF)|資産カードをダウンロード (PDF)|자산 카드 다운로드 (PDF)
+Hapus aset|Delete asset|删除资产|資産を削除|자산 삭제
+Buat temuan…|Create finding…|创建发现…|所見を作成…|발견 항목 만들기…
+Temuan lagi…|Another finding…|再创建发现…|所見をもう一件…|발견 항목 추가…
+Simpan|Save|保存|保存|저장
+MEDIA & LAMPIRAN|MEDIA & ATTACHMENTS|媒体与附件|メディアと添付|미디어 및 첨부
+INFORMASI UTAMA|MAIN INFORMATION|主要信息|基本情報|주요 정보
+KEPEMILIKAN & DISTRIBUSI|OWNERSHIP & DISTRIBUTION|所有与分配|所有と配置|소유 및 배치
+STATUS & KONDISI|STATUS & CONDITION|状态与状况|状態と状況|상태 및 조건
+Pengguna|User|使用人|使用者|사용자
+User / pengguna|User|使用人|使用者|사용자
+hitung ulang barcode|recalculate barcode|重新计算条码|バーコード再計算|바코드 재계산
+diimpor|imported|已导入|インポート済み|가져옴
+diubah|edited|已修改|変更済み|수정됨
+edit tabel|table edit|表格编辑|表の編集|표 편집
+OCR ulang|OCR again|重新 OCR|OCR再実行|OCR 재실행
+scan|scan|扫描|スキャン|스캔
+scan audit|audit scan|审计扫描|監査スキャン|감사 스캔
+scan live|live scan|实时扫描|ライブスキャン|라이브 스캔
+scan live audit|live audit scan|实时审计扫描|ライブ監査スキャン|라이브 감사 스캔
+dibuat dari scan|created from scan|由扫描创建|スキャンから作成|스캔으로 생성
+dibuat dari scan audit|created from audit scan|由审计扫描创建|監査スキャンから作成|감사 스캔으로 생성
+dibuat dari galeri|created from gallery|由相册创建|ギャラリーから作成|갤러리에서 생성
+dibuat dari foto|created from photo|由照片创建|写真から作成|사진으로 생성
+dibuat dari foto tanpa kode|created from photo without code|由无编码照片创建|コードなし写真から作成|코드 없는 사진으로 생성
+temuan dibuat|finding created|已创建发现|所見を作成|발견 항목 생성됨
+audit|audit|审计|監査|감사
+master|master|主数据|マスター|마스터
+Aplikasi terkunci|App locked|应用已锁定|アプリはロック中|앱이 잠김
+Buka kunci|Unlock|解锁|ロック解除|잠금 해제
+Perbarui aplikasi|Update the app|更新应用|アプリを更新|앱 업데이트
+Unduh versi terbaru|Download the latest version|下载最新版本|最新版をダウンロード|최신 버전 다운로드
+Ada versi baru|New version available|有新版本|新バージョンがあります|새 버전이 있습니다
+Yang berubah:|What changed:|更新内容：|変更点：|변경 사항:
+Unduh|Download|下载|ダウンロード|다운로드
+Nanti|Later|稍后|あとで|나중에
+Lisensi|License|许可证|ライセンス|라이선스
+PDF dilampirkan|PDF attached|已附加 PDF|PDFを添付しました|PDF 첨부됨
+Koordinat tidak ditemukan di tautan ini (mungkin hanya memuat nama tempat atau perangkat sedang offline). Di Google Maps, tekan lama pada peta lalu salin koordinatnya, kemudian pakai tombol Tempel.|No coordinates were found in this link (it may only contain a place name, or the device is offline). In Google Maps, long-press the map, copy the coordinates, then use the Paste button.|此链接中未找到坐标（可能只有地点名称，或设备离线）。请在谷歌地图长按地图并复制坐标，然后点击“粘贴”。|このリンクに座標が見つかりません（地名のみ、または端末がオフラインの可能性があります）。Googleマップで地図を長押しして座標をコピーし、「貼り付け」を押してください。|이 링크에서 좌표를 찾지 못했습니다(장소 이름만 있거나 기기가 오프라인일 수 있음). 구글 지도에서 지도를 길게 눌러 좌표를 복사한 뒤 붙여넣기 버튼을 사용하세요.
+LOKASI|LOCATION|位置|場所|위치
+Belum ada lokasi|No location yet|暂无位置|場所がありません|위치 없음
+Tekan lama di peta untuk menjatuhkan pin, salin koordinat (atau Bagikan), lalu kembali ke sini.|Long-press the map to drop a pin, copy the coordinates (or Share), then come back here.|长按地图放置图钉，复制坐标（或分享），然后返回此处。|地図を長押ししてピンを置き、座標をコピー（または共有）してここに戻ってください。|지도를 길게 눌러 핀을 놓고 좌표를 복사(또는 공유)한 뒤 여기로 돌아오세요.
+Salin dari Google Maps (tahan titik → salin koordinat) atau tempel tautan Maps.|Copy from Google Maps (hold a point → copy coordinates) or paste a Maps link.|从谷歌地图复制（按住某点 → 复制坐标）或粘贴地图链接。|Googleマップからコピー（地点を長押し→座標をコピー）またはマップのリンクを貼り付けます。|구글 지도에서 복사(지점을 길게 누름 → 좌표 복사)하거나 지도 링크를 붙여넣으세요.
+Keterangan foto|Photo caption|照片说明|写真の説明|사진 설명
+Mau dinas ke mana?|Where is your trip to?|出差去哪里？|出張先はどこ？|어디로 출장 가세요?
+Rencanakan perjalanan, catat temuan, kelola anggaran dengan mudah.|Plan trips, record findings and manage budgets with ease.|轻松规划行程、记录发现、管理预算。|出張の計画、所見の記録、予算管理を簡単に。|출장 계획, 발견 기록, 예산 관리를 쉽게.
+📅  DINAS AKTIF|📅  ACTIVE TRIP|📅  当前出差|📅  進行中の出張|📅  진행 중 출장
+Buka ›|Open ›|打开 ›|開く ›|열기 ›
+Sisa Anggaran Perjalanan|Remaining Travel Budget|差旅预算余额|出張予算の残り|출장 예산 잔액
+＋  Temuan baru|＋  New finding|＋  新发现|＋  新しい所見|＋  새 발견
+Lihat semua  ›|See all  ›|查看全部  ›|すべて見る  ›|모두 보기  ›
+Ringkasan biaya|Expense summary|费用概览|費用の概要|비용 요약
+Akses cepat|Quick access|快捷入口|クイックアクセス|빠른 실행
+🧳 Dokumen|🧳 Documents|🧳 文档|🧳 書類|🧳 문서
+🖼️ Galeri|🖼️ Gallery|🖼️ 相册|🖼️ ギャラリー|🖼️ 갤러리
+⚙️ Pengaturan|⚙️ Settings|⚙️ 设置|⚙️ 設定|⚙️ 설정
+WEBTOON Indonesia ↗|WEBTOON Indonesia ↗|WEBTOON 印度尼西亚 ↗|WEBTOON インドネシア ↗|웹툰 인도네시아 ↗
+Belum ada nilai.|No values yet.|暂无数值。|値がありません。|값이 없습니다.
+Centang kolom yang mau diubah. Kolom tak dicentang tidak disentuh.|Tick the columns to change. Unticked columns are left untouched.|勾选要修改的列，未勾选的列不会改动。|変更する列にチェックを入れてください。未選択の列は変更されません。|변경할 열에 체크하세요. 체크하지 않은 열은 그대로입니다.
+Berurutan: foto ke-1 → aset ke-1, dst.|In order: photo 1 → asset 1, and so on.|按顺序：第1张照片 → 第1项资产，依此类推。|順番に：写真1→資産1、以下同様。|순서대로: 사진 1 → 자산 1, 이런 식으로.
+Sama: semua foto → semua aset|Same: all photos → all assets|相同：所有照片 → 所有资产|同じ：すべての写真→すべての資産|동일: 모든 사진 → 모든 자산
+Pilih foto|Choose photos|选择照片|写真を選択|사진 선택
+Scan|Scan|扫描|スキャン|스캔
+📋 Progres Audit|📋 Audit Progress|📋 审计进度|📋 監査の進捗|📋 감사 진행
+🪙 Total NBV: |🪙 Total NBV: |🪙 NBV 合计：|🪙 NBV合計：|🪙 NBV 합계: 
+Data aset tersimpan terenkripsi (SQLCipher) dan foto dienkripsi AES-GCM. Kunci aplikasi memakai biometrik/PIN perangkat.|Asset data is stored encrypted (SQLCipher) and photos are encrypted with AES-GCM. The app lock uses the device biometrics/PIN.|资产数据加密存储 (SQLCipher)，照片使用 AES-GCM 加密。应用锁使用设备生物识别/PIN。|資産データは暗号化（SQLCipher）、写真はAES-GCMで暗号化して保存されます。アプリロックは端末の生体認証/PINを使います。|자산 데이터는 암호화(SQLCipher)되어 저장되고 사진은 AES-GCM으로 암호화됩니다. 앱 잠금은 기기 생체인증/PIN을 사용합니다.
+Cadangan seluruh data, termasuk aset dan fotonya, ada di layar Pengaturan aplikasi → Cadangan.|Backup of all data, including assets and their photos, is in the app's Settings → Backup screen.|所有数据（包括资产及照片）的备份在应用“设置 → 备份”中。|資産と写真を含むすべてのデータのバックアップは、アプリの設定→バックアップにあります。|자산과 사진을 포함한 모든 데이터 백업은 앱 설정 → 백업 화면에 있습니다.
+Studio Foto|Photo Studio|照片工作室|フォトスタジオ|사진 스튜디오
+🎨 Edit foto|🎨 Edit photo|🎨 编辑照片|🎨 写真を編集|🎨 사진 편집
+🧩 Kolase|🧩 Collage|🧩 拼贴|🧩 コラージュ|🧩 콜라주
+Memproses…|Processing…|处理中…|処理中…|처리 중…
+Filter|Filter|滤镜|フィルター|필터
+Bingkai|Frame|边框|フレーム|프레임
+Tata letak|Layout|布局|レイアウト|레이아웃
+Warna latar|Background color|背景颜色|背景色|배경색
+Gagal membuat gambar|Failed to create the image|生成图片失败|画像の作成に失敗しました|이미지 생성 실패
+Tersimpan sebagai foto baru. Foto asli tidak berubah.|Saved as a new photo. The original is unchanged.|已另存为新照片，原照片不变。|新しい写真として保存しました。元の写真は変更されません。|새 사진으로 저장했습니다. 원본은 변경되지 않습니다.
+Coba sekarang|Try it now|立即体验|今すぐ試す|지금 사용해 보기
+Berikutnya|Next|下一步|次へ|다음
+Sebelumnya|Previous|上一步|前へ|이전
+Lihat panduan|See the guide|查看指南|ガイドを見る|가이드 보기
+Belum ada lensa dipilih.|No lens selected yet.|尚未选择分类。|レンズが未選択です。|선택한 렌즈가 없습니다.
+Coba cari|Try searching|试试搜索|検索してみる|검색해 보기
+♥ Destinasi tersimpan|♥ Saved destinations|♥ 已保存的目的地|♥ 保存した目的地|♥ 저장한 목적지
+☀️ Jelajahi. Rencanakan. Abadikan.|☀️ Explore. Plan. Capture.|☀️ 探索。规划。记录。|☀️ 探して、計画して、残そう。|☀️ 탐험하고, 계획하고, 기록하세요.
+Mau pergi ke|Where to?|想去|行き先は|어디로 갈까요
+mana?|?|哪里？|どこ？|어디?
+Cari kota atau tempat tujuan…|Search a city or destination…|搜索城市或目的地…|都市や目的地を検索…|도시나 목적지 검색…
+Ringkasan dan foto dari Wikipedia|Summary and photo from Wikipedia|来自维基百科的摘要和照片|Wikipediaの概要と写真|위키백과의 요약과 사진
+Sumber: Wikipedia (CC BY-SA). Cek ulang jam buka, tiket, dan aturan sebelum berangkat.|Source: Wikipedia (CC BY-SA). Re-check opening hours, tickets and rules before you go.|来源：维基百科 (CC BY-SA)。出发前请再次确认开放时间、门票和规定。|出典：Wikipedia（CC BY-SA）。出発前に営業時間・チケット・ルールを再確認してください。|출처: 위키백과 (CC BY-SA). 출발 전에 운영 시간, 티켓, 규정을 다시 확인하세요.
+＋ Jadikan dinas|＋ Make it a trip|＋ 设为出差|＋ 出張にする|＋ 출장으로 만들기
+Tidak tersambung atau terlalu lama menunggu. Coba lagi, atau pakai tombol di bawah.|Not connected or it took too long. Try again, or use the buttons below.|未连接或等待过久。请重试，或使用下方按钮。|接続できないか時間がかかりすぎました。再試行するか、下のボタンを使ってください。|연결되지 않았거나 시간이 너무 오래 걸렸습니다. 다시 시도하거나 아래 버튼을 사용하세요.
+Coba lagi|Try again|重试|再試行|다시 시도
+Tidak ditemukan di Wikipedia. Pakai tombol di bawah untuk mencari lewat Maps.|Not found on Wikipedia. Use the buttons below to search via Maps.|维基百科中未找到。请使用下方按钮通过地图搜索。|Wikipediaに見つかりません。下のボタンでマップから検索してください。|위키백과에서 찾지 못했습니다. 아래 버튼으로 지도에서 검색하세요.
+Mencari…|Searching…|搜索中…|検索中…|검색 중…
+Tampilkan nominal di widget|Show amounts in widget|在小组件中显示金额|ウィジェットに金額を表示|위젯에 금액 표시
+Bila kunci aplikasi aktif, nominal anggaran di widget layar utama disembunyikan kecuali ini dinyalakan.|When the app lock is on, budget amounts in the home-screen widget are hidden unless this is turned on.|应用锁开启时，主屏幕小组件中的预算金额会隐藏，除非开启此项。|アプリロックが有効な場合、これをオンにしない限りホーム画面ウィジェットの予算金額は非表示になります。|앱 잠금이 켜져 있으면 이 옵션을 켜지 않는 한 홈 화면 위젯의 예산 금액이 숨겨집니다.
+Untuk mengenali barang dan membaca stiker kode aset dari foto. Isi kunci gratis dari aistudio.google.com/apikey. Kunci hanya disimpan di perangkat ini. Saat dipakai, foto aset dikirim ke Google; tanpa kunci, tidak ada data yang dikirim.|To recognize items and read asset code stickers from photos. Get a free key at aistudio.google.com/apikey. The key is stored only on this device. When used, asset photos are sent to Google; without a key, no data is sent.|用于从照片识别物品并读取资产编码贴纸。可在 aistudio.google.com/apikey 免费获取密钥。密钥仅保存在本设备。使用时资产照片会发送给 Google；没有密钥则不发送任何数据。|写真から物品を認識し、資産コードのステッカーを読み取ります。キーは aistudio.google.com/apikey で無料取得できます。キーはこの端末にのみ保存されます。使用時は資産写真がGoogleに送信され、キーがなければデータは送信されません。|사진에서 물건을 인식하고 자산 코드 스티커를 읽습니다. aistudio.google.com/apikey 에서 무료 키를 받으세요. 키는 이 기기에만 저장됩니다. 사용 시 자산 사진이 Google로 전송되며, 키가 없으면 데이터가 전송되지 않습니다.
+Isi kunci dulu|Enter a key first|请先填写密钥|先にキーを入力してください|먼저 키를 입력하세요
+Pengaturan Gemini disimpan|Gemini settings saved|已保存 Gemini 设置|Gemini設定を保存しました|Gemini 설정이 저장되었습니다
+Aktifkan Staff HO|Enable HO Staff|启用总部员工|本社スタッフを有効化|본사 직원 활성화
+Staff HO aktif|HO Staff active|总部员工已启用|本社スタッフ有効|본사 직원 활성화됨
+Kembali ke Staff Site|Back to Site Staff|返回现场员工|現場スタッフに戻る|현장 직원으로 돌아가기
+✨ Apa yang baru & panduan|✨ What's new & guide|✨ 新功能与指南|✨ 新機能とガイド|✨ 새로운 기능 및 가이드
+📜 Riwayat perubahan semua versi|📜 Change history of all versions|📜 所有版本的更新记录|📜 全バージョンの変更履歴|📜 모든 버전의 변경 내역
+Riwayat perubahan|Change history|更新记录|変更履歴|변경 내역
+Laporan realisasi (LPBPD)|Realization report (LPBPD)|实际支出报告 (LPBPD)|実績報告（LPBPD）|실적 보고서 (LPBPD)
+Kepala dan tanda tangan pada laporan biaya perjalanan dinas hasil ekspor.|Header and signature on the exported business-trip expense report.|导出的差旅费用报告上的抬头和签名。|エクスポートされた出張費用報告書のヘッダーと署名。|내보낸 출장 비용 보고서의 머리글과 서명.
+Logo laporan disimpan|Report logo saved|已保存报告标志|報告書ロゴを保存しました|보고서 로고가 저장되었습니다
+Gambar tidak dapat dibaca|The image could not be read|无法读取图片|画像を読み取れません|이미지를 읽을 수 없습니다
+Ganti logo|Change logo|更换标志|ロゴを変更|로고 변경
+Pakai logo bawaan|Use the default logo|使用默认标志|標準ロゴを使用|기본 로고 사용
+Logo bawaan dipakai|Default logo in use|正在使用默认标志|標準ロゴを使用中|기본 로고 사용 중
+Tidak ada kode aset yang terbaca di foto ini. Coba dekatkan label, tambah cahaya, atau isi kode secara manual.|No asset code could be read in this photo. Move closer to the label, add light, or enter the code manually.|此照片中未读取到资产编码。请靠近标签、增加光线，或手动输入编码。|この写真から資産コードを読み取れませんでした。ラベルに近づく、明るくする、または手入力してください。|이 사진에서 자산 코드를 읽지 못했습니다. 라벨에 가까이 대거나 조명을 밝히거나 직접 입력하세요.
+Buat aset dari foto ini|Create an asset from this photo|用此照片创建资产|この写真から資産を作成|이 사진으로 자산 만들기
+🗑 Hapus database|🗑 Delete database|🗑 删除数据库|🗑 データベースを削除|🗑 데이터베이스 삭제
+Semua aset, foto, video, dan dokumen aset akan dihapus dari aplikasi ini. Tidak bisa dibatalkan (kecuali dari cadangan).|All assets, photos, videos and asset documents will be deleted from this app. This cannot be undone (except from a backup).|所有资产、照片、视频和资产文档将从本应用删除。无法撤销（除非从备份恢复）。|すべての資産・写真・動画・書類がこのアプリから削除されます。元に戻せません（バックアップから復元する場合を除く）。|모든 자산, 사진, 동영상, 자산 문서가 이 앱에서 삭제됩니다. 되돌릴 수 없습니다(백업에서 복원 제외).
+Tidak ada baris di kategori ini.|No rows in this category.|此类别没有记录。|このカテゴリに行がありません。|이 카테고리에 항목이 없습니다.
+Ringan (900px)|Light (900px)|轻量 (900px)|軽量 (900px)|경량 (900px)
+ASLI|ORIGINAL|原图|オリジナル|원본
++ Baru|+ New|+ 新建|+ 新規|+ 새로 만들기
+Laporan realisasi: format LPBPD (kolom Akomodasi, Transportasi, Konsumsi, Uang Saku, Lain-lain) siap cetak untuk Finance.|Realization report: LPBPD format (Accommodation, Transport, Meals, Allowance, Other columns), print-ready for Finance.|实际支出报告：LPBPD 格式（住宿、交通、餐饮、津贴、其他列），可直接打印给财务。|実績報告：LPBPD形式（宿泊・交通・飲食・日当・その他の列）、経理向けに印刷可能。|실적 보고서: LPBPD 형식(숙박, 교통, 식비, 용돈, 기타 열), 재무팀용 인쇄 가능.
+RINGKASAN|SUMMARY|概览|概要|요약
+PENGAJUAN|REQUESTS|申请|申請|신청
+REALISASI|REALIZATION|实际支出|実績|실적
+Teks bon tidak terbaca. Coba foto yang lebih jelas dan terang.|The receipt text could not be read. Try a clearer, brighter photo.|无法读取单据文字。请换一张更清晰、更明亮的照片。|領収書の文字を読み取れません。より鮮明で明るい写真でお試しください。|영수증 글자를 읽지 못했습니다. 더 선명하고 밝은 사진으로 시도하세요.
+Kategori baru|New category|新类别|新しいカテゴリ|새 카테고리
+Masuk ke kolom laporan:|Goes into report column:|计入报告列：|報告書の列：|보고서 열:
+Kategori buatan Anda (ketuk untuk menghapus):|Your own categories (tap to delete):|您创建的类别（点按删除）：|作成したカテゴリ（タップで削除）：|직접 만든 카테고리(탭하여 삭제):
+Tambah & pilih|Add & select|添加并选择|追加して選択|추가 후 선택
+Hasil baca bon|Receipt reading result|单据识别结果|領収書の読み取り結果|영수증 읽기 결과
+Hasil otomatis bisa keliru. Periksa dulu sebelum dipakai.|Automatic results may be wrong. Check before using them.|自动结果可能有误，使用前请检查。|自動結果は誤る場合があります。使用前に確認してください。|자동 결과는 틀릴 수 있으니 사용 전에 확인하세요.
+Jumlah (pilih yang benar):|Amount (choose the right one):|金额（选择正确的）：|金額（正しいものを選択）：|금액(맞는 것을 선택):
+Pakai hasil|Use result|使用结果|結果を使う|결과 사용
+＋ Kategori baru|＋ New category|＋ 新类别|＋ 新しいカテゴリ|＋ 새 카테고리
+Terbilang: |In words: |大写：|文字表記：|금액(글자): 
+Nominal sesuai bon fisik|Amount as on the physical receipt|金额与实物单据一致|金額は実物の領収書どおり|금액은 실제 영수증과 동일
+Lampirkan foto bon/invoice asli yang jelas agar lolos verifikasi finance.|Attach a clear photo of the original receipt/invoice so it passes finance verification.|请附上清晰的原始单据/发票照片，以便通过财务核验。|財務の確認を通るよう、原本の領収書/請求書の鮮明な写真を添付してください。|재무 검증을 통과하도록 원본 영수증/인보이스의 선명한 사진을 첨부하세요.
+🗑️  Hapus bon ini|🗑️  Delete this receipt|🗑️  删除此单据|🗑️  この領収書を削除|🗑️  이 영수증 삭제
+✔  Simpan bon|✔  Save receipt|✔  保存单据|✔  領収書を保存|✔  영수증 저장
+Informasi untuk Operasi di Lapangan|Information for Field Operations|现场作业信息|現場運営のための情報|현장 운영을 위한 정보
+TERKINI|LATEST|最新|最新|최신
+Berita terbaru|Latest news|最新新闻|最新ニュース|최신 뉴스
+Info penting|Important info|重要信息|重要情報|중요 정보
+Berita dimuat dari RSS publik masing-masing penerbit; hak cipta milik penerbit. Ketuk berita untuk membaca di situs aslinya.|News is loaded from each publisher's public RSS; copyright belongs to the publishers. Tap a story to read it on the original site.|新闻来自各出版方的公开 RSS，版权归出版方所有。点按新闻可在原网站阅读。|ニュースは各発行元の公開RSSから読み込まれ、著作権は発行元に帰属します。記事をタップして元サイトで読めます。|뉴스는 각 발행처의 공개 RSS에서 불러오며 저작권은 발행처에 있습니다. 기사를 탭하면 원본 사이트에서 읽을 수 있습니다.
+📍 Kunci titik GPS baru|📍 Lock a new GPS point|📍 锁定新的 GPS 点|📍 新しいGPS地点を固定|📍 새 GPS 지점 고정
+Video disimpan terenkripsi|Video saved encrypted|视频已加密保存|動画を暗号化して保存しました|동영상이 암호화되어 저장되었습니다
+Temuan dibuat di dinas terpilih|Finding created in the selected trip|已在所选出差中创建发现|選択した出張に所見を作成しました|선택한 출장에 발견 항목을 만들었습니다
+Tanggal belum valid|The date is not valid yet|日期尚无效|日付がまだ有効ではありません|날짜가 아직 유효하지 않습니다
+Memuat…|Loading…|加载中…|読み込み中…|불러오는 중…
+Muat ulang|Reload|重新加载|再読み込み|새로고침
+Tidak ada berita yang cocok.|No matching news.|没有匹配的新闻。|一致するニュースがありません。|일치하는 뉴스가 없습니다.
+Berita belum bisa dimuat. Periksa sambungan internet lalu coba muat ulang.|News could not be loaded. Check your internet connection and reload.|无法加载新闻。请检查网络连接后重新加载。|ニュースを読み込めません。インターネット接続を確認して再読み込みしてください。|뉴스를 불러올 수 없습니다. 인터넷 연결을 확인하고 새로고침하세요.
+Cari berita…|Search news…|搜索新闻…|ニュースを検索…|뉴스 검색…
+Nonaktifkan|Disable|停用|無効化|비활성화
