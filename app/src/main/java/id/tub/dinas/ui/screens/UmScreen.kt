@@ -65,20 +65,7 @@ fun UmScreen(vm: MainViewModel) {
         else UmDetail(vm, detail, onExport = { askScope = listOf(detail) })
     }
 
-    c.konflik?.let { (k, _) ->
-        var semua by remember(k) { mutableStateOf(false) }
-        AlertDialog(onDismissRequest = {},
-            title = { Text("Data sudah ada") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("${k.jenis} dengan kode ${k.kode}${if (k.pt.isNotBlank()) " (${k.pt})" else ""}${if (k.nama.isNotBlank()) " — ${k.nama}" else ""} sudah ada di sini.")
-                    Text("Di sini: ${k.lama}. Dalam berkas: ${k.baru}.", color = C.Muted, style = MaterialTheme.typography.bodySmall)
-                    Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(semua, { semua = it }); Text("Terapkan ke semua yang sama") }
-                }
-            },
-            confirmButton = { TextButton(onClick = { c.jawabKonflik("timpa", semua) }) { Text("Timpa") } },
-            dismissButton = { Row { TextButton(onClick = { c.jawabKonflik("lewati", semua) }) { Text("Lewati") }; TextButton(onClick = { c.jawabKonflik("baru", semua) }) { Text("Simpan sebagai baru") } } })
-    }
+    KonflikDialog(vm)
     c.editUm?.let { UmDialog(vm, it) }
     c.editBonId?.let { id -> BonEditor(vm, id) }
     c.viewer?.let { (bonId, idx) -> BonFotoViewer(vm, bonId, idx) }
@@ -521,5 +508,25 @@ private fun BonFotoViewer(vm: MainViewModel, bonId: String, start: Int) {
             }
             TextButton(onClick = { c.viewer = null }, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding()) { Text("Tutup ✕", color = Color.White) }
         }
+    }
+}
+
+/** Dialog "Data sudah ada" (impor pengajuan, pulihkan cadangan): Lewati / Timpa / Simpan sebagai baru + terapkan ke semua. */
+@Composable
+fun KonflikDialog(vm: MainViewModel) {
+    val c = vm.um
+    c.konflik?.let { (k, _) ->
+        var semua by remember(k) { mutableStateOf(false) }
+        AlertDialog(onDismissRequest = {},
+            title = { Text("Data sudah ada") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("${k.jenis} dengan kode ${k.kode}${if (k.pt.isNotBlank()) " (${k.pt})" else ""}${if (k.nama.isNotBlank()) " — ${k.nama}" else ""} sudah ada di sini.")
+                    Text("Di sini: ${k.lama}. Dalam berkas: ${k.baru}.", color = C.Muted, style = MaterialTheme.typography.bodySmall)
+                    Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(semua, { semua = it }); Text("Terapkan ke semua yang sama") }
+                }
+            },
+            confirmButton = { TextButton(onClick = { c.jawabKonflik("timpa", semua) }) { Text("Timpa") } },
+            dismissButton = { Row { TextButton(onClick = { c.jawabKonflik("lewati", semua) }) { Text("Lewati") }; if (k.bolehBaru) TextButton(onClick = { c.jawabKonflik("baru", semua) }) { Text("Simpan sebagai baru") } } })
     }
 }

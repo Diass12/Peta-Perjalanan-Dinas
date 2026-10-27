@@ -20,7 +20,7 @@ import java.time.Instant
 class UmImpor(var um: Int = 0, var bon: Int = 0, var foto: Int = 0, var lewat: Int = 0, var ubah: Int = 0)
 
 /** Data yang kodenya sama dengan yang sudah ada; pengguna memilih "lewati" / "timpa" / "baru". */
-class KonflikDuplikat(val jenis: String, val kode: String, val pt: String, val nama: String, val lama: String, val baru: String)
+class KonflikDuplikat(val jenis: String, val kode: String, val pt: String, val nama: String, val lama: String, val baru: String, val bolehBaru: Boolean = true)
 typealias TanyaDuplikat = suspend (KonflikDuplikat) -> String
 
 /** Ekspor/impor Uang Muka: JSON lengkap (foto tertanam) dan Excel (rekap + rincian bon dengan foto). */

@@ -258,6 +258,7 @@ fun SettingsScreen(vm: MainViewModel) {
         }
     }
 
+    KonflikDialog(vm)
     if (askBackupPass) PasswordDialog("Kata sandi cadangan", "Kosongkan untuk cadangan tanpa kata sandi (tidak disarankan).", confirmLabel = "Lanjut",
         onDismiss = { askBackupPass = false }) { p ->
         pendingPass = p

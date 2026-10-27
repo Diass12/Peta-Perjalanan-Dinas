@@ -235,8 +235,21 @@ class Repository(
     }
 
     /** Mengembalikan jumlah dinas yang dipulihkan. Dinas ber-ID sama akan ditimpa. */
-    suspend fun restoreBackup(input: InputStream, passphrase: CharArray?): Int = withContext(Dispatchers.IO) {
-        val r = BackupCodec.read(input, vault, passphrase)
+    /** Memulihkan cadangan. Data dengan id yang sudah ada ditanyakan lewat [tanya]: "lewati" atau "timpa". Mengembalikan (jumlah dinas dipulihkan, jumlah data dilewati). */
+    suspend fun restoreBackup(input: InputStream, passphrase: CharArray?, tanya: (suspend (id.tub.dinas.um.KonflikDuplikat) -> String)? = null): Pair<Int, Int> = withContext(Dispatchers.IO) {
+        val r0 = BackupCodec.read(input, vault, passphrase)
+        var lewat = 0
+        suspend fun lewati(jenis: String, kode: String, nama: String, pt: String, lama: String, baru: String): Boolean {
+            val t = tanya ?: return false
+            val k = t(id.tub.dinas.um.KonflikDuplikat(jenis, kode, pt, nama, lama, baru, bolehBaru = false))
+            return (k == "lewati").also { if (it) lewat++ }
+        }
+        val snapshots = r0.snapshots.filter { s -> val old = dao.dinasById(s.dinas.id); old == null || !lewati("Dinas", s.dinas.name, "", "", "${dao.titikList(s.dinas.id).size} titik", "${s.titik.size} titik") }
+        val assets = r0.assets.filter { b -> val old = dao.asetById(b.aset.id); old == null || !lewati("Aset", b.aset.code.ifBlank { "(tanpa kode)" }, b.aset.name, b.aset.owner, old.name.ifBlank { "-" }, b.aset.name.ifBlank { "-" }) }
+        val umList = r0.um.filter { b -> val old = dao.umById(b.um.id); old == null || !lewati("Pengajuan uang muka", b.um.nomor, b.um.judul, b.um.pt, "${dao.bonOfUm(b.um.id).size} bon", "${b.bons.size} bon") }
+        val jadwal = r0.jadwal.filter { j -> val old = dao.jadwalById(j.id); old == null || !lewati("Jadwal", j.judul, "", "", old.judul, j.judul) }
+        val dokumen = r0.dokumen.filter { d -> val old = dao.dokumenById(d.id); old == null || !lewati("Dokumen", d.judul, "", "", old.judul, d.judul) }
+        val r = BackupCodec.Restored(snapshots, r0.mediaCount, assets, umList, jadwal, dokumen)
         db.withTransaction {
             for (s in r.snapshots) {
                 val id = s.dinas.id
@@ -258,7 +271,7 @@ class Repository(
             dao.upsertBonAll(r.um.flatMap { u -> u.bons.map { it.bon.toEntity() } })
             dao.upsertBonFotoAll(r.um.flatMap { u -> u.bons.flatMap { b -> b.fotos.map { it.toEntity() } } })
         }
-        r.snapshots.size
+        r.snapshots.size to lewat
     }
 
     /** Menghapus berkas terenkripsi yang tidak dirujuk database (sisa proses yang terhenti). */

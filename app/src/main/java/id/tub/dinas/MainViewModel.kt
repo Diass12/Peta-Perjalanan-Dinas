@@ -150,8 +150,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun restoreBackup(uri: Uri, pass: String) = work {
         val ins = getApplication<Application>().contentResolver.openInputStream(uri) ?: throw IllegalArgumentException("Tidak dapat membuka berkas")
-        val n = ins.use { repo.restoreBackup(it, pass.toCharArray().takeIf { p -> p.isNotEmpty() }) }
-        hasil("Pemulihan selesai", "$n dinas berhasil dipulihkan.")
+        um.mulaiTanya()
+        val (n, lewat) = ins.use { repo.restoreBackup(it, pass.toCharArray().takeIf { p -> p.isNotEmpty() }) { k -> um.tanyaDuplikat(k) } }
+        hasil("Pemulihan selesai", "$n dinas berhasil dipulihkan." + if (lewat > 0) " $lewat data dilewati sesuai pilihan Anda." else "")
     }
 
     override fun onCleared() { tracker.stop() }

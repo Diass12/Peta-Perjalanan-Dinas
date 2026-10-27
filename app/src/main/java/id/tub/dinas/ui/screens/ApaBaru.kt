@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(26, "1.7.16", listOf(
+            FiturBaru("🛡", "Pulihkan cadangan lebih aman & cegah aset dobel", "Saat memulihkan cadangan, data yang sudah ada kini ditanyakan dulu: Lewati atau Timpa (bisa diterapkan ke semua), jadi perubahan terbaru tidak hilang diam-diam. Foto yang mirip dengan aset tanpa kode yang sudah ada juga ditanyakan: tambahkan ke aset itu atau buat aset baru. Pencegahan ini mengenali foto yang sama atau serupa, bukan foto dari sudut berbeda.",
+                listOf("Pengaturan, Cadangan, Pulihkan.", "Aset, tambah dari foto tanpa kode."), Screen.Aset),
+        )),
         RilisInfo(25, "1.7.15", listOf(
             FiturBaru("🏢", "Tambah PT langsung dari pengajuan", "Di form pengajuan uang muka ada tombol Tambah PT / logo, jadi PT baru bisa dibuat tanpa meninggalkan form (isian tidak hilang). Daftar PT di Pengaturan kini lebih menonjol, sedangkan identitas bawaan laporan dilipat karena hanya dipakai bila pengajuan tanpa PT.",
                 listOf("Uang Muka, Pengajuan baru, ketuk Tambah PT / logo."), Screen.UangMuka),

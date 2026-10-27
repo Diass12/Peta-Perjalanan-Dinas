@@ -60,6 +60,7 @@ class UmController(private val vm: MainViewModel) {
         konflik = k to d
         return d.await()
     }
+    fun mulaiTanya() { semuaPilih = null }
     fun jawabKonflik(pilihan: String, semua: Boolean) { if (semua) semuaPilih = pilihan; konflik?.second?.complete(pilihan); konflik = null }
 
     fun pengajuanBaru() {

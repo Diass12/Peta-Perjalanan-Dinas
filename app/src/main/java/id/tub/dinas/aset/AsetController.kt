@@ -204,23 +204,67 @@ class AsetController(private val vm: MainViewModel) {
         } finally { sibuk = null }
     }
 
+    // ---------------- cegah aset tanpa kode dobel ----------------
+
+    /** Foto baru yang mirip dengan foto milik aset tanpa kode yang sudah ada; pengguna memilih "tambah" / "baru" / "lewati". */
+    class MiripFoto(val jpeg: ByteArray, val aset: AsetModel)
+    var miripAsk by mutableStateOf<Pair<MiripFoto, kotlinx.coroutines.CompletableDeferred<String>>?>(null)
+    private var miripSemua: String? = null
+    fun jawabMirip(pilihan: String, semua: Boolean) { if (semua) miripSemua = pilihan; miripAsk?.second?.complete(pilihan); miripAsk = null }
+
+    /** Aset tanpa kode yang fotonya (dHash, jarak Hamming ≤ 8) mirip dengan [jpeg]. Menangkap foto yang sama/serupa yang dipindai lagi. */
+    private suspend fun cariMirip(jpeg: ByteArray): AsetModel? = withContext(Dispatchers.IO) {
+        val h = id.tub.dinas.export.Imaging.dHash(jpeg) ?: return@withContext null
+        for (a in repo.asetList().filter { it.code.isBlank() }) for (f in repo.asetFotoOf(a.id)) {
+            val b = repo.asetFotoBytes(f.path) ?: continue
+            val h2 = id.tub.dinas.export.Imaging.dHash(b) ?: continue
+            if (id.tub.dinas.export.Imaging.hamming(h, h2) <= 8) return@withContext a
+        }
+        null
+    }
+    private suspend fun tanyaMirip(m: MiripFoto): String {
+        miripSemua?.let { return it }
+        val d = kotlinx.coroutines.CompletableDeferred<String>()
+        miripAsk = m to d
+        return d.await()
+    }
+
     /** Buat aset tanpa kode (satu per foto) dari foto yang kodenya tidak terbaca. */
     fun buatTanpaKode(jpegs: List<ByteArray>) = vm.work {
+        miripSemua = null
+        var baru = 0; var tambah = 0; var lewat = 0
         for (j in jpegs) {
-            val a = AsetModel(id = UUID.randomUUID().toString(), sumber = "galeri", barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis()).addLog("dibuat dari foto tanpa kode")
-            repo.saveAset(a); repo.addAsetFoto(a.id, j, System.currentTimeMillis())
+            val mirip = cariMirip(j)
+            val k = if (mirip != null) tanyaMirip(MiripFoto(j, mirip)) else "baru"
+            when (k) {
+                "lewati" -> lewat++
+                "tambah" -> { repo.addAsetFoto(mirip!!.id, j, System.currentTimeMillis()); tambah++ }
+                else -> {
+                    val a = AsetModel(id = UUID.randomUUID().toString(), sumber = "galeri", barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis()).addLog("dibuat dari foto tanpa kode")
+                    repo.saveAset(a); repo.addAsetFoto(a.id, j, System.currentTimeMillis()); baru++
+                }
+            }
         }
         galeriHasil = null
-        vm.toast("${jpegs.size} aset tanpa kode dibuat")
+        vm.toast("$baru aset tanpa kode dibuat" + (if (tambah > 0) ", $tambah foto ditambahkan ke aset yang sudah ada" else "") + (if (lewat > 0) ", $lewat dilewati" else ""))
     }
 
     /** Aset baru tanpa kode dari foto yang kodenya tidak terbaca; langsung membuka formulirnya. */
     fun buatDariFoto(jpeg: ByteArray) = vm.work {
-        val a = AsetModel(id = UUID.randomUUID().toString(), sumber = "scan", barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis()).addLog("dibuat dari foto")
-        repo.saveAset(a)
-        repo.addAsetFoto(a.id, jpeg, System.currentTimeMillis())
-        report = null
-        editing = a.id
+        miripSemua = null
+        val mirip = cariMirip(jpeg)
+        val k = if (mirip != null) tanyaMirip(MiripFoto(jpeg, mirip)) else "baru"
+        when (k) {
+            "lewati" -> { report = null }
+            "tambah" -> { repo.addAsetFoto(mirip!!.id, jpeg, System.currentTimeMillis()); report = null; editing = mirip.id; vm.toast("Foto ditambahkan ke aset yang sudah ada") }
+            else -> {
+                val a = AsetModel(id = UUID.randomUUID().toString(), sumber = "scan", barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis()).addLog("dibuat dari foto")
+                repo.saveAset(a)
+                repo.addAsetFoto(a.id, jpeg, System.currentTimeMillis())
+                report = null
+                editing = a.id
+            }
+        }
     }
 
     fun baru() {

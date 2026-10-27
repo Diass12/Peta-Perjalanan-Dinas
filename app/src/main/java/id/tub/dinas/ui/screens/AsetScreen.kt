@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -120,6 +121,21 @@ fun AsetScreen(vm: MainViewModel) {
 
     c.report?.let { rep -> ScanReportDialog(vm, rep) }
     c.importState?.let { st -> ImportDialog(vm, st) }
+    c.miripAsk?.let { (m, _) ->
+        var semua by remember(m) { mutableStateOf(false) }
+        val bmp = remember(m) { runCatching { android.graphics.BitmapFactory.decodeByteArray(m.jpeg, 0, m.jpeg.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = 4 }) }.getOrNull() }
+        AlertDialog(onDismissRequest = {},
+            title = { Text("Foto mirip aset yang sudah ada") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (bmp != null) androidx.compose.foundation.Image(bmp.asImageBitmap(), "Foto baru", Modifier.height(120.dp))
+                    Text("Foto ini mirip dengan aset tanpa kode \"${m.aset.name.ifBlank { "(tanpa nama)" }}\" (${m.aset.id.take(6)}). Tambahkan sebagai foto aset itu, atau buat aset baru?")
+                    Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(semua, { semua = it }); Text("Terapkan ke semua yang mirip") }
+                }
+            },
+            confirmButton = { TextButton(onClick = { c.jawabMirip("tambah", semua) }) { Text("Tambahkan ke aset itu") } },
+            dismissButton = { Row { TextButton(onClick = { c.jawabMirip("lewati", semua) }) { Text("Lewati") }; TextButton(onClick = { c.jawabMirip("baru", semua) }) { Text("Buat aset baru") } } })
+    }
     c.editing?.let { id -> AsetEditor(vm, id) }
 
     exportFmt?.let { fmt0 ->
