@@ -186,6 +186,29 @@ fun SettingsScreen(vm: MainViewModel) {
                 if (!ho) {
                     Field(kodeLis, { kodeLis = it }, "Kode lisensi Staff HO", singleLine = true)
                     Spacer(Modifier.height(6.dp))
+                    var qrMinta by remember { mutableStateOf(false) }
+                    var qrPindai by remember { mutableStateOf(false) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SoftButton("📲 QR minta lisensi", Modifier.weight(1f)) { qrMinta = true }
+                        SoftButton("📷 Pindai QR lisensi", Modifier.weight(1f)) { qrPindai = true }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    if (qrMinta) AlertDialog(onDismissRequest = { qrMinta = false }, title = { Text("QR minta lisensi") },
+                        text = { Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                            val bmp = remember(idPerangkat) { id.tub.dinas.security.QrKit.bitmap(id.tub.dinas.security.QrKit.PREFIX_MINTA + idPerangkat) }
+                            androidx.compose.foundation.Image(bmp.asImageBitmap(), null, Modifier.size(240.dp))
+                            Text("Perlihatkan QR ini ke aplikasi Pemberi Lisensi, lalu tutup dan pilih “Pindai QR lisensi”.", color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                            Text(idPerangkat, color = C.Muted, style = MaterialTheme.typography.bodyMedium)
+                        } },
+                        confirmButton = { TextButton(onClick = { qrMinta = false }) { Text("Tutup") } })
+                    if (qrPindai) id.tub.dinas.security.QrScanDialog("Arahkan kamera ke QR lisensi", onTutup = { qrPindai = false }, onHasil = { raw ->
+                        qrPindai = false
+                        val kode = if (raw.startsWith(id.tub.dinas.security.QrKit.PREFIX_LISENSI)) raw.removePrefix(id.tub.dinas.security.QrKit.PREFIX_LISENSI) else ""
+                        val r = id.tub.dinas.security.LisensiKode.periksa(kode, idPerangkat, java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(java.util.Date()).toInt())
+                        if (kode.isEmpty()) vm.toast("Itu bukan QR lisensi")
+                        else if (r.ok && r.peran == "HO") { s.licenseCode = kode; id.tub.dinas.security.Lisensi.muat(ctx, kode); vm.toast("Staff HO aktif") }
+                        else vm.toast(if (r.ok) "Kode ini bukan untuk Staff HO" else r.pesan)
+                    })
                     SoftButton("Aktifkan Staff HO", Modifier.fillMaxWidth()) {
                         val r = id.tub.dinas.security.LisensiKode.periksa(kodeLis, idPerangkat, java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(java.util.Date()).toInt())
                         if (r.ok && r.peran == "HO") { s.licenseCode = kodeLis; id.tub.dinas.security.Lisensi.muat(ctx, kodeLis); kodeLis = ""; vm.toast("Staff HO aktif") }

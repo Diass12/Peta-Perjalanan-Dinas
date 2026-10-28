@@ -938,3 +938,12 @@ Foto mirip aset yang sudah ada|Photo similar to an existing asset|照片与已�
 Tambahkan ke aset itu|Add to that asset|添加到该资产|その資産に追加|해당 자산에 추가
 Buat aset baru|Create new asset|新建资产|新しい資産を作成|새 자산 만들기
 Terapkan ke semua yang mirip|Apply to all similar|应用于所有相似项|似たものすべてに適用|비슷한 항목 모두 적용
+QR minta lisensi|License request QR|申请许可证二维码|ライセンス申請QR|라이선스 요청 QR
+📲 QR minta lisensi|📲 License request QR|📲 申请许可证二维码|📲 ライセンス申請QR|📲 라이선스 요청 QR
+📷 Pindai QR lisensi|📷 Scan license QR|📷 扫描许可证二维码|📷 ライセンスQRをスキャン|📷 라이선스 QR 스캔
+Perlihatkan QR ini ke aplikasi Pemberi Lisensi, lalu tutup dan pilih “Pindai QR lisensi”.|Show this QR to the License Issuer app, then close and choose “Scan license QR”.|向许可证签发应用展示此二维码，然后关闭并选择“扫描许可证二维码”。|このQRをライセンス発行アプリに見せ、閉じて「ライセンスQRをスキャン」を選択します。|이 QR을 라이선스 발급 앱에 보여준 뒤 닫고 “라이선스 QR 스캔”을 선택하세요.
+Arahkan kamera ke QR lisensi|Point the camera at the license QR|将相机对准许可证二维码|カメラをライセンスQRに向けてください|카메라를 라이선스 QR에 향하세요
+Itu bukan QR lisensi|That is not a license QR|这不是许可证二维码|これはライセンスQRではありません|라이선스 QR이 아닙니다
+Izin kamera diperlukan untuk memindai QR.|Camera permission is required to scan QR.|扫描二维码需要相机权限。|QRをスキャンするにはカメラ権限が必要です。|QR을 스캔하려면 카메라 권한이 필요합니다.
+Batal|Cancel|取消|キャンセル|취소
+Tutup|Close|关闭|閉じる|닫기
