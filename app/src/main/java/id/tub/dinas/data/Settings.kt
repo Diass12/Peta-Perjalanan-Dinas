@@ -86,6 +86,10 @@ class Settings(ctx: Context) {
     var ptDaftar: List<PtProfil>
         get() = (p.getString("ptDaftar", "") ?: "").lines().mapNotNull { l -> val c = l.split("\t"); if (c.size < 6 || c[0].isBlank()) null else PtProfil(c[0], c[1], c[2], c[3], c[4], c[5]) }
         set(v) { p.edit().putString("ptDaftar", v.joinToString("\n") { listOf(it.nama, it.kota, it.penyiap, it.jabatan, it.pemeriksa, it.logoId).joinToString("\t") { x -> x.replace("\t", " ").replace("\n", " ") } }).apply() }
+    /** Id foto dinas yang sudah dijadikan aset (fitur "Jadikan aset"), supaya tidak diproses dua kali. */
+    var fotoAsetDone: Set<String>
+        get() = (p.getString("fotoAsetDone", "") ?: "").split("\n").filter { it.isNotBlank() }.toSet()
+        set(v) { p.edit().putString("fotoAsetDone", v.joinToString("\n")).apply() }
     /** Waktu (ms) terakhir lisensi terverifikasi online. */
     /** Favorit Panduan Travel: id seperti "k:bali", "w:bali:tanah-lot", "u:bali:ayam-betutu". */
     var panduanFav: Set<String>

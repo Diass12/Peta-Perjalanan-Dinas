@@ -139,6 +139,7 @@ fun PetaTab(vm: MainViewModel, s: DinasSnapshot) {
             }
         }
     }
+    FotoKeAsetDialog(vm)
     delId?.let { id -> Confirm("Hapus titik?", "Titik beserta fotonya dihapus permanen.", onConfirm = { vm.work { vm.repo.deleteTitik(id) } }, onDismiss = { delId = null }) }
     toTemuan?.let { id -> Confirm("Jadikan temuan laporan?", "Titik ini dipindah ke tab Temuan beserta foto dan lokasinya, lalu dihapus dari daftar dokumentasi.", "Pindahkan",
         onConfirm = { vm.work { vm.repo.titikToTemuan(id)?.let { n -> vm.tab = DetailTab.TEMUAN; vm.editor = Editor.Temuan(n, false) } } }, onDismiss = { toTemuan = null }) }
@@ -172,6 +173,7 @@ private fun TitikRow(vm: MainViewModel, s: DinasSnapshot, t: TitikModel, nomor: 
                         Text("⋮", fontSize = 22.sp, color = C.Muted, modifier = Modifier.clickable { menu = true }.padding(horizontal = 8.dp))
                         DropdownMenu(menu, { menu = false }) {
                             DropdownMenuItem({ Text("Jadikan temuan") }, { menu = false; onTemuan() })
+                            if (fotos.isNotEmpty()) DropdownMenuItem({ Text("Jadikan aset (${fotos.size} foto)") }, { menu = false; vm.aset.siapkanDariFoto(fotos, s.dinas.id, { t.title }, { f -> f.caption.trim() }) })
                             t.geo?.let { g -> DropdownMenuItem({ Text("Buka di Maps") }, { menu = false; onMaps(g) }) }
                             DropdownMenuItem({ Text("Hapus", color = C.Danger) }, { menu = false; onDelete() })
                         }

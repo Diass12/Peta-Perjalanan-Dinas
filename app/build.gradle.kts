@@ -20,8 +20,8 @@ android {
         applicationId = "id.tub.dinas"
         minSdk = 26
         targetSdk = 36
-        versionCode = 27
-        versionName = "1.7.17"
+        versionCode = 28
+        versionName = "1.7.18"
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
 

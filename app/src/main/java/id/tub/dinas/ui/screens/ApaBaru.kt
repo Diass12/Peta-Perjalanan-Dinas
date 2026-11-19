@@ -26,6 +26,10 @@ class RilisInfo(val kode: Int, val nama: String, val fitur: List<FiturBaru>)
  */
 object ApaBaru {
     val daftar = listOf(
+        RilisInfo(28, "1.7.18", listOf(
+            FiturBaru("📦", "Jadikan aset dari foto dinas", "Foto di Temuan dan Titik, termasuk dinas lama, bisa dijadikan data Aset. Aplikasi membaca kode pada foto, menempelkan ke aset yang kodenya sama, atau membuat aset baru, dan melewati foto yang sudah ada. Ada pratinjau sebelum disimpan, jadi nama, PT pemilik, dan lokasi bisa diperiksa dulu.",
+                listOf("Dinas, tab Temuan: ketuk ⋮ lalu Jadikan aset, atau tombol Foto → Aset untuk semua foto.", "Tab Peta: ketuk ⋮ pada titik lalu Jadikan aset."), Screen.Aset),
+        )),
         RilisInfo(27, "1.7.17", listOf(
             FiturBaru("📲", "Lisensi lewat QR, tanpa salin kode", "Di Pengaturan ada QR minta lisensi (berisi ID perangkat) dan tombol Pindai QR lisensi. Pemilik memindai QR itu dengan aplikasi terpisah Pemberi Lisensi, lalu staff memindai QR balasan. Lisensi langsung aktif tanpa menyalin kode.",
                 listOf("Pengaturan, Info aplikasi.", "Ketuk QR minta lisensi, lalu Pindai QR lisensi."), Screen.Settings),

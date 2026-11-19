@@ -267,6 +267,30 @@ class AsetController(private val vm: MainViewModel) {
         }
     }
 
+    // ---------------- jadikan aset dari foto dinas ----------------
+    var fotoRencana by mutableStateOf<List<RencanaFoto>?>(null)
+    var fotoOwner by mutableStateOf("")
+    var fotoLokasi by mutableStateOf("")
+
+    /** Menganalisis foto dinas (kode, kecocokan, kembar) lalu menampilkan pratinjau. */
+    fun siapkanDariFoto(fotos: List<FotoModel>, dinasId: String?, lokasiDari: (FotoModel) -> String, namaDari: (FotoModel) -> String) = vm.work {
+        if (fotos.isEmpty()) { vm.toast("Tidak ada foto untuk diproses"); return@work }
+        val r = FotoKeAset.analisis(repo, fotos, vm.settings.fotoAsetDone, lokasiDari, namaDari)
+        fotoOwner = dinasId?.let { d -> repo.umBundles().map { it.um }.firstOrNull { it.dinasId == d && it.pt.isNotBlank() }?.pt }.orEmpty(); fotoLokasi = ""
+        if (r.isEmpty()) vm.toast("Foto tidak dapat dibaca") else fotoRencana = r
+    }
+
+    fun terapkanFoto() {
+        val r = fotoRencana ?: return
+        fotoRencana = null
+        vm.work {
+            val done = vm.settings.fotoAsetDone.toMutableSet()
+            val (b, t, l) = FotoKeAset.terapkan(repo, r, fotoOwner, fotoLokasi, done)
+            vm.settings.fotoAsetDone = done
+            vm.toast("$b aset baru" + (if (t > 0) ", $t foto ditempel ke aset yang ada" else "") + (if (l > 0) ", $l dilewati" else ""))
+        }
+    }
+
     fun baru() {
         val a = AsetModel(id = UUID.randomUUID().toString(), barcode = StatusBarcode.NONASSET, barcodeSrc = SumberBarcode.AUTO, createdAt = System.currentTimeMillis())
         pendingNew = a

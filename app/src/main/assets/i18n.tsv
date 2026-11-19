@@ -947,3 +947,18 @@ Itu bukan QR lisensi|That is not a license QR|这不是许可证二维码|これ
 Izin kamera diperlukan untuk memindai QR.|Camera permission is required to scan QR.|扫描二维码需要相机权限。|QRをスキャンするにはカメラ権限が必要です。|QR을 스캔하려면 카메라 권한이 필요합니다.
 Batal|Cancel|取消|キャンセル|취소
 Tutup|Close|关闭|閉じる|닫기
+
+Jadikan aset|Make asset|转为资产|資産にする|자산으로 만들기
+Jadikan aset (|Make asset (|转为资产（|資産にする（|자산으로 만들기 (
+📦 Foto → Aset|📦 Photos → Assets|📦 照片 → 资产|📦 写真 → 資産|📦 사진 → 자산
+PT pemilik aset baru|Owner company of new assets|新资产所属公司|新規資産の所有会社|새 자산 소유 회사
+Tanpa PT|No company|无公司|会社なし|회사 없음
+Lokasi (kosongkan = ikut keterangan temuan/titik)|Location (blank = from finding/point)|位置（留空=沿用发现/点位）|場所（空欄=指摘/地点から）|위치 (비우면 발견/지점 따름)
+Nama aset|Asset name|资产名称|資産名|자산 이름
+Baru|New|新建|新規|새로
+Tempel|Attach|附加|添付|첨부
+Lewati|Skip|跳过|スキップ|건너뛰기
+Terapkan (|Apply (|应用（|適用（|적용 (
+Tanpa kode|No code|无编码|コードなし|코드 없음
+Tidak ada foto untuk diproses|No photos to process|没有可处理的照片|処理する写真がありません|처리할 사진이 없습니다
+Foto tidak dapat dibaca|Photos cannot be read|无法读取照片|写真を読み取れません|사진을 읽을 수 없습니다

@@ -48,6 +48,7 @@ fun TemuanTab(vm: MainViewModel, s: DinasSnapshot) {
                                 DropdownMenu(menu, { menu = false }) {
                                     if (i > 0) DropdownMenuItem({ Text("Naikkan") }, { menu = false; reorder(vm, s, list.map { it.id }, i, i - 1) })
                                     if (i < list.lastIndex) DropdownMenuItem({ Text("Turunkan") }, { menu = false; reorder(vm, s, list.map { it.id }, i, i + 1) })
+                                    if (fotos.isNotEmpty()) DropdownMenuItem({ Text("Jadikan aset (${fotos.size} foto)") }, { menu = false; vm.aset.siapkanDariFoto(fotos, s.dinas.id, { t.code.ifBlank { t.title } }, { f -> f.caption.trim() }) })
                                     DropdownMenuItem({ Text("Hapus", color = C.Danger) }, { menu = false; delId = t.id })
                                 }
                             }
@@ -70,12 +71,18 @@ fun TemuanTab(vm: MainViewModel, s: DinasSnapshot) {
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().background(C.Surface).navigationBarsPadding().padding(12.dp)) {
-            AmberButton("+ Temuan", Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().background(C.Surface).navigationBarsPadding().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val semuaFoto = s.foto.filter { it.ownerType == OwnerType.TEMUAN }
+            if (semuaFoto.isNotEmpty()) SoftButton("📦 Foto → Aset", Modifier.weight(1f)) {
+                val tm = s.temuan.associateBy { it.id }
+                vm.aset.siapkanDariFoto(semuaFoto.sortedBy { f -> tm[f.ownerId]?.order ?: 0 }, s.dinas.id, { f -> tm[f.ownerId]?.let { it.code.ifBlank { it.title } }.orEmpty() }, { f -> f.caption.trim() })
+            }
+            AmberButton("+ Temuan", Modifier.weight(1f)) {
                 vm.work { val id = vm.repo.newTemuan(s.dinas.id, null); vm.editor = Editor.Temuan(id, true) }
             }
         }
     }
+    FotoKeAsetDialog(vm)
     delId?.let { id -> Confirm("Hapus temuan?", "Temuan, foto, dan PDF lampirannya dihapus permanen.", onConfirm = { vm.work { vm.repo.deleteTemuan(id) } }, onDismiss = { delId = null }) }
 }
 
